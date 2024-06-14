@@ -25,3 +25,12 @@ Embed controls to start and stop moods and elements on your pages that describe 
     Use either mood or element (also visible in the remote control links)
 
 4. Save your note and switch to View Mode to have a play and stop button which will start/stop the selected sound.
+
+## Screenshots
+This is the plugin in-action:
+
+![Edit mode](doc/edit_mode.png "Syrinscape plugin in edit mode")
+
+And how it looks when in reading mode
+
+![Reading mode](doc/read_mode.png "Syrindscape plugin in read mode")
