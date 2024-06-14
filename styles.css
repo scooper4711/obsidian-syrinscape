@@ -1,0 +1,19 @@
+/*
+Style the syrinscape span
+*/
+
+.syrinscape {
+    font-family: emoji;
+}
+
+/* play anchors inside a syrinscape class should replace their text with the text ▶️, with padding to the next icon */
+
+.syrinscape a.play {
+    display: inline-block;
+    padding-right: 0.1em;
+}
+/* anchors with the stop class inside of syrinscape class should replace their text with the stop icon */
+.syrinscape a.stop {
+    display: inline-block;
+    padding-right: 0.1em;
+}
