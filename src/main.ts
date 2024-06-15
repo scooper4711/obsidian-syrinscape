@@ -1,4 +1,6 @@
 import { SyrinscapeSettingsTab } from 'SyrinscapeSettingsTab';
+import SyrinscapeSuggest from 'SyrinscapeSuggest';
+import { MarkdownPostProcessorContext, MarkdownRenderChild, Notice, Plugin } from 'obsidian';
 
 export const SYRINSCAPE_CLASS = 'syrinscape';
 
@@ -20,6 +22,9 @@ export default class SyrinscapePlugin extends Plugin {
     this.addSettingTab(new SyrinscapeSettingsTab(this.app, this));
 
     this.registerMarkdownPostProcessor(this.markdownPostProcessor.bind(this));
+    this.app.workspace.onLayoutReady(() => {
+      this.registerEditorSuggest(new SyrinscapeSuggest(this.app, this))
+    });
 
   }
 
