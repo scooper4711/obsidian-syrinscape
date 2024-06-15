@@ -83,18 +83,22 @@ class SyrinscapeRenderChild extends MarkdownRenderChild {
   }
   async callSyrinscapeApi(cmd: string) {
 
-    const apiUrl = `https://syrinscape.com/online/frontend-api/${this.type}s/${this.soundid}/${cmd}/?auth_token=${this.settings.authToken}`;
+    const apiUrl = `https://syrinscape.com/online/frontend-api/${this.type}s/${this.soundid}/${cmd}/`;
 
     try {
       const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application',
+          'Authorization': `Token ${this.settings.authToken}`
         }
       });
       const data = await response.json();
       console.debug('API response:', data);
-      // Handle the API response here
+      // if the return code isn't 200, display a notice with the detail
+      if (data.detail) {
+        new Notice(data.detail)
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       new Notice('Failed to fetch data from Syrinscape API');
