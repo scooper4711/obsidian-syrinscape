@@ -15,7 +15,9 @@ import type SyrinscapePlugin from "main";
 interface SyrinscapeCompletion {
     id: string,
     type: string,
-    title: string
+    title: string,
+    display: string,
+    query: string
 }
 
 export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletion> {
@@ -30,13 +32,16 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
     }
 
     getSuggestions(context: EditorSuggestContext): SyrinscapeCompletion[] {
-        this.getSuggestionsFromSyrinscape(context)
         console.debug('getSuggestions:', this.syrinscapeSuggestions);
         return this.syrinscapeSuggestions;
     }
 
-    getSuggestionsFromSyrinscape(context: EditorSuggestContext) {
-        let needle = context.query;
+    async getSuggestionsFromSyrinscape(query: string) {
+        if (query.contains('scape:')) {
+            console.debug('query contains scape:');
+        }
+        // get the query from the context and URLEncode it to make it safe for the API
+        let needle = encodeURIComponent(query);
         const searchUrl = `https://syrinscape.com/search/?q=${needle}&pp=10&f=json&kind=Oneshots&kind=Moods&library=Available+to+Play`;
         console.debug('searchUrl:', searchUrl);
         const response = requestUrl({
@@ -47,7 +52,9 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
                 'Authorization': `Token ${this.plugin.settings.authToken}`
             }
         });
-        response.text.then((text: string) => {
+        // await the response and get the text as a string
+        const text = await response.text;
+        try {
             // parse data as json
             const json = JSON.parse(text);
             console.debug('API response:', json);
@@ -61,117 +68,82 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
                     const metaId = result.meta.id.split(':');
                     return {
                         id: result.pk,
+                        query: query,
                         type: metaId[0]==='Mood' ? 'mood' : 'element',
-                        title: `${result.title} (${result.adventure_title})`
+                        title: `${result.title} (${result.adventure_title})`,
+                        display: `${result.meta.highlight.title} (${result.adventure_title})`
                     }
                 });
                 console.debug('suggestions:', this.syrinscapeSuggestions);
             }
-        }).catch((error: any) => {
+        } catch(error: any) {
             this.syrinscapeSuggestions = [];
             console.error('Error fetching data:', error);
             new Notice('Failed to fetch data from Syrinscape API');
-        })
+        }
     }
 
     renderSuggestion(suggestion: SyrinscapeCompletion, el: HTMLElement) {
         console.debug('renderSuggestion suggestion:', suggestion);
-        const suggestionsContainerEl = el.setText(`${suggestion.type}:${suggestion.id}:${suggestion.title}`);
+        const suggestionsContainerEl = el.innerHTML=`${suggestion.type}:${suggestion.id}:${suggestion.display}`;
         // calloutContainerEl.setAttribute('data-callout-manager-callout', callout.label);
         // const { icon, color, label } = callout;
         // new SuggestionPreviewComponent(suggestionsContainerEl, suggestion);
     }
 
     selectSuggestion(suggestion: SyrinscapeCompletion, _evt: MouseEvent | KeyboardEvent): void {
+        console.debug('selectSuggestion:', suggestion);
         const editor = this.context!.editor;
         const selectedText = `${suggestion.type}:${suggestion.id}:${suggestion.title}`
-        // let callout = this.plugin.parseCallout(value.label);
-        // calloutStr = callout.formattedString;
+        console.debug('context:', this.context);
+        console.debug('editor:', editor);
+        console.debug('suggestion.query:', suggestion.query);
+        console.debug('conext.query:', this.context!.query);
 
-        editor.replaceRange(selectedText, editor.getCursor('head'), editor.getCursor('to'));
+        const from: EditorPosition = {ch: editor.getCursor('from').ch - this.context!.query.length, line: editor.getCursor('from').line};
+        editor.replaceRange(selectedText, from, editor.getCursor('to'));
     }
 
-    onTrigger(cursor: EditorPosition, editor: Editor, _file: TFile | null): EditorSuggestTriggerInfo | null {
-        const triggerWord = this.plugin.settings.triggerWord;
-        const startPos = this.context?.start || {
-            line: cursor.line,
-            ch: 1
-        }
-        console.debug('range: ', editor.getRange(startPos, cursor));
-        if (!editor.getRange(startPos, cursor).startsWith(triggerWord + ":")) {
-            return null
-        }
+    findTriggerWordOccurrence(editorLine: string, triggerWord: string, cursor: number): number {
+        // Step 1: Slice the string to only consider text before the cursor index
+        const textBeforeCursor = editorLine.slice(0, cursor);
+    
+        // Step 2: Search for the last occurrence of triggerWord in the sliced string
+        const triggerWordIndex = textBeforeCursor.lastIndexOf(triggerWord);
+    
+        // Step 3: Return the index of the triggerWord occurrence, or -1 if not found
+        return triggerWordIndex;
+    }
 
+    /** 
+     * This method is called on every key press. Returns null as quickly as possible if this class cannot
+     * service the request for code completions (e.g. it doesn't match the trigger word).
+     * If it does, then it should return an EditorSuggestTriggerInfo object with the range of the trigger word and the query.
+     * That EditorSuggestTriggerInfo object will be passed to getSuggestions as an EditorSuggestContext.
+     */
+    onTrigger(cursor: EditorPosition, editor: Editor, _file: TFile | null): EditorSuggestTriggerInfo | null {
+        const triggerWord = `\`${this.plugin.settings.triggerWord}:`;        
+
+        const startOfTriggerWord = this.findTriggerWordOccurrence(editor.getLine(cursor.line), triggerWord, cursor.ch);
+        if (startOfTriggerWord<0) {
+            return null // trigger word not found before the cursor - return null to indicate that this class cannot service the request.
+        }
+        // If triggerWord is found, proceed with creating the trigger info
+        const startPos: EditorPosition = { line: cursor.line, ch: startOfTriggerWord };
+        const query = editor.getLine(cursor.line).slice(startOfTriggerWord + triggerWord.length, cursor.ch);
+
+        console.debug('onTrigger - query:', query);
+        this.getSuggestionsFromSyrinscape(query);
+        startPos.ch = startOfTriggerWord;
         return {
             start: startPos,
             end: cursor,
-            query: editor.getRange(startPos, cursor).substring(triggerWord.length + 1)
+            query: query
         }
     }
 
     open(): void {
         console.debug('open');
         super.open();
-    }
-}
-
-/**
- * A component that displays a preview of a callout.
- */
-export class SuggestionPreviewComponent extends Component {
-
-    public constructor(containerEl: HTMLElement, options: SyrinscapeCompletion) {
-        super();
-        // const { icon, label } = options;
-
-        const frag = document.createDocumentFragment();
-
-        // Build the callout.
-        const suggestionEL = containerEl.createSpan({ cls: ['syrinscape-suggestion'] });
-        suggestionEL.textContent = `syrinscape:${options.type}:${options.id}:${options.title}`;
-
-        // Attach to the container.
-        // SuggestionPreviewComponent.prototype.attachTo.call(this, containerEl);
-    }
-
-    /**
-     * Changes the callout ID.
-     * This will *not* change the appearance of the preview.
-     *
-     * @param id The new ID to use.
-     */
-    public setCalloutID(id: string): typeof this {
-        // const { calloutEl } = this;
-        // calloutEl.setAttribute('data-callout', id);
-        return this;
-    }
-
-    /**
-     * Changes the callout icon.
-     *
-     * @param icon The ID of the new icon to use.
-     */
-    public setIcon(icon: string): typeof this {
-        // const { iconEl } = this;
-
-        // // Clear the icon element and append the SVG.
-        // iconEl.empty();
-        // const iconSvg = getIcon(icon);
-        // if (iconSvg != null) {
-        //     this.iconEl.appendChild(iconSvg);
-        // }
-
-        return this;
-    }
-
-    /**
-     * Attaches the callout preview to a DOM element.
-     * This places it at the end of the element.
-     *
-     * @param containerEl The container to attach to.
-     */
-    public attachTo(containerEl: HTMLElement): typeof this {
-        // containerEl.appendChild(this.calloutEl);
-        return this;
     }
 }
