@@ -1,9 +1,9 @@
 {
   "id": "obsidian-syrinscape",
   "name": "Syrinscape Controller for Obsidian",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A plugin to start/stop Syrinscape sounds",
   "author": "Stephen Cooper",
-  "authorUrl": "https://your.website.com",
+  "authorUrl": "https://github.com/scooper4711/obsidian-syrinscape",
   "isDesktopOnly": false
 }
