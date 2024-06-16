@@ -40,7 +40,7 @@ export default class SyrinscapePlugin extends Plugin {
     codes.forEach(codeBlock => {
       console.debug('codeBlock:', codeBlock.innerText);
       let matchArray: RegExpExecArray | null;
-      while (matchArray = triggerRegEx.exec(codeBlock.innerText)) {        
+      while (matchArray = triggerRegEx.exec(codeBlock.innerText)) {
         context.addChild(new SyrinscapeRenderChild(this.settings, codeBlock, matchArray[1], matchArray[2], matchArray[4]))
       }
     })
@@ -64,26 +64,28 @@ class SyrinscapeRenderChild extends MarkdownRenderChild {
     private type: string,
     private soundid: string,
     private soundTitle: string) {
-      super(element);
-      console.debug('type:', type);
-      console.debug('soundid:', soundid);
-      console.debug('soundTitle:', soundTitle);
+    super(element);
+    console.debug('type:', type);
+    console.debug('soundid:', soundid);
+    console.debug('soundTitle:', soundTitle);
   }
 
   onload(): void {
     const syrinscapeDiv = this.element.createEl("span", { cls: SYRINSCAPE_CLASS });
     // make an anchor with the class play, the text ▶️ and hovertext of "Play ${soundTitle}" if it's set, or just "Play"
 
-    const play = syrinscapeDiv.createEl("a", { cls: "play", text: "▶️", title: this.soundTitle? `Play "${this.soundTitle}"`:"Play" });
+    const play = syrinscapeDiv.createEl("a", { cls: "play", text: "▶️", title: this.soundTitle ? `Play "${this.soundTitle}"` : "Play" });
     play.addEventListener("click", (e) => {
       e.preventDefault();
       this.callSyrinscapeApi("play");
     });
-    const stop = syrinscapeDiv.createEl("a", { cls: "stop", text: "⏹️", title: this.soundTitle? `Stop "${this.soundTitle}"`:"Stop" });
-    stop.addEventListener("click", (e) => {
-      e.preventDefault();
-      this.callSyrinscapeApi("stop");
-    });
+    if (this.type === 'mood') {
+      const stop = syrinscapeDiv.createEl("a", { cls: "stop", text: "⏹️", title: this.soundTitle ? `Stop "${this.soundTitle}"` : "Stop" });
+      stop.addEventListener("click", (e) => {
+        e.preventDefault();
+        this.callSyrinscapeApi("stop");
+      });
+    }
     this.element.replaceWith(syrinscapeDiv);
   }
   async callSyrinscapeApi(cmd: string) {
