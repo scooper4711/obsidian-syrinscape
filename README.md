@@ -6,7 +6,7 @@ Embed controls to start and stop moods and elements on your pages that describe 
 
 ## How to Use
 
-1. Install the Syrinscape module for Obsidian using the Obsidian community plugin manager.
+1. Install the Syrinscape module for Obsidian using the [BRAT (Beta-Review Auto-update Tool) plugin for Obsidian](https://github.com/TfTHacker/obsidian42-brat).
 
 2. Once installed, open the settings and copy your Auth token from https://syrinscape.com/online/cp/. Paste that into the setting for Auth Token.
 
