@@ -29,9 +29,13 @@ Embed controls to start and stop moods and elements on your pages that describe 
 
 ### Put a link to the mood for every scene at the top of the page for the scene, and never forget to start the Syrinscape mood for that room again!
 
+Note that **Moods** get a play and a stop button.
+
 ![Scene mood](doc/scene_mood.png "Setting the mood for a scene")
 
 ### The plugin works very well inside of [Fantasy Statblocks](https://github.com/javalent/fantasy-statblocks)
+
+Note that **Oneshots** only get a play button.
 
 ![Fantasy Statblocks integration](doc/fantasy_statblock.png "Integration with Fantasy Statblocks")
 
