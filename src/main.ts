@@ -65,9 +65,6 @@ class SyrinscapeRenderChild extends MarkdownRenderChild {
     private soundid: string,
     private soundTitle: string) {
     super(element);
-    console.debug('type:', type);
-    console.debug('soundid:', soundid);
-    console.debug('soundTitle:', soundTitle);
   }
 
   onload(): void {

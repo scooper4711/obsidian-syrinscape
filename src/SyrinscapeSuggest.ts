@@ -37,9 +37,6 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
     }
 
     async getSuggestionsFromSyrinscape(query: string) {
-        if (query.contains('scape:')) {
-            console.debug('query contains scape:');
-        }
         // get the query from the context and URLEncode it to make it safe for the API
         let needle = encodeURIComponent(query);
         const searchUrl = `https://syrinscape.com/search/?q=${needle}&pp=10&f=json&kind=Oneshots&kind=Moods&library=Available+to+Play`;
@@ -70,8 +67,8 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
                         id: result.pk,
                         query: query,
                         type: metaId[0]==='Mood' ? 'mood' : 'element',
-                        title: `${result.title} (${result.adventure_title})`,
-                        display: `${result.meta.highlight.title} (${result.adventure_title})`
+                        title: `${result.title} (${result.adventure_title?result.adventure_title:result.chapter_title})`,
+                        display: `${result.meta.highlight.title?result.meta.highlight.title:result.title} (${result.adventure_title?result.adventure_title:result.chapter_title})`
                     }
                 });
                 console.debug('suggestions:', this.syrinscapeSuggestions);
@@ -84,21 +81,13 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
     }
 
     renderSuggestion(suggestion: SyrinscapeCompletion, el: HTMLElement) {
-        console.debug('renderSuggestion suggestion:', suggestion);
         const suggestionsContainerEl = el.innerHTML=`${suggestion.type}:${suggestion.id}:${suggestion.display}`;
-        // calloutContainerEl.setAttribute('data-callout-manager-callout', callout.label);
-        // const { icon, color, label } = callout;
-        // new SuggestionPreviewComponent(suggestionsContainerEl, suggestion);
     }
 
     selectSuggestion(suggestion: SyrinscapeCompletion, _evt: MouseEvent | KeyboardEvent): void {
         console.debug('selectSuggestion:', suggestion);
         const editor = this.context!.editor;
         const selectedText = `${suggestion.type}:${suggestion.id}:${suggestion.title}`
-        console.debug('context:', this.context);
-        console.debug('editor:', editor);
-        console.debug('suggestion.query:', suggestion.query);
-        console.debug('conext.query:', this.context!.query);
 
         const from: EditorPosition = {ch: editor.getCursor('from').ch - this.context!.query.length, line: editor.getCursor('from').line};
         editor.replaceRange(selectedText, from, editor.getCursor('to'));
@@ -140,10 +129,5 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
             end: cursor,
             query: query
         }
-    }
-
-    open(): void {
-        console.debug('open');
-        super.open();
     }
 }
