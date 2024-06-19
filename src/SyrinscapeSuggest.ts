@@ -1,29 +1,27 @@
 import {
     App,
-    Notice,
-    Component,
     Editor,
     EditorPosition,
     EditorSuggest,
     EditorSuggestContext,
     EditorSuggestTriggerInfo,
-    requestUrl,
     TFile
 } from "obsidian"
+import Papa from 'papaparse';
 import type SyrinscapePlugin from "main";
 
 interface SyrinscapeCompletion {
     id: string,
     type: string,
     title: string,
-    display: string,
-    query: string
 }
 
 export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletion> {
     app: App;
     private plugin: SyrinscapePlugin;
-    private syrinscapeSuggestions: SyrinscapeCompletion[];
+    // Map of title to Syrinscape Completion objects
+    private remoteLinks: Map<string, SyrinscapeCompletion> = new Map();
+    
 
     constructor(app: App, plugin: SyrinscapePlugin) {
         super(app);
@@ -32,56 +30,44 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
     }
 
     getSuggestions(context: EditorSuggestContext): SyrinscapeCompletion[] {
-        console.debug('getSuggestions:', this.syrinscapeSuggestions);
-        return this.syrinscapeSuggestions;
+        const query = context.query.toLowerCase();
+        const hits: SyrinscapeCompletion[]  = [];
+        // find all remoteLinks where the query is contained in the key
+        for (const [key, value] of this.remoteLinks.entries()) {
+            if (key.includes(query)) {
+                hits.push(value);
+            }
+        }            
+
+        return hits;
+
     }
 
-    async getSuggestionsFromSyrinscape(query: string) {
-        // get the query from the context and URLEncode it to make it safe for the API
-        let needle = encodeURIComponent(query);
-        const searchUrl = `https://syrinscape.com/search/?q=${needle}&pp=10&f=json&kind=Oneshots&kind=Moods&library=Available+to+Play`;
-        console.debug('searchUrl:', searchUrl);
-        const response = requestUrl({
-            url: searchUrl,
-            method: 'GET',
-            contentType: 'application',
-            headers: {
-                'Authorization': `Token ${this.plugin.settings.authToken}`
+    parseRemoteLinks(csvContent: string): void {
+        //parse csvContent as a CSV where the first row contains the column names.
+        Papa.parse(csvContent, {
+            header: true,
+            complete: (results: PapaParseResult) => {
+                this.remoteLinks.clear(); // Clear existing entries in the map
+                for (const row of results.data) {
+                    const soundTitle = `${row.name} (${row.soundset})`;
+                    const completion: SyrinscapeCompletion = {
+                        id: row.id.substring(2), //remove the e|m and colon characters.
+                        type: row.type, // either mood or element
+                        title: soundTitle, // Use the concatenated sound title for display
+                    };
+                    this.remoteLinks.set(soundTitle.toLowerCase(), completion);
+                }
+                console.log("Completed download of CSV file of remote links")
+            },
+            error: (error: any) => {
+                console.error('Error parsing CSV:', error);
             }
         });
-        // await the response and get the text as a string
-        const text = await response.text;
-        try {
-            // parse data as json
-            const json = JSON.parse(text);
-            console.debug('API response:', json);
-            // if the return code isn't 200, display a notice with the detail
-            if (json.detail) {
-                new Notice(json.detail)
-            } else {
-                // convert the data returned in data.results to a list of SyrinscapeCompletion objects where id is the field pk, and type is the field meta.id
-                // and title is the field title
-                this.syrinscapeSuggestions = json.results.map((result: any) => {
-                    const metaId = result.meta.id.split(':');
-                    return {
-                        id: result.pk,
-                        query: query,
-                        type: metaId[0]==='Mood' ? 'mood' : 'element',
-                        title: `${result.title} (${result.adventure_title?result.adventure_title:result.chapter_title})`,
-                        display: `${result.meta.highlight.title?result.meta.highlight.title:result.title} (${result.adventure_title?result.adventure_title:result.chapter_title})`
-                    }
-                });
-                console.debug('suggestions:', this.syrinscapeSuggestions);
-            }
-        } catch(error: any) {
-            this.syrinscapeSuggestions = [];
-            console.error('Error fetching data:', error);
-            new Notice('Failed to fetch data from Syrinscape API');
-        }
     }
-
+    
     renderSuggestion(suggestion: SyrinscapeCompletion, el: HTMLElement) {
-        const suggestionsContainerEl = el.innerHTML=`${suggestion.type}:${suggestion.id}:${suggestion.display}`;
+        const suggestionsContainerEl = el.innerHTML=`${suggestion.type}:${suggestion.id}:${suggestion.title}`;
     }
 
     selectSuggestion(suggestion: SyrinscapeCompletion, _evt: MouseEvent | KeyboardEvent): void {
@@ -121,8 +107,6 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
         const startPos: EditorPosition = { line: cursor.line, ch: startOfTriggerWord };
         const query = editor.getLine(cursor.line).slice(startOfTriggerWord + triggerWord.length, cursor.ch);
 
-        console.debug('onTrigger - query:', query);
-        this.getSuggestionsFromSyrinscape(query);
         startPos.ch = startOfTriggerWord;
         return {
             start: startPos,
@@ -130,4 +114,31 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
             query: query
         }
     }
+}
+
+interface SyrinscapeRemoteLink {
+    id: string;
+    status: string;
+    subcategory: string;
+    product_or_pack: string;
+    soundset: string;
+    name: string;
+    type: string;
+    sub_type: string;
+    genre_players_play_url: string;
+    genre_players_stop_url: string;
+    online_player_play_url: string;
+    online_player_stop_url: string;
+}
+
+type PapaParseResult = {
+    data: Array<SyrinscapeRemoteLink>;
+    errors: Array<any>;
+    meta: {
+        delimiter: string;
+        linebreak: string;
+        aborted: boolean;
+        fields: Array<string>;
+        truncated: boolean;
+    };
 }

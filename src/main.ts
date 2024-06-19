@@ -1,6 +1,6 @@
 import { SyrinscapeSettingsTab } from 'SyrinscapeSettingsTab';
 import SyrinscapeSuggest from 'SyrinscapeSuggest';
-import { MarkdownPostProcessorContext, MarkdownRenderChild, Notice, Plugin } from 'obsidian';
+import { MarkdownPostProcessorContext, MarkdownRenderChild, Notice, Plugin, requestUrl} from 'obsidian';
 
 export const SYRINSCAPE_CLASS = 'syrinscape';
 
@@ -17,13 +17,17 @@ const DEFAULT_SETTINGS: SyrinscapeSettings = {
 export default class SyrinscapePlugin extends Plugin {
   settings: SyrinscapeSettings;
 
+  private editorSuggest: SyrinscapeSuggest | null;
+
   async onload() {
     await this.loadSettings();
     this.addSettingTab(new SyrinscapeSettingsTab(this.app, this));
 
     this.registerMarkdownPostProcessor(this.markdownPostProcessor.bind(this));
     this.app.workspace.onLayoutReady(() => {
-      this.registerEditorSuggest(new SyrinscapeSuggest(this.app, this))
+      this.editorSuggest = new SyrinscapeSuggest(this.app, this);
+      this.registerEditorSuggest(this.editorSuggest);
+      this.fetchRemoteLinks();
     });
 
   }
@@ -54,6 +58,31 @@ export default class SyrinscapePlugin extends Plugin {
   async saveSettings() {
     await this.saveData(this.settings);
   }
+
+  async fetchRemoteLinks(): Promise<void> {
+    if (this.editorSuggest === null) {
+      console.error("System not initialized properly");
+      return;
+    }
+    console.log("Downloading CSV file of remote links.");
+    try {
+      const response = await requestUrl({
+        url: 'https://syrinscape.com/account/remote-control-links-csv/',
+        method: 'GET',
+        contentType: 'application',
+        headers: {
+            'Authorization': `Token ${this.settings.authToken}`
+        }
+      });
+    
+      const csvContent = response.text;
+      this.editorSuggest.parseRemoteLinks(csvContent);
+    } catch (error) {
+      console.error('Failed to fetch remote links:', error);
+      new Notice('Failed to fetch Syrinscape remote links.');
+    }
+  }
+  
 }
 
 class SyrinscapeRenderChild extends MarkdownRenderChild {
