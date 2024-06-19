@@ -1,7 +1,7 @@
 {
     "name": "obsidian-syrinscape-plugin",
-    "version": "1.0.0",
-    "description": "A plugin for Obsidian to control Syrinscape sounds.",
+    "version": "0.1.1",
+    "description": "Control Syrinscape Online Player from inside of Obsidian notes.",
     "main": "main.js",
     "scripts": {
         "dev": "node esbuild.config.mjs",
