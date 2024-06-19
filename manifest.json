@@ -2,9 +2,9 @@
   "id": "syrinscape-player-control",
   "name": "Syrinscape Online Player",
   "version": "1.0.4",
-  "description": "Control Syrinscape Online Player from inside of Obsidian notes.",
+  "description": "Control Syrinscape Online Player from inside of notes.",
   "author": "Stephen Cooper",
-  "authorUrl": "https://github.com/scooper4711/obsidian-syrinscape",
+  "authorUrl": "https://github.com/scooper4711",
   "isDesktopOnly": false,
   "minAppVersion": "1.5.3"
 }

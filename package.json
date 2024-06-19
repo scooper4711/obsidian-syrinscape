@@ -1,7 +1,7 @@
 {
   "name": "syrinscape-player-control",
   "version": "1.0.4",
-  "description": "Control Syrinscape Online Player from inside of Obsidian notes.",
+  "description": "Control Syrinscape Online Player from inside of notes.",
   "main": "main.js",
   "scripts": {
     "dev": "node esbuild.config.mjs",
