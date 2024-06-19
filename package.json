@@ -1,5 +1,5 @@
 {
-  "name": "obsidian-syrinscape-plugin",
+  "name": "syrinscape-player-control",
   "version": "1.0.3",
   "description": "Control Syrinscape Online Player from inside of Obsidian notes.",
   "main": "main.js",
