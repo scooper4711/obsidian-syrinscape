@@ -29,7 +29,7 @@ export default class SyrinscapePlugin extends Plugin {
       this.registerEditorSuggest(this.editorSuggest);
       this.fetchRemoteLinks();
     });
-
+    console.log("Syrinscape loaded");
   }
 
   async markdownPostProcessor(element: HTMLElement, context: MarkdownPostProcessorContext): Promise<any> {
@@ -61,10 +61,10 @@ export default class SyrinscapePlugin extends Plugin {
 
   async fetchRemoteLinks(): Promise<void> {
     if (this.editorSuggest === null) {
-      console.error("System not initialized properly");
+      console.error("Syrinscape - System not initialized properly");
       return;
     }
-    console.log("Downloading CSV file of remote links.");
+    console.log("Syrinscape - Downloading CSV file of remote links.");
     try {
       const response = await requestUrl({
         url: 'https://syrinscape.com/account/remote-control-links-csv/',
@@ -78,7 +78,7 @@ export default class SyrinscapePlugin extends Plugin {
       const csvContent = response.text;
       this.editorSuggest.parseRemoteLinks(csvContent);
     } catch (error) {
-      console.error('Failed to fetch remote links:', error);
+      console.error('Syrinscape - Failed to fetch remote links:', error);
       new Notice('Failed to fetch Syrinscape remote links.');
     }
   }
@@ -127,13 +127,13 @@ class SyrinscapeRenderChild extends MarkdownRenderChild {
         }
       });
       const data = await response.json();
-      console.debug('API response:', data);
+      console.debug('Syrinscape - API response:', data);
       // if the return code isn't 200, display a notice with the detail
       if (data.detail) {
         new Notice(data.detail)
       }
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Syrinscape - Error fetching data:', error);
       new Notice('Failed to fetch data from Syrinscape API');
     }
   }

@@ -58,10 +58,11 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
                     };
                     this.remoteLinks.set(soundTitle.toLowerCase(), completion);
                 }
-                console.log("Completed download of CSV file of remote links")
+                console.log(`Syrinscape - Completed download of CSV file of ${this.remoteLinks.size} remote links`)
+                new Notification("Completed download of Syrinscape remote links")
             },
             error: (error: any) => {
-                console.error('Error parsing CSV:', error);
+                console.error('Syrinscape - Error parsing CSV:', error);
             }
         });
     }
@@ -71,7 +72,7 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
     }
 
     selectSuggestion(suggestion: SyrinscapeCompletion, _evt: MouseEvent | KeyboardEvent): void {
-        console.debug('selectSuggestion:', suggestion);
+        console.debug('Syrinscape - selectSuggestion:', suggestion);
         const editor = this.context!.editor;
         const selectedText = `${suggestion.type}:${suggestion.id}:${suggestion.title}`
 
