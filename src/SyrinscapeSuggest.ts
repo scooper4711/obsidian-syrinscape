@@ -7,7 +7,7 @@ import {
     EditorSuggestTriggerInfo,
     TFile
 } from "obsidian"
-import Papa from 'papaparse';
+import * as Papa from 'papaparse';
 import type SyrinscapePlugin from "main";
 
 interface SyrinscapeCompletion {
@@ -45,11 +45,11 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
 
     parseRemoteLinks(csvContent: string): void {
         //parse csvContent as a CSV where the first row contains the column names.
-        Papa.parse(csvContent, {
+        Papa.parse(csvContent as any, {
             header: true,
-            complete: (results: PapaParseResult) => {
+            complete: (results) => {
                 this.remoteLinks.clear(); // Clear existing entries in the map
-                for (const row of results.data) {
+                for (const row of results.data as SyrinscapeRemoteLink[]) {
                     const soundTitle = `${row.name} (${row.soundset})`;
                     const completion: SyrinscapeCompletion = {
                         id: row.id.substring(2), //remove the e|m and colon characters.
@@ -129,16 +129,4 @@ interface SyrinscapeRemoteLink {
     genre_players_stop_url: string;
     online_player_play_url: string;
     online_player_stop_url: string;
-}
-
-type PapaParseResult = {
-    data: Array<SyrinscapeRemoteLink>;
-    errors: Array<any>;
-    meta: {
-        delimiter: string;
-        linebreak: string;
-        aborted: boolean;
-        fields: Array<string>;
-        truncated: boolean;
-    };
 }
