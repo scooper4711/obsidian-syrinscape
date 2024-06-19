@@ -1,8 +1,8 @@
 {
   "id": "obsidian-syrinscape",
   "name": "Syrinscape Controller for Obsidian",
-  "version": "0.1.1",
-  "description": "A plugin to start/stop Syrinscape sounds",
+  "version": "1.0.1",
+  "description": "Control Syrinscape Online Player from inside of Obsidian notes.",
   "author": "Stephen Cooper",
   "authorUrl": "https://github.com/scooper4711/obsidian-syrinscape",
   "isDesktopOnly": false
