@@ -20,8 +20,8 @@ Embed controls to start and stop moods and elements on your pages that describe 
     `syrinscape:element:soundId:optional mouseover text`
     ```
 
-4. While you can edit this yourself, the code completion feature is how you will generally interact with Syrinscape when editing.
-    ![Code completion](doc/code_completion.png "Code completion feature")
+4. The plugin has downloaded a list of all the sounds you have access to, and so the auto-complete feature will make entering the codes easy for you.
+    ![Autocompletion](doc/autocomplete.png "Autocompletion feature")
     
 5. Save your note and switch to View Mode to have a play and stop button which will start/stop the selected sound.
 
