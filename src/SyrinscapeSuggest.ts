@@ -68,7 +68,7 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
     }
     
     renderSuggestion(suggestion: SyrinscapeCompletion, el: HTMLElement) {
-        const suggestionsContainerEl = el.innerHTML=`${suggestion.type}:${suggestion.id}:${suggestion.title}`;
+        const suggestionsContainerEl = el.createSpan({cls: "syrinscape-suggestion", text: `${suggestion.type}:${suggestion.id}:${suggestion.title}`});
     }
 
     selectSuggestion(suggestion: SyrinscapeCompletion, _evt: MouseEvent | KeyboardEvent): void {
