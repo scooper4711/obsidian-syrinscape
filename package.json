@@ -1,6 +1,6 @@
 {
   "name": "syrinscape-player-control",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Control Syrinscape Online Player from inside of notes.",
   "main": "main.js",
   "scripts": {
