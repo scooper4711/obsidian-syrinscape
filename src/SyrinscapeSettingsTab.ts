@@ -16,9 +16,14 @@ export class SyrinscapeSettingsTab extends PluginSettingTab {
 
     containerEl.createEl('h2', { text: 'Syrinscape Plugin Settings' });
 
+    // create an anchor link to the Syrinscape control panel
+    const desc:DocumentFragment=new DocumentFragment();
+    desc.appendText("Enter your Syrinscape Auth token here. You can find it in your ")
+    desc.append(desc.createEl('a', {"href": "https://syrinscape.com/online/cp/", text: "Syrinscape control panel."}))
+
     new Setting(containerEl)
       .setName('Auth Token')
-      .setDesc('Enter your Syrinscape Auth token. You can find it in your Syrinscape control panel.')
+      .setDesc(desc)
       .addText(text => text
         .setPlaceholder('Paste your Syrinscape Auth token here')
         .setValue(this.plugin.settings.authToken)
