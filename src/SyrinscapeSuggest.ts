@@ -5,6 +5,7 @@ import {
     EditorSuggest,
     EditorSuggestContext,
     EditorSuggestTriggerInfo,
+    Notice,
     TFile
 } from "obsidian"
 import * as Papa from 'papaparse';
@@ -59,7 +60,7 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
                     this.remoteLinks.set(soundTitle.toLowerCase(), completion);
                 }
                 console.log(`Syrinscape - Completed download of CSV file of ${this.remoteLinks.size} remote links`)
-                new Notification("Completed download of Syrinscape remote links")
+                new Notice("Completed download of Syrinscape remote links")
             },
             error: (error: any) => {
                 console.error('Syrinscape - Error parsing CSV:', error);
