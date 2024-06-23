@@ -9,6 +9,7 @@ interface SyrinscapeSettings {
   triggerWord: string;
   csvContent: string;
   lastUpdated: Date|null;
+  maxCacheAge: number;
 };
 
 export const DEFAULT_SETTINGS: SyrinscapeSettings = {
@@ -16,6 +17,7 @@ export const DEFAULT_SETTINGS: SyrinscapeSettings = {
   triggerWord: 'syrinscape',
   csvContent: '',
   lastUpdated: null,
+  maxCacheAge: 7
 };
 
 export default class SyrinscapePlugin extends Plugin {
@@ -52,13 +54,15 @@ export default class SyrinscapePlugin extends Plugin {
   // if the lastUpdated is more than 1 day ago, fetch the remote links
   async checkForExpiredData() {
     console.debug('Syrinscape - lastUpdated:', this.settings.lastUpdated);
-    console.debug('Syrinscape - now:', new Date());
     if (this.settings.lastUpdated) {
       const now = new Date();
       const diff = now.getTime() - this.settings.lastUpdated.getTime();
-      if (diff > 86400000) {
-        console.log("Syrinscape - Last updated more than 1 day ago. Clearing cache");
+      const diffDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+      if (diffDays > this.settings.maxCacheAge) {
+        console.log(`Syrinscape - Last updated ${diffDays} day(s) ago, more than ${this.settings.maxCacheAge}. Clearing cache`);
         this.clearCache();
+      } else {
+        console.log(`Syrinscape - Last updated ${diffDays} day(s) ago. Cache is still valid`);
       }
     }
   }

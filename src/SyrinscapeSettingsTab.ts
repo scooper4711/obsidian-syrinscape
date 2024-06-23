@@ -32,7 +32,21 @@ export class SyrinscapeSettingsTab extends PluginSettingTab {
           this.plugin.settings.authToken = value;
           await this.plugin.saveData(this.plugin.settings);
         }));
+    
+    // Number setting for the maximum cache age, in days
+    new Setting(containerEl)
+      .setName('Cache Age')
+      .setDesc(`Enter the maximum age of the cache in days. Default is ${DEFAULT_SETTINGS.maxCacheAge.toString()} days.`)
+      .addText(text => text
+        .setPlaceholder(DEFAULT_SETTINGS.maxCacheAge.toString())
+        .setValue(this.plugin.settings.maxCacheAge.toString())
+        .onChange(async (value) => {
+          this.plugin.settings.maxCacheAge = parseInt(value);
+          await this.plugin.saveData(this.plugin.settings);
+        }));
 
+
+    // String setting for the trigger word, e.g. `syrinscape` or `sscape`
     new Setting(containerEl)
       .setName('Trigger Word')
       .setDesc('Enter the word that the Syrinscape player plugin will look for. Default is "syrinscape"')
