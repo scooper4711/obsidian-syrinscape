@@ -33,16 +33,32 @@ Note that **Moods** get a play and a stop button.
 
 ![Scene mood](doc/scene_mood.png "Setting the mood for a scene")
 
+--- 
+
 ### The plugin works very well inside of [Fantasy Statblocks](https://github.com/javalent/fantasy-statblocks)
 
 Note that **Oneshots** only get a play button.
 
 ![Fantasy Statblocks integration](doc/fantasy_statblock.png "Integration with Fantasy Statblocks")
 
+---
+
 ### And it also works when with [Initiative Tracker](https://github.com/javalent/initiative-tracker) so you have easy access for spell or melee oneshots during combat.
 
+Edit the spell descriptions to include a link to the corresponding one-shot and now anytime a creature has access to that spell, you have easy access to the sound effect during battle!
+
 ![Initiative Tracker integration](doc/initiative_tracker.png "Integration with Initiative Tracker")
+
+--- 
+
+## Soundboard
+
+With Obsidian and Syrinscape, you now have complete control over your soundboard. Make a note, e.g. `Soundboard.md` that contains any syrinscape sounds you want. Use any formatting and grouping you want. Once you have that in place, you can drag the note up to the Ribbon - the same location as e.g. the default `Files`, `Search`, and `Bookmarks`. Once there, you have one-click access to your soundboard.
+
+![Soundboard](doc/Soundboard.png "Illustration of how to create a one-click soundboard")
 
 ## Settings
 
 This plugin will only download your remote links once a day. If you are e.g. creating your own soundsets and want the plugin to get a fresh set of links, you can open the settings and press the button labeled "Clear Remote Links".
+
+![Settings](doc/Settings.png "Settings screenshot")
