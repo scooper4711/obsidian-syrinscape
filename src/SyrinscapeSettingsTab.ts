@@ -1,5 +1,6 @@
 import { App, ButtonComponent, PluginSettingTab, Setting } from 'obsidian';
 import SyrinscapePlugin from 'main';
+import { DEFAULT_SETTINGS } from 'main';
 
 export class SyrinscapeSettingsTab extends PluginSettingTab {
   plugin: SyrinscapePlugin;
@@ -25,7 +26,7 @@ export class SyrinscapeSettingsTab extends PluginSettingTab {
       .setName('Auth Token')
       .setDesc(desc)
       .addText(text => text
-        .setPlaceholder('Paste your Syrinscape Auth token here')
+        .setPlaceholder(DEFAULT_SETTINGS.authToken)
         .setValue(this.plugin.settings.authToken)
         .onChange(async (value) => {
           this.plugin.settings.authToken = value;
@@ -36,7 +37,7 @@ export class SyrinscapeSettingsTab extends PluginSettingTab {
       .setName('Trigger Word')
       .setDesc('Enter the word that the Syrinscape player plugin will look for. Default is "syrinscape"')
       .addText(text => text
-        .setPlaceholder('syrinscape')
+        .setPlaceholder(DEFAULT_SETTINGS.triggerWord)
         .setValue(this.plugin.settings.triggerWord)
         .onChange(async (value) => {
           this.plugin.settings.triggerWord = value;

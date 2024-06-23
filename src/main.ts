@@ -11,7 +11,7 @@ interface SyrinscapeSettings {
   lastUpdated: Date|null;
 };
 
-const DEFAULT_SETTINGS: SyrinscapeSettings = {
+export const DEFAULT_SETTINGS: SyrinscapeSettings = {
   authToken: 'insert-your-auth-token-here',
   triggerWord: 'syrinscape',
   csvContent: '',
