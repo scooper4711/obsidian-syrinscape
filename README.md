@@ -45,4 +45,4 @@ Note that **Oneshots** only get a play button.
 
 ## Settings
 
-This plugin will only download your remote links once a day. If you are e.g. creating your own soundsets and want the plugin to get a frest set of links, you can open the settings and press the button labeled "Clear Remote Links".
+This plugin will only download your remote links once a day. If you are e.g. creating your own soundsets and want the plugin to get a fresh set of links, you can open the settings and press the button labeled "Clear Remote Links".
