@@ -1,18 +1,22 @@
 import { SyrinscapeSettingsTab } from 'SyrinscapeSettingsTab';
 import SyrinscapeSuggest from 'SyrinscapeSuggest';
-import { MarkdownPostProcessorContext, MarkdownRenderChild, Notice, Plugin, requestUrl} from 'obsidian';
+import { MarkdownPostProcessorContext, MarkdownRenderChild, Notice, Plugin, requestUrl, MetadataCache} from 'obsidian';
 
 export const SYRINSCAPE_CLASS = 'syrinscape';
 
 interface SyrinscapeSettings {
   authToken: string;
   triggerWord: string;
+  csvContent: string;
+  lastUpdated: Date|null;
 };
 
 const DEFAULT_SETTINGS: SyrinscapeSettings = {
   authToken: 'insert-your-auth-token-here',
-  triggerWord: 'syrinscape'
-}
+  triggerWord: 'syrinscape',
+  csvContent: '',
+  lastUpdated: null,
+};
 
 export default class SyrinscapePlugin extends Plugin {
   settings: SyrinscapeSettings;
@@ -24,13 +28,41 @@ export default class SyrinscapePlugin extends Plugin {
     this.addSettingTab(new SyrinscapeSettingsTab(this.app, this));
 
     this.registerMarkdownPostProcessor(this.markdownPostProcessor.bind(this));
+    await this.checkForExpiredData()
     this.app.workspace.onLayoutReady(() => {
       this.editorSuggest = new SyrinscapeSuggest(this.app, this);
       this.registerEditorSuggest(this.editorSuggest);
       this.fetchRemoteLinks();
+      console.log("Syrinscape loaded");
     });
-    console.log("Syrinscape loaded");
   }
+
+  // download the remote links from syrinscape
+  async fetchRemoteLinks() {
+    await this.editorSuggest?.fetchRemoteLinks();
+  }
+
+  // clear the cache
+  clearCache() {
+    this.settings.csvContent = '';
+    this.settings.lastUpdated = null;
+    this.saveSettings();
+  }
+
+  // if the lastUpdated is more than 1 day ago, fetch the remote links
+  async checkForExpiredData() {
+    console.debug('Syrinscape - lastUpdated:', this.settings.lastUpdated);
+    console.debug('Syrinscape - now:', new Date());
+    if (this.settings.lastUpdated) {
+      const now = new Date();
+      const diff = now.getTime() - this.settings.lastUpdated.getTime();
+      if (diff > 86400000) {
+        console.log("Syrinscape - Last updated more than 1 day ago. Clearing cache");
+        this.clearCache();
+      }
+    }
+  }
+
 
   async markdownPostProcessor(element: HTMLElement, context: MarkdownPostProcessorContext): Promise<any> {
     let codes = element.querySelectorAll('code');
@@ -53,38 +85,14 @@ export default class SyrinscapePlugin extends Plugin {
 
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    this.settings.lastUpdated = this.settings.lastUpdated ? new Date(this.settings.lastUpdated) : null;
   }
 
   async saveSettings() {
     await this.saveData(this.settings);
   }
 
-  async fetchRemoteLinks(): Promise<void> {
-    if (this.editorSuggest === null) {
-      console.error("Syrinscape - System not initialized properly");
-      return;
-    }
-    console.log("Syrinscape - Downloading CSV file of remote links.");
-    try {
-      const response = await requestUrl({
-        url: 'https://syrinscape.com/account/remote-control-links-csv/',
-        method: 'GET',
-        contentType: 'application',
-        headers: {
-            'Authorization': `Token ${this.settings.authToken}`
-        }
-      });
-    
-      const csvContent = response.text;
-      this.editorSuggest.parseRemoteLinks(csvContent);
-    } catch (error) {
-      console.error('Syrinscape - Failed to fetch remote links:', error);
-      new Notice('Failed to fetch Syrinscape remote links.');
-    }
-  }
-  
 }
-
 class SyrinscapeRenderChild extends MarkdownRenderChild {
 
   constructor(

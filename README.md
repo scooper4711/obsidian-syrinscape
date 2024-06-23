@@ -42,3 +42,7 @@ Note that **Oneshots** only get a play button.
 ### And it also works when with [Initiative Tracker](https://github.com/javalent/initiative-tracker) so you have easy access for spell or melee oneshots during combat.
 
 ![Initiative Tracker integration](doc/initiative_tracker.png "Integration with Initiative Tracker")
+
+## Settings
+
+This plugin will only download your remote links once a day. If you are e.g. creating your own soundsets and want the plugin to get a frest set of links, you can open the settings and press the button labeled "Clear Remote Links".

@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting } from 'obsidian';
+import { App, ButtonComponent, PluginSettingTab, Setting } from 'obsidian';
 import SyrinscapePlugin from 'main';
 
 export class SyrinscapeSettingsTab extends PluginSettingTab {
@@ -41,6 +41,24 @@ export class SyrinscapeSettingsTab extends PluginSettingTab {
         .onChange(async (value) => {
           this.plugin.settings.triggerWord = value;
           await this.plugin.saveData(this.plugin.settings);
+        }));
+
+    // Create a button which will call the method to clear the CSV content
+    const buttonDesc: DocumentFragment = new DocumentFragment();
+    buttonDesc.appendText("This plugin will cache remote control links for at most 24 hours.");
+    buttonDesc.append(desc.createEl('br'));
+    buttonDesc.appendText("You can manually clear the Remote Links that were downloaded from Syrinscape on ");
+    const dateText = buttonDesc.createEl('b');
+    dateText.appendText(this.plugin.settings.lastUpdated?this.plugin.settings.lastUpdated.toDateString():'never');
+    buttonDesc.append(dateText);
+    new Setting(containerEl)
+      .setName('Clear Remote Links')
+      .setDesc(buttonDesc)
+      .addButton(button => button
+        .setButtonText('Clear Remote Links')
+        .onClick(async () => {
+          this.plugin.clearCache();
+          this.plugin.fetchRemoteLinks();
         }));
   }
 }

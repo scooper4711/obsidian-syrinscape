@@ -6,16 +6,18 @@ import {
     EditorSuggestContext,
     EditorSuggestTriggerInfo,
     Notice,
-    TFile
+    TFile,
+    requestUrl
 } from "obsidian"
 import * as Papa from 'papaparse';
-import type SyrinscapePlugin from "main";
+import SyrinscapePlugin from "main";
 
 interface SyrinscapeCompletion {
     id: string,
     type: string,
     title: string,
-}
+  };
+  
 
 export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletion> {
     app: App;
@@ -44,6 +46,37 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
 
     }
 
+    async fetchRemoteLinks(): Promise<void> {
+        // if the remoteLinks map is not empty, then we have already fetched the remote links
+        if (this.plugin.settings.csvContent.length > 0) {
+            console.log(`Syrinscape - Remote links already fetched. Skipping download.`);
+            this.parseRemoteLinks(this.plugin.settings.csvContent);
+            return;
+        }
+        console.log("Syrinscape - Downloading CSV file of remote links.");
+        try {
+            const response = await requestUrl({
+                url: 'https://syrinscape.com/account/remote-control-links-csv/',
+                method: 'GET',
+                contentType: 'application',
+                headers: {
+                    'Authorization': `Token ${this.plugin.settings.authToken}`
+                }
+            });
+
+            const csvContent = response.text;
+            this.plugin.settings.csvContent = csvContent;
+            this.plugin.settings.lastUpdated = new Date();
+            await this.plugin.saveSettings();
+            new Notice("Completed download of Syrinscape remote links")
+            this.parseRemoteLinks(csvContent);
+        } catch (error) {
+            console.error('Syrinscape - Failed to fetch remote links:', error);
+            new Notice('Failed to fetch Syrinscape remote links.');
+        }
+    }
+  
+
     parseRemoteLinks(csvContent: string): void {
         //parse csvContent as a CSV where the first row contains the column names.
         Papa.parse(csvContent as any, {
@@ -59,8 +92,7 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
                     };
                     this.remoteLinks.set(soundTitle.toLowerCase(), completion);
                 }
-                console.log(`Syrinscape - Completed download of CSV file of ${this.remoteLinks.size} remote links`)
-                new Notice("Completed download of Syrinscape remote links")
+                console.log(`Syrinscape - Completed parsing of CSV file of ${this.remoteLinks.size} remote links`)
             },
             error: (error: any) => {
                 console.error('Syrinscape - Error parsing CSV:', error);
