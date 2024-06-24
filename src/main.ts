@@ -13,7 +13,7 @@ interface SyrinscapeSettings {
 };
 
 export const DEFAULT_SETTINGS: SyrinscapeSettings = {
-  authToken: 'insert-your-auth-token-here',
+  authToken: '',
   triggerWord: 'syrinscape',
   csvContent: '',
   lastUpdated: null,
@@ -131,7 +131,8 @@ class SyrinscapeRenderChild extends MarkdownRenderChild {
     const apiUrl = `https://syrinscape.com/online/frontend-api/${this.type}s/${this.soundid}/${cmd}/`;
 
     try {
-      const response = await fetch(apiUrl, {
+      const response = await requestUrl({
+        url: apiUrl,
         method: 'GET',
         headers: {
           'Content-Type': 'application',

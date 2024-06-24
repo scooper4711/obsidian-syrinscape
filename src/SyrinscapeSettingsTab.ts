@@ -15,15 +15,13 @@ export class SyrinscapeSettingsTab extends PluginSettingTab {
 
     containerEl.empty();
 
-    containerEl.createEl('h2', { text: 'Syrinscape Plugin Settings' });
-
     // create an anchor link to the Syrinscape control panel
     const desc:DocumentFragment=new DocumentFragment();
     desc.appendText("Enter your Syrinscape Auth token here. You can find it in your ")
     desc.append(desc.createEl('a', {"href": "https://syrinscape.com/online/cp/", text: "Syrinscape control panel."}))
 
     new Setting(containerEl)
-      .setName('Auth Token')
+      .setName('Auth token')
       .setDesc(desc)
       .addText(text => text
         .setPlaceholder(DEFAULT_SETTINGS.authToken)
@@ -35,7 +33,7 @@ export class SyrinscapeSettingsTab extends PluginSettingTab {
     
     // Number setting for the maximum cache age, in days
     new Setting(containerEl)
-      .setName('Cache Age')
+      .setName('Cache age')
       .setDesc(`Enter the maximum age of the cache in days. Default is ${DEFAULT_SETTINGS.maxCacheAge.toString()} days.`)
       .addText(text => text
         .setPlaceholder(DEFAULT_SETTINGS.maxCacheAge.toString())
@@ -48,7 +46,7 @@ export class SyrinscapeSettingsTab extends PluginSettingTab {
 
     // String setting for the trigger word, e.g. `syrinscape` or `sscape`
     new Setting(containerEl)
-      .setName('Trigger Word')
+      .setName('Trigger word')
       .setDesc('Enter the word that the Syrinscape player plugin will look for. Default is "syrinscape"')
       .addText(text => text
         .setPlaceholder(DEFAULT_SETTINGS.triggerWord)
@@ -67,10 +65,10 @@ export class SyrinscapeSettingsTab extends PluginSettingTab {
     dateText.appendText(this.plugin.settings.lastUpdated?this.plugin.settings.lastUpdated.toDateString():'never');
     buttonDesc.append(dateText);
     new Setting(containerEl)
-      .setName('Clear Remote Links')
+      .setName('Clear remote links')
       .setDesc(buttonDesc)
       .addButton(button => button
-        .setButtonText('Clear Remote Links')
+        .setButtonText('Clear remote links')
         .onClick(async () => {
           this.plugin.clearCache();
           this.plugin.fetchRemoteLinks();
