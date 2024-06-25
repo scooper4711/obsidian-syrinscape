@@ -134,12 +134,13 @@ class SyrinscapeRenderChild extends MarkdownRenderChild {
       const response = await requestUrl({
         url: apiUrl,
         method: 'GET',
+        contentType: 'application',
         headers: {
           'Content-Type': 'application',
           'Authorization': `Token ${this.settings.authToken}`
         }
       });
-      const data = await response.json();
+      const data = response.json;
       console.debug('Syrinscape - API response:', data);
       // if the return code isn't 200, display a notice with the detail
       if (data.detail) {
