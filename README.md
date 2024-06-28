@@ -4,6 +4,8 @@ This module is designed for people using Obsidian as their TTRPG management tool
 
 Embed controls to start and stop moods and elements on your pages that describe locations, spells or events.
 
+Please note that this plugin requires that you have a [Syrinscape account](https://syrinscape.com/dashboard/) (but not a subscription) and be running either the [Syrinscape Online Player](https://syrinscape.com/download/) or the [Web Player](https://app.syrinscape.com) to actually hear sounds. Sounds are *not* played through Obsidian.
+
 ## How to Use
 
 1. Install the Syrinscape module for Obsidian using the Community Plugin Manager in Obsidian.
