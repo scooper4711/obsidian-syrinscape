@@ -32,18 +32,24 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
         this.plugin = plugin;
     }
 
+    /**
+     * Split the query into words and return the completions that match every word in the query, regardless of order.
+     * @param context the context object containing the query and the editor
+     * @returns a list of completions that match every word in the query
+     */
     getSuggestions(context: EditorSuggestContext): SyrinscapeCompletion[] {
         const query = context.query.toLowerCase();
-        const hits: SyrinscapeCompletion[]  = [];
-        // find all remoteLinks where the query is contained in the key
-        for (const [key, value] of this.remoteLinks.entries()) {
-            if (key.includes(query)) {
-                hits.push(value);
-            }
-        }            
-
-        return hits;
-
+        const queryWords = query.split(' ');
+        const completions = Array.from(this.remoteLinks.values());
+        if (!query) {
+            return completions;
+        }
+        return completions.filter(completion => {
+            const titleWords = completion.title.toLowerCase().split(' ');
+            // append the completion id and type to the titleWords array so that users can search for them
+            titleWords.push(completion.id, completion.type);
+            return queryWords.every(queryWord => titleWords.some(titleWord => titleWord.contains(queryWord)));
+        });
     }
 
     async fetchRemoteLinks(): Promise<void> {
@@ -92,7 +98,7 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
                         type: row.type === 'element' ? row.sub_type : row.type,
                         title: soundTitle, // Use the concatenated sound title for display
                     };
-                    this.remoteLinks.set(`${completion.type}:${completion.id}:${completion.title.toLowerCase()}`, completion);
+                    this.remoteLinks.set(`${completion.type} ${completion.id} ${completion.title.toLowerCase()}`, completion);
                 }
                 console.log(`Syrinscape - Completed parsing of CSV file of ${this.remoteLinks.size} remote links`)
             },
