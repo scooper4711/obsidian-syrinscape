@@ -81,6 +81,7 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
         //parse csvContent as a CSV where the first row contains the column names.
         Papa.parse(csvContent as any, {
             header: true,
+            skipEmptyLines: true,
             complete: (results) => {
                 this.remoteLinks.clear(); // Clear existing entries in the map
                 for (const row of results.data as SyrinscapeRemoteLink[]) {
@@ -91,7 +92,7 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
                         type: row.type === 'element' ? row.sub_type : row.type,
                         title: soundTitle, // Use the concatenated sound title for display
                     };
-                    this.remoteLinks.set(soundTitle.toLowerCase(), completion);
+                    this.remoteLinks.set(`${completion.type}:${completion.id}:${completion.title.toLowerCase()}`, completion);
                 }
                 console.log(`Syrinscape - Completed parsing of CSV file of ${this.remoteLinks.size} remote links`)
             },
