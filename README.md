@@ -12,15 +12,25 @@ Please note that this plugin requires that you have a [Syrinscape account](https
 
 2. Once installed, open the settings and copy your Auth token from https://syrinscape.com/online/cp/. Paste that into the setting for Auth Token.
 
-3. Use the following markdown syntax to embed a Syrinscape soundscape:
+3. Use the following markdown syntax to embed a Syrinscape soundscape - both the play and stop button will be displayed:
 
     ```
     `syrinscape:mood:soundId:optional mouseover text`
     ```
 
     ```
-    `syrinscape:element:soundId:optional mouseover text`
+    `syrinscape:music:soundId:optional mouseover text`
     ```
+    ```
+    `syrinscape:sfx:soundId:optional mouseover text`
+    ```
+4. Use the following markdown syntax to embed a Syrinscape oneshot - only the play button will be displayed, since oneshots will automatically stop.
+
+    ```
+    `syrinscape:oneshot:soundId:optional mouseover text`
+    ```
+
+    :attention: Note that to preserve compatability, you can also use "element" to not display the stop button, but oneshot is the preferred syntax.
 
 4. The plugin has downloaded a list of all the sounds you have access to, and so the auto-complete feature will make entering the codes easy for you.
     ![Autocompletion](doc/autocomplete.png "Autocompletion feature")

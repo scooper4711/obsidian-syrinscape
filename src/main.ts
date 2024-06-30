@@ -76,7 +76,7 @@ export default class SyrinscapePlugin extends Plugin {
       return
     }
     console.debug('codes:', codes);
-    const triggerRegEx = new RegExp(`${this.settings.triggerWord}:(mood|element):([0-9]+)(:(.+))?`, 'ig')
+    const triggerRegEx = new RegExp(`${this.settings.triggerWord}:(mood|element|sfx|music|oneshot):([0-9]+)(:(.+))?`, 'ig')
     codes.forEach(codeBlock => {
       console.debug('codeBlock:', codeBlock.innerText);
       let matchArray: RegExpExecArray | null;
@@ -117,7 +117,8 @@ class SyrinscapeRenderChild extends MarkdownRenderChild {
       e.preventDefault();
       this.callSyrinscapeApi("play");
     });
-    if (this.type === 'mood') {
+    // If the type is either oneshot or element, don't display the stop button
+    if (this.type !== 'oneshot' && this.type !== 'element') {
       const stop = syrinscapeDiv.createEl("a", { cls: "stop", text: "⏹️", title: this.soundTitle ? `Stop "${this.soundTitle}"` : "Stop" });
       stop.addEventListener("click", (e) => {
         e.preventDefault();
@@ -128,7 +129,7 @@ class SyrinscapeRenderChild extends MarkdownRenderChild {
   }
   async callSyrinscapeApi(cmd: string) {
 
-    const apiUrl = `https://syrinscape.com/online/frontend-api/${this.type}s/${this.soundid}/${cmd}/`;
+    const apiUrl = `https://syrinscape.com/online/frontend-api/${this.type=='mood'?'mood':'element'}s/${this.soundid}/${cmd}/`;
 
     try {
       const response = await requestUrl({

@@ -87,7 +87,8 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
                     const soundTitle = `${row.name} (${row.soundset})`;
                     const completion: SyrinscapeCompletion = {
                         id: row.id.substring(2), //remove the e|m and colon characters.
-                        type: row.type, // either mood or element
+                        // If row.type is 'element' then use row.sub_type, otherwise use row.type
+                        type: row.type === 'element' ? row.sub_type : row.type,
                         title: soundTitle, // Use the concatenated sound title for display
                     };
                     this.remoteLinks.set(soundTitle.toLowerCase(), completion);
