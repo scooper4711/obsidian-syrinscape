@@ -18,7 +18,11 @@ export class SyrinscapeSettingsTab extends PluginSettingTab {
     // create an anchor link to the Syrinscape control panel
     const desc:DocumentFragment=new DocumentFragment();
     desc.appendText("Enter your Syrinscape Auth token here. You can find it in your ")
-    desc.append(desc.createEl('a', {"href": "https://syrinscape.com/online/cp/", text: "Syrinscape control panel."}))
+    desc.append(desc.createEl('a', {"href": "https://syrinscape.com/online/cp/", text: "Syrinscape control panel."}));
+    desc.append(desc.createEl('br'));
+    desc.appendText("This plugin will only control the Syrinscape Web Player or Online Player.");
+    desc.append(desc.createEl('br'));
+    desc.appendText("This plugin will not control the Syrinscape Fantasy Player or Sci-Fi Player.");
 
     new Setting(containerEl)
       .setName('Auth token')
@@ -58,7 +62,9 @@ export class SyrinscapeSettingsTab extends PluginSettingTab {
 
     // Create a button which will call the method to clear the CSV content
     const buttonDesc: DocumentFragment = new DocumentFragment();
-    buttonDesc.appendText("This plugin will cache remote control links for at most 24 hours.");
+    buttonDesc.appendText("This plugin will cache remote control links for at most ");
+    buttonDesc.createEl("i").appendText("Cache age");
+    buttonDesc.appendText(" days.");
     buttonDesc.append(desc.createEl('br'));
     buttonDesc.appendText("You can manually clear the Remote Links that were downloaded from Syrinscape on ");
     const dateText = buttonDesc.createEl('b');
