@@ -77,7 +77,7 @@ export class SyrinscapeSettingsTab extends PluginSettingTab {
         .setButtonText('Clear remote links')
         .onClick(async () => {
           this.plugin.clearCache();
-          this.plugin.fetchRemoteLinks();
+          this.plugin.editorSuggest?.fetchRemoteLinks();
         }));
   }
 }

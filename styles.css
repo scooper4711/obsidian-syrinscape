@@ -1,19 +1,95 @@
+.syrinscape .title {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+/* flexbox with a colum layout */
+.syrinscape .alert {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+/*
+ Syrinscape CSS (c) Syrinscape.inc
+ */
+ .syrinscape {
+    align-items: center;
+    background-image: url("https://syrinscape.com/static/img/BG-Base.jpg");
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    padding-top: 50%;
+    position: relative;
+    width: 100%;
+}
+.syrinscape .cta {
+    display: block;
+    margin-top: -50%;
+}
+.syrinscape .interface {
+    display: none;
+    margin-top: -50%;
+}
+.syrinscape .visualisations-container {
+    left: 0;
+    bottom: 0;
+    opacity: 0.7;
+    position: absolute;
+    width: 100%;
+}
+.syrinscape .visualisations {
+    padding-top: 50%;
+    position: relative;
+    width: 100%;
+}
+.syrinscape .d3-frequency {
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    transform: scaleY(-1);
+    width: 100%;
+}
+.syrinscape .d3-waveform {
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    transform: scaleY(-1);
+    width: 100%;
+}
+.syrinscape .d3-waveform svg {
+    height: 100%;
+    width: 100%;
+}
+.syrinscape .controls {
+    display: flex;
+    align-items: center;
+    margin: 50px auto;
+    position: relative;  /* always above the visualisation */
+    width: 75%;
+}
+.syrinscape .local-volume {
+    flex-grow: 1;
+    margin: 0 1em;
+}
 /*
 Style the syrinscape span
 */
 
-.syrinscape {
+.syrinscape-markdown a{
     font-family: emoji;
 }
 
 /* play anchors inside a syrinscape class should replace their text with the text ▶️, with padding to the next icon */
 
-.syrinscape a.play {
+.syrinscape-markdown a.play {
     display: inline-block;
     padding-right: 0.1em;
 }
 /* anchors with the stop class inside of syrinscape class should replace their text with the stop icon */
-.syrinscape a.stop {
+.syrinscape-markdown a.stop {
     display: inline-block;
     padding-right: 0.1em;
 }
