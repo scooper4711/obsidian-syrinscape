@@ -1,8 +1,9 @@
 import { SyrinscapeSettingsTab } from 'SyrinscapeSettingsTab';
 import SyrinscapeSuggest from 'SyrinscapeSuggest';
-import { MarkdownPostProcessorContext, MarkdownRenderChild, Notice, Plugin, requestUrl, MetadataCache} from 'obsidian';
+import { addIcon, MarkdownPostProcessorContext, MarkdownRenderChild, Notice, Plugin, requestUrl, WorkspaceLeaf} from 'obsidian';
+import { SyrinscapePlayerView, VIEW_TYPE } from "./SyrinscapePlayerView";
 
-export const SYRINSCAPE_CLASS = 'syrinscape';
+export const SYRINSCAPE_CLASS = 'syrinscape-markdown';
 
 interface SyrinscapeSettings {
   authToken: string;
@@ -23,14 +24,27 @@ export const DEFAULT_SETTINGS: SyrinscapeSettings = {
 export default class SyrinscapePlugin extends Plugin {
   settings: SyrinscapeSettings;
 
-  private editorSuggest: SyrinscapeSuggest | null;
+  editorSuggest: SyrinscapeSuggest | null;
 
   async onload() {
     await this.loadSettings();
+    await this.loadSyrinscapeScripts();
+
     this.addSettingTab(new SyrinscapeSettingsTab(this.app, this));
 
     this.registerMarkdownPostProcessor(this.markdownPostProcessor.bind(this));
     await this.checkForExpiredData()
+
+    this.registerView(
+      VIEW_TYPE,
+      (leaf) => new SyrinscapePlayerView(leaf, this)
+    );
+    
+    this.addRibbonIcon("speaker", "Open Syrinscape Player", () => {
+      this.activateView();
+    });
+
+
     this.app.workspace.onLayoutReady(() => {
       this.editorSuggest = new SyrinscapeSuggest(this.app, this);
       this.registerEditorSuggest(this.editorSuggest);
@@ -38,6 +52,30 @@ export default class SyrinscapePlugin extends Plugin {
       console.log("Syrinscape loaded");
     });
   }
+
+  async activateView() {
+    const { workspace } = this.app;
+
+    let leaf: WorkspaceLeaf | null = null;
+    const leaves = workspace.getLeavesOfType(VIEW_TYPE);
+
+    if (leaves.length > 0) {
+      // A leaf with our view already exists, use that
+      leaf = leaves[0];
+    } else {
+      // Our view could not be found in the workspace, create a new leaf
+      // in the right sidebar for it
+      leaf = workspace.getRightLeaf(false);
+      if (leaf) {
+        await leaf.setViewState({ type: VIEW_TYPE, active: true });
+
+        // "Reveal" the leaf in case it is in a collapsed sidebar
+        workspace.revealLeaf(leaf);
+    }
+    console.debug("Syrinscape - leaf:", leaf);
+  }
+}
+
 
   // download the remote links from syrinscape
   async fetchRemoteLinks() {
@@ -62,7 +100,7 @@ export default class SyrinscapePlugin extends Plugin {
         console.log(`Syrinscape - Last updated ${diffDays} day(s) ago, more than ${this.settings.maxCacheAge}. Clearing cache`);
         this.clearCache();
       } else {
-        console.log(`Syrinscape - Last updated ${diffDays} day(s) ago. Cache is still valid`);
+        console.debug(`Syrinscape - Last updated ${diffDays} day(s) ago. Cache is still valid`);
       }
     }
   }
@@ -70,17 +108,16 @@ export default class SyrinscapePlugin extends Plugin {
 
   async markdownPostProcessor(element: HTMLElement, context: MarkdownPostProcessorContext): Promise<any> {
     let codes = element.querySelectorAll('code');
-
+    // console.debug('Syrinscape - markdownPostProcessor - codes:', codes.length, 'element:', element, 'context:', context);
     // No code found
     if (!codes.length) {
       return
     }
-    console.debug('codes:', codes);
     const triggerRegEx = new RegExp(`${this.settings.triggerWord}:(mood|element|sfx|music|oneshot):([0-9]+)(:(.+))?`, 'ig')
     codes.forEach(codeBlock => {
-      console.debug('codeBlock:', codeBlock.innerText);
       let matchArray: RegExpExecArray | null;
       while (matchArray = triggerRegEx.exec(codeBlock.innerText)) {
+        // console.debug('Syrinscape - markdownPostProcessor - matchArray:', matchArray);
         context.addChild(new SyrinscapeRenderChild(this.settings, codeBlock, matchArray[1], matchArray[2], matchArray[4]))
       }
     })
@@ -94,6 +131,43 @@ export default class SyrinscapePlugin extends Plugin {
 
   async saveSettings() {
     await this.saveData(this.settings);
+  }
+  /**
+   * Load the Syrinscape scripts that construct the player. Wait for the global syrinscape object to be available.
+   */
+  private async loadSyrinscapeScripts() {
+    this.loadExternalScript("https://syrinscape.com/integration.js")
+      .then(() => console.debug("Script loaded successfully."))
+      .catch(error => console.error("Error loading script:", error));
+
+    this.loadExternalScript("https://syrinscape.com/player.js")
+      .then(() => console.debug("Script loaded successfully."))
+      .catch(error => console.error("Error loading script:", error));
+
+    this.loadExternalScript("https://syrinscape.com/visualisation.js")
+      .then(() => console.debug("Script loaded successfully."))
+      .catch(error => console.error("Error loading script:", error));
+  }
+  /**
+   * Load an external script.
+   * @param scriptUrl the URL of the script to load
+   * @returns a promise that resolves when the script is loaded
+   */
+  private loadExternalScript(scriptUrl: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      // Create script element
+      const script = document.createElement('script');
+      script.src = scriptUrl;
+
+      // Resolve promise once script loads
+      script.onload = () => resolve();
+
+      // Reject promise if there's an error loading the script
+      script.onerror = () => reject(new Error(`Failed to load script: ${scriptUrl}`));
+
+      // Append script to document head
+      document.head.appendChild(script);
+    });
   }
 
 }
@@ -128,6 +202,14 @@ class SyrinscapeRenderChild extends MarkdownRenderChild {
     this.element.replaceWith(syrinscapeDiv);
   }
   async callSyrinscapeApi(cmd: string) {
+    if (syrinscape?.player && syrinscape?.player?.controlSystem) {
+      this.useLocalPlayer(cmd);
+      return;
+    }
+    if (!this.settings.authToken) {
+      new Notice('Please set your Syrinscape API key in the settings');
+      return
+    }
 
     const apiUrl = `https://syrinscape.com/online/frontend-api/${this.type=='mood'?'mood':'element'}s/${this.soundid}/${cmd}/`;
 
@@ -153,6 +235,19 @@ class SyrinscapeRenderChild extends MarkdownRenderChild {
     }
   }
 
+  private useLocalPlayer(cmd: string) {
+    if (this.type === 'mood') {
+      if (cmd === 'play') {
+        syrinscape.player.controlSystem.startMood(this.soundid);
+      } else {
+        syrinscape.player.controlSystem.stopMood(this.soundid);
+      }
+    } else {
+      if (cmd === 'play') {
+        syrinscape.player.controlSystem.startElements([this.soundid]);
+      } else {
+        syrinscape.player.controlSystem.stopElements([this.soundid]);
+      }
+    }
+  }
 }
-
-
