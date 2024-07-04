@@ -1,10 +1,21 @@
 ## Module Summary
 
-This module is designed for people using Obsidian as their TTRPG management tool to integrate Syrinscape with Obsidian. Syrinscape is a powerful tool for creating and playing custom soundtracks, sound effects, and ambient sounds for tabletop role-playing games.
+This is the Syrinscape Player plugin for Obsidian!
 
-Embed controls to start and stop moods and elements on your pages that describe locations, spells or events.
+This module is designed for people using Obsidian as their TTRPG management tool and integrates Syrinscape Web Player with Obsidian. Syrinscape is a powerful tool for creating and playing custom soundtracks, sound effects, and ambient sounds for tabletop role-playing games.
 
-Please note that this plugin requires that you have a [Syrinscape account](https://syrinscape.com/dashboard/) (but not a subscription) and be running either the [Syrinscape Online Player](https://syrinscape.com/download/) or the [Web Player](https://app.syrinscape.com) to actually hear sounds. Sounds are *not* played through Obsidian.
+This plugin features a full Syrinscape player, so you don't need to open a separate program or have a separate web page open when using Syrinscape.
+
+You can add moods to your notes for locations, so you don't forget to start the sounds for your busy market or to start the mood for your epic battle.
+![Location mood](doc/mood.png)
+
+You can add Sound Effect (sfx) or music loops to a currently playing mood to slowly add elements to build the mood.
+
+You can make a Soundboard and bookmark it or drag it to the left-hand ribbon to always have easy access to it.
+
+The embedded player lets you see what is currently playing, adjust the volume, quick access to mute and unmute, and the ability to stop all sounds. And for the times where you need to disc jockey to get things just right, you can click the syrinscape logo and launch the web browser version of the Syrinscape browser.
+
+Please note that this plugin requires that you have a [Syrinscape account](https://syrinscape.com/dashboard/) (but not a subscription). The player is integrted in the plugin, so you no further downloads are required.
 
 ## How to Use
 
@@ -12,7 +23,7 @@ Please note that this plugin requires that you have a [Syrinscape account](https
 
 2. Once installed, open the settings and copy your Auth token from https://syrinscape.com/online/cp/. Paste that into the setting for Auth Token.
 
-3. Use the following markdown syntax to embed a Syrinscape soundscape - both the play and stop button will be displayed:
+3. Use the following markdown syntax to embed a Syrinscape mood, music or sound effect loop - both the play and stop button will be displayed:
 
     ```
     `syrinscape:mood:soundId:optional mouseover text`
@@ -43,7 +54,7 @@ Please note that this plugin requires that you have a [Syrinscape account](https
 
 Note that **Moods** get a play and a stop button.
 
-![Scene mood](doc/scene_mood.png "Setting the mood for a scene")
+![Scene mood](doc/location_mood.png "Setting the mood for a scene")
 
 --- 
 
@@ -71,6 +82,6 @@ With Obsidian and Syrinscape, you now have complete control over your soundboard
 
 ## Settings
 
-This plugin will only download your remote links once a day. If you are e.g. creating your own soundsets and want the plugin to get a fresh set of links, you can open the settings and press the button labeled "Clear Remote Links".
+This plugin will only download your remote links once a week. If you are e.g. creating your own soundsets and want the plugin to get a fresh set of links, you can open the settings and press the button labeled "Clear Remote Links".
 
 ![Settings](doc/Settings.png "Settings screenshot")
