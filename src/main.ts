@@ -1,11 +1,12 @@
 import { SyrinscapeSettingsTab } from 'SyrinscapeSettingsTab';
 import SyrinscapeSuggest from 'SyrinscapeSuggest';
-import { addIcon, MarkdownPostProcessorContext, MarkdownRenderChild, Notice, Plugin, requestUrl, WorkspaceLeaf} from 'obsidian';
+import { addIcon, MarkdownPostProcessorContext, Plugin, WorkspaceLeaf} from 'obsidian';
 import { SyrinscapePlayerView, VIEW_TYPE } from "./SyrinscapePlayerView";
+import { SyrinscapeRenderChild } from 'SyrinscapeRenderChild';
 
 export const SYRINSCAPE_CLASS = 'syrinscape-markdown';
 
-interface SyrinscapeSettings {
+export interface SyrinscapeSettings {
   authToken: string;
   triggerWord: string;
   csvContent: string;
@@ -26,6 +27,9 @@ export default class SyrinscapePlugin extends Plugin {
 
   editorSuggest: SyrinscapeSuggest | null;
 
+  /**
+   * Load the plugin and register the settings, markdown post processor, and view.
+   */
   async onload() {
     await this.loadSettings();
     await this.loadSyrinscapeScripts();
@@ -48,11 +52,14 @@ export default class SyrinscapePlugin extends Plugin {
     this.app.workspace.onLayoutReady(() => {
       this.editorSuggest = new SyrinscapeSuggest(this.app, this);
       this.registerEditorSuggest(this.editorSuggest);
-      this.fetchRemoteLinks();
+      this.editorSuggest.fetchRemoteLinks();
       console.log("Syrinscape loaded");
     });
   }
 
+  /**
+   * Create or activate the Syrinscape Player view.
+   */
   async activateView() {
     const { workspace } = this.app;
 
@@ -76,20 +83,18 @@ export default class SyrinscapePlugin extends Plugin {
   }
 }
 
-
-  // download the remote links from syrinscape
-  async fetchRemoteLinks() {
-    await this.editorSuggest?.fetchRemoteLinks();
-  }
-
-  // clear the cache
+  /**
+   * Clear the cache of the Syrinscape data.
+   */
   clearCache() {
     this.settings.csvContent = '';
     this.settings.lastUpdated = null;
     this.saveSettings();
   }
 
-  // if the lastUpdated is more than 1 day ago, fetch the remote links
+  /**
+   * if the lastUpdated is more than settings.maxCacheAge days ago, fetch the remote links
+   */
   async checkForExpiredData() {
     console.debug('Syrinscape - lastUpdated:', this.settings.lastUpdated);
     if (this.settings.lastUpdated) {
@@ -106,6 +111,12 @@ export default class SyrinscapePlugin extends Plugin {
   }
 
 
+  /**
+   * Finds all code blocks that match `syrinscape:type:id:title` and creates a SyrinscapeRenderChild to render the buttons.
+   * @param element the element to process
+   * @param context the editor context
+   * @returns 
+   */
   async markdownPostProcessor(element: HTMLElement, context: MarkdownPostProcessorContext): Promise<any> {
     let codes = element.querySelectorAll('code');
     // console.debug('Syrinscape - markdownPostProcessor - codes:', codes.length, 'element:', element, 'context:', context);
@@ -113,7 +124,7 @@ export default class SyrinscapePlugin extends Plugin {
     if (!codes.length) {
       return
     }
-    const triggerRegEx = new RegExp(`${this.settings.triggerWord}:(mood|element|sfx|music|oneshot):([0-9]+)(:(.+))?`, 'ig')
+    const triggerRegEx = new RegExp(`^${this.settings.triggerWord}:(mood|element|sfx|music|oneshot):([0-9]+)(:(.+))?$`, 'ig')
     codes.forEach(codeBlock => {
       let matchArray: RegExpExecArray | null;
       while (matchArray = triggerRegEx.exec(codeBlock.innerText)) {
@@ -133,7 +144,7 @@ export default class SyrinscapePlugin extends Plugin {
     await this.saveData(this.settings);
   }
   /**
-   * Load the Syrinscape scripts that construct the player. Wait for the global syrinscape object to be available.
+   * Load the Syrinscape scripts that construct the player.
    */
   private async loadSyrinscapeScripts() {
     this.loadExternalScript("https://syrinscape.com/integration.js")
@@ -171,83 +182,4 @@ export default class SyrinscapePlugin extends Plugin {
   }
 
 }
-class SyrinscapeRenderChild extends MarkdownRenderChild {
 
-  constructor(
-    private settings: SyrinscapeSettings,
-    private element: HTMLElement,
-    private type: string,
-    private soundid: string,
-    private soundTitle: string) {
-    super(element);
-  }
-
-  onload(): void {
-    const syrinscapeDiv = this.element.createEl("span", { cls: SYRINSCAPE_CLASS });
-    // make an anchor with the class play, the text ▶️ and hovertext of "Play ${soundTitle}" if it's set, or just "Play"
-
-    const play = syrinscapeDiv.createEl("a", { cls: "play", text: "▶️", title: this.soundTitle ? `Play "${this.soundTitle}"` : "Play" });
-    play.addEventListener("click", (e) => {
-      e.preventDefault();
-      this.callSyrinscapeApi("play");
-    });
-    // If the type is either oneshot or element, don't display the stop button
-    if (this.type !== 'oneshot' && this.type !== 'element') {
-      const stop = syrinscapeDiv.createEl("a", { cls: "stop", text: "⏹️", title: this.soundTitle ? `Stop "${this.soundTitle}"` : "Stop" });
-      stop.addEventListener("click", (e) => {
-        e.preventDefault();
-        this.callSyrinscapeApi("stop");
-      });
-    }
-    this.element.replaceWith(syrinscapeDiv);
-  }
-  async callSyrinscapeApi(cmd: string) {
-    if (syrinscape?.player && syrinscape?.player?.controlSystem) {
-      this.useLocalPlayer(cmd);
-      return;
-    }
-    if (!this.settings.authToken) {
-      new Notice('Please set your Syrinscape API key in the settings');
-      return
-    }
-
-    const apiUrl = `https://syrinscape.com/online/frontend-api/${this.type=='mood'?'mood':'element'}s/${this.soundid}/${cmd}/`;
-
-    try {
-      const response = await requestUrl({
-        url: apiUrl,
-        method: 'GET',
-        contentType: 'application',
-        headers: {
-          'Content-Type': 'application',
-          'Authorization': `Token ${this.settings.authToken}`
-        }
-      });
-      const data = response.json;
-      console.debug('Syrinscape - API response:', data);
-      // if the return code isn't 200, display a notice with the detail
-      if (data.detail) {
-        new Notice(data.detail)
-      }
-    } catch (error) {
-      console.error('Syrinscape - Error fetching data:', error);
-      new Notice('Failed to fetch data from Syrinscape API');
-    }
-  }
-
-  private useLocalPlayer(cmd: string) {
-    if (this.type === 'mood') {
-      if (cmd === 'play') {
-        syrinscape.player.controlSystem.startMood(this.soundid);
-      } else {
-        syrinscape.player.controlSystem.stopMood(this.soundid);
-      }
-    } else {
-      if (cmd === 'play') {
-        syrinscape.player.controlSystem.startElements([this.soundid]);
-      } else {
-        syrinscape.player.controlSystem.stopElements([this.soundid]);
-      }
-    }
-  }
-}

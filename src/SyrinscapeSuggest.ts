@@ -18,7 +18,9 @@ interface SyrinscapeCompletion {
     title: string,
   };
   
-
+/**
+ * Implements the EditorSuggest interface to provide completions for Syrinscape sounds.
+ */
 export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletion> {
     app: App;
     private plugin: SyrinscapePlugin;
@@ -52,6 +54,10 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
         });
     }
 
+    /**
+     * Download the CSV file of remote links from the Syrinscape website and parse it into the remoteLinks map.
+     * @returns a promise that fetches the remote links from the Syrinscape website and parses them into the remoteLinks map.
+     */
     async fetchRemoteLinks(): Promise<void> {
         // if the remoteLinks map is not empty, then we have already fetched the remote links
         if (this.plugin.settings.csvContent.length > 0) {
@@ -82,7 +88,10 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
         }
     }
   
-
+    /**
+     * Convert the CSV content into a map of remote links.
+     * @param csvContent the CSV content to parse into the remoteLinks map
+     */
     parseRemoteLinks(csvContent: string): void {
         //parse csvContent as a CSV where the first row contains the column names.
         Papa.parse(csvContent as any, {
@@ -108,6 +117,11 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
         });
     }
     
+    /**
+     * Display the suggestion in the suggestions container.
+     * @param suggestion The suggestion to render
+     * @param el the HTML element to render the suggestion in
+     */
     renderSuggestion(suggestion: SyrinscapeCompletion, el: HTMLElement) {
         const suggestionsContainerEl = el.createSpan({cls: "syrinscape-suggestion", text: `${suggestion.type}:${suggestion.id}:${suggestion.title}`});
     }
