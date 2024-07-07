@@ -1,10 +1,10 @@
 import { SyrinscapeSettingsTab } from 'SyrinscapeSettingsTab';
 import SyrinscapeSuggest from 'SyrinscapeSuggest';
-import { addIcon, MarkdownPostProcessorContext, Plugin, WorkspaceLeaf} from 'obsidian';
+import { MarkdownPostProcessorContext, Plugin, WorkspaceLeaf} from 'obsidian';
 import { SyrinscapePlayerView, VIEW_TYPE } from "./SyrinscapePlayerView";
 import { SyrinscapeRenderChild } from 'SyrinscapeRenderChild';
-
-export const SYRINSCAPE_CLASS = 'syrinscape-markdown';
+import { inlinePlugin } from 'SyrinscapePlayerWidget';
+import { SyrinscapeSound } from 'SyrinscapeSound';
 
 export interface SyrinscapeSettings {
   authToken: string;
@@ -48,6 +48,7 @@ export default class SyrinscapePlugin extends Plugin {
       this.activateView();
     });
 
+    this.registerEditorExtension([inlinePlugin(this)]);
 
     this.app.workspace.onLayoutReady(() => {
       this.editorSuggest = new SyrinscapeSuggest(this.app, this);
@@ -124,15 +125,34 @@ export default class SyrinscapePlugin extends Plugin {
     if (!codes.length) {
       return
     }
-    const triggerRegEx = new RegExp(`^${this.settings.triggerWord}:(mood|element|sfx|music|oneshot):([0-9]+)(:(.+))?$`, 'ig')
     codes.forEach(codeBlock => {
-      let matchArray: RegExpExecArray | null;
-      while (matchArray = triggerRegEx.exec(codeBlock.innerText)) {
-        // console.debug('Syrinscape - markdownPostProcessor - matchArray:', matchArray);
-        context.addChild(new SyrinscapeRenderChild(this.settings, codeBlock, matchArray[1], matchArray[2], matchArray[4]))
+      if (!codeBlock.textContent) {
+        return;
       }
+      let sound = this.parseSoundString(codeBlock.textContent);
+      if (!sound) {
+        return;
+      }
+      context.addChild(new SyrinscapeRenderChild(this.settings, codeBlock, sound));
     })
 
+  }
+
+  /**
+   * Try to parse a sound string in the format `syrinscape:type:id:title` and return a SyrinscapeSound object if successful.
+   * @param soundString the string to parse
+   * @returns a SyrinscapeSound object if the string is in the correct format, otherwise null
+   */
+  public parseSoundString(soundString: string): SyrinscapeSound | null {
+    const triggerRegEx = new RegExp(`^${this.settings.triggerWord}:(mood|element|sfx|music|oneshot):([0-9]+)(:(.+))?$`, 'ig')
+    const matchArray = triggerRegEx.exec(soundString);
+    if (!matchArray) {
+      return null;
+    }
+    const type = matchArray[1];
+    const id = matchArray[2];
+    const title = matchArray[4];
+    return new SyrinscapeSound(id, type, title);
   }
 
   async loadSettings() {

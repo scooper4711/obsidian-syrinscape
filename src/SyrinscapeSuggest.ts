@@ -11,21 +11,18 @@ import {
 } from "obsidian"
 import * as Papa from 'papaparse';
 import SyrinscapePlugin from "main";
+import { SyrinscapeSound } from "SyrinscapeSound";
 
-interface SyrinscapeCompletion {
-    id: string,
-    type: string,
-    title: string,
-  };
+;
   
 /**
  * Implements the EditorSuggest interface to provide completions for Syrinscape sounds.
  */
-export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletion> {
+export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeSound> {
     app: App;
     private plugin: SyrinscapePlugin;
     // Map of title to Syrinscape Completion objects
-    private remoteLinks: Map<string, SyrinscapeCompletion> = new Map();
+    private remoteLinks: Map<string, SyrinscapeSound> = new Map();
     
 
     constructor(app: App, plugin: SyrinscapePlugin) {
@@ -39,7 +36,7 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
      * @param context the context object containing the query and the editor
      * @returns a list of completions that match every word in the query
      */
-    getSuggestions(context: EditorSuggestContext): SyrinscapeCompletion[] {
+    getSuggestions(context: EditorSuggestContext): SyrinscapeSound[] {
         const query = context.query.toLowerCase();
         const queryWords = query.split(' ');
         const completions = Array.from(this.remoteLinks.values());
@@ -101,13 +98,8 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
                 this.remoteLinks.clear(); // Clear existing entries in the map
                 for (const row of results.data as SyrinscapeRemoteLink[]) {
                     const soundTitle = `${row.name} (${row.soundset})`;
-                    const completion: SyrinscapeCompletion = {
-                        id: row.id.substring(2), //remove the e|m and colon characters.
-                        // If row.type is 'element' then use row.sub_type, otherwise use row.type
-                        type: row.type === 'element' ? row.sub_type : row.type,
-                        title: soundTitle, // Use the concatenated sound title for display
-                    };
-                    this.remoteLinks.set(`${completion.type} ${completion.id} ${completion.title.toLowerCase()}`, completion);
+                    const sound = new SyrinscapeSound(row.id.substring(2), row.type === 'element' ? row.sub_type : row.type, soundTitle);
+                    this.remoteLinks.set(`${sound.type} ${sound.id} ${sound.title.toLowerCase()}`, sound);
                 }
                 console.log(`Syrinscape - Completed parsing of CSV file of ${this.remoteLinks.size} remote links`)
             },
@@ -122,11 +114,11 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeCompletio
      * @param suggestion The suggestion to render
      * @param el the HTML element to render the suggestion in
      */
-    renderSuggestion(suggestion: SyrinscapeCompletion, el: HTMLElement) {
+    renderSuggestion(suggestion: SyrinscapeSound, el: HTMLElement) {
         const suggestionsContainerEl = el.createSpan({cls: "syrinscape-suggestion", text: `${suggestion.type}:${suggestion.id}:${suggestion.title}`});
     }
 
-    selectSuggestion(suggestion: SyrinscapeCompletion, _evt: MouseEvent | KeyboardEvent): void {
+    selectSuggestion(suggestion: SyrinscapeSound, _evt: MouseEvent | KeyboardEvent): void {
         console.debug('Syrinscape - selectSuggestion:', suggestion);
         const editor = this.context!.editor;
         const selectedText = `${suggestion.type}:${suggestion.id}:${suggestion.title}`
