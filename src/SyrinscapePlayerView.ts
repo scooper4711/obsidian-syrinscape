@@ -205,6 +205,7 @@ export class SyrinscapePlayerView extends ItemView {
         const authToken = this.plugin.settings.authToken;
         const ctaDiv = this.ctaDiv;
         const interfaceDiv = this.interfaceDiv;
+        console.log('Syrinscape - Logging in to Syrinscape player.');
         syrinscape.player.init({
             async configure() {
                 syrinscape.config.init();
@@ -219,13 +220,18 @@ export class SyrinscapePlayerView extends ItemView {
             },
 
             onActive() {
-                console.debug("Syrinscape - onActive: Hide CTA. Show interface.")
+                if (syrinscape.config?.authenticated) {
+                    console.log("Syrinscape - successfully logged in.")
+                } else {
+                    console.error("Syrinscape - failed to log in.")
+                    new Notice('Failed to log in to Syrinscape player. Please check your authentication token in preferences.');
+                }
                 if (ctaDiv) ctaDiv.style.display = 'none';
                 if (interfaceDiv) interfaceDiv.style.display = 'block';
             },
 
             onInactive() {
-                console.debug("Syrinscape - onInsctive: Show CTA. Hide interface.")
+                console.debug("Syrinscape - logged out/deactivated.")
                 if (ctaDiv) ctaDiv.style.display = 'block';
                 if (interfaceDiv) interfaceDiv.style.display = 'none';
             },
