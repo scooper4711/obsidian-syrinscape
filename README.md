@@ -1,87 +1,59 @@
-## Module Summary
+## **Enhance Your TTRPG Experience with the Syrinscape Player Plugin for Obsidian!**
 
-This is the Syrinscape Player plugin for Obsidian!
+Welcome, Game Masters! Are you looking to elevate your tabletop role-playing sessions with immersive soundscapes and dynamic audio effects? Look no further! The Syrinscape Player plugin for Obsidian is here to transform your game into an unforgettable auditory adventure. Say goodbye to playing disc jockey while GMing. Prep the perfect mood ahead of time and have instant access to it during your session, complete with a an easy play/stop button to remind you to activate it at just the right moment.
 
-This module is designed for people using Obsidian as their TTRPG management tool and integrates Syrinscape Web Player with Obsidian. Syrinscape is a powerful tool for creating and playing custom soundtracks, sound effects, and ambient sounds for tabletop role-playing games.
+### **Why You'll Love This Plugin**
 
-This plugin features a full Syrinscape player, so you don't need to open a separate program or have a separate web page open when using Syrinscape.
+**Seamless Integration:** Manage your TTRPG campaigns using Obsidian? Perfect! This plugin integrates Syrinscape Web Player directly into Obsidian, so no more switching between tabs or apps. Everything you need is right at your fingertips.
 
-You can add moods to your notes for locations, so you don't forget to start the sounds for your busy market or to start the mood for your epic battle.
+**Instant Atmosphere:** Whether it's the bustling ambiance of a market or the tension of an epic battle, set the mood effortlessly. Attach sounds to your notes for each location and scene, ensuring you never forget to activate the perfect soundscape.
+
 ![Location mood](doc/mood.png)
 
-You can add Sound Effect (sfx) or music loops to a currently playing mood to slowly add elements to build the mood.
+**Dynamic Soundscapes:** Add layers of sound effects and music loops to your ongoing scenes. Build the atmosphere step by step, enhancing the immersion for your players.
 
-You can make a Soundboard and bookmark it or drag it to the left-hand ribbon to always have easy access to it.
+**Custom Soundboard:** Create a personalized soundboard for quick access. Bookmark it or drag it to the left-hand ribbon for instant availability during your game sessions.
 
-The embedded player lets you see what is currently playing, adjust the volume, quick access to mute and unmute, and the ability to stop all sounds. And for the times where you need to disc jockey to get things just right, you can click the syrinscape logo and launch the web browser version of the Syrinscape browser.
+![Soundboard](doc/Soundboard.png)
 
-Please note that this plugin requires that you have a [Syrinscape account](https://syrinscape.com/dashboard/) (but not a subscription). The player is integrted in the plugin, so you no further downloads are required.
+**Embedded Player Control:** Control the sound directly within Obsidian. See what's playing, adjust the volume, and quickly mute or stop all sounds with ease. Need more control? Launch the Syrinscape browser version with a single click.
 
-## How to Use
+### **Getting Started: How to Use**
 
-1. Install the Syrinscape module for Obsidian using the Community Plugin Manager in Obsidian.
-
-2. Once installed, open the settings and copy your Auth token from https://syrinscape.com/online/cp/. Paste that into the setting for Auth Token.
-
-3. Use the following markdown syntax to embed a Syrinscape mood, music or sound effect loop - both the play and stop button will be displayed:
-
-    ```
+1. **Install the Plugin:** Find the Syrinscape module in Obsidian's Community Plugin Manager and install it.
+2. **Authenticate:** Retrieve your Auth token from [Syrinscape's website](https://syrinscape.com/online/cp/) and paste it into the plugin settings.
+3. **Embed Sounds:** Use the following markdown syntax to embed Syrinscape moods, music, or sound effects:
+    ```markdown
     `syrinscape:mood:soundId:optional mouseover text`
-    ```
-
-    ```
     `syrinscape:music:soundId:optional mouseover text`
-    ```
-    ```
     `syrinscape:sfx:soundId:optional mouseover text`
     ```
-4. Use the following markdown syntax to embed a Syrinscape oneshot - only the play button will be displayed, since oneshots will automatically stop.
-
-    ```
+    For one-shot sounds, use:
+    ```markdown
     `syrinscape:oneshot:soundId:optional mouseover text`
     ```
+4. **Auto-Complete Convenience:** The plugin's auto-complete feature makes adding sounds a breeze, providing you with a list of all accessible sounds.
+    ![Autocompletion](doc/autocomplete.png)
 
-    :attention: Note that to preserve compatability, you can also use "element" to not display the stop button, but oneshot is the preferred syntax.
+5. **Activate and Enjoy:** Save your note, switch to View Mode, and control your sounds with the play and stop buttons.
 
-4. The plugin has downloaded a list of all the sounds you have access to, and so the auto-complete feature will make entering the codes easy for you.
-    ![Autocompletion](doc/autocomplete.png "Autocompletion feature")
-    
-5. Save your note and switch to View Mode to have a play and stop button which will start/stop the selected sound.
+### **Showcase: See It in Action!**
 
-## Screenshots
+**Set the Scene:** Add mood links at the top of your scene notes to ensure you never miss setting the perfect ambiance.
+![Scene mood](doc/location_mood.png)
 
-### Put a link to the mood for every scene at the top of the page for the scene, and never forget to start the Syrinscape mood for that room again!
+**Fantasy Statblocks Integration:** Works seamlessly within [Fantasy Statblocks](https://github.com/javalent/fantasy-statblocks) for quick access to sound effects.
+![Fantasy Statblocks integration](doc/fantasy_statblock.png)
 
-Note that **Moods** get a play and a stop button.
+**Initiative Tracker Integration:** Integrate with [Initiative Tracker](https://github.com/javalent/initiative-tracker) to access sound effects during combat with ease.
+![Initiative Tracker integration](doc/initiative_tracker.png)
 
-![Scene mood](doc/location_mood.png "Setting the mood for a scene")
+### **Fine-Tune Your Settings**
 
---- 
+The plugin updates your remote links weekly, ensuring you have the latest sounds. For those creating custom soundsets, refresh your links anytime from the settings menu.
 
-### The plugin works very well inside of [Fantasy Statblocks](https://github.com/javalent/fantasy-statblocks)
+![Settings](doc/Settings.png)
 
-Note that **Oneshots** only get a play button.
+### **Join the Adventure!**
 
-![Fantasy Statblocks integration](doc/fantasy_statblock.png "Integration with Fantasy Statblocks")
-
----
-
-### And it also works within [Initiative Tracker](https://github.com/javalent/initiative-tracker) so you have easy access for spell or melee oneshots during combat.
-
-Edit the spell descriptions to include a link to the corresponding one-shot and now anytime a creature has access to that spell, you have easy access to the sound effect during battle!
-
-![Initiative Tracker integration](doc/initiative_tracker.png "Integration with Initiative Tracker")
-
---- 
-
-## Soundboard
-
-With Obsidian and Syrinscape, you now have complete control over your soundboard. Make a note, e.g. `Soundboard.md` that contains any syrinscape sounds you want. Use any formatting and grouping you want. Once you have that in place, you can drag the note up to the Ribbon - the same location as e.g. the default `Files`, `Search`, and `Bookmarks`. Once there, you have one-click access to your soundboard.
-
-![Soundboard](doc/Soundboard.png "Illustration of how to create a one-click soundboard")
-
-## Settings
-
-This plugin will only download your remote links once a week. If you are e.g. creating your own soundsets and want the plugin to get a fresh set of links, you can open the settings and press the button labeled "Clear Remote Links".
-
-![Settings](doc/Settings.png "Settings screenshot")
+Immerse your players in a world of sound. With the Syrinscape Player plugin for Obsidian, every session becomes a cinematic experience. Install now and take your TTRPG game to the next level!
