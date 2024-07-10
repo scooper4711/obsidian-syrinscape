@@ -188,8 +188,6 @@ export class SyrinscapePlayerView extends ItemView {
      * and after onOpen has been called.
      */
     async activateSyrinscape() {
-        console.log('Syrinscape - Activating Syrinscape player.');
-        await syrinscape.config.init()
         if (!syrinscape?.player?.syncSystem?.events) {
             console.error('Syrinscape - activateSyrinscape called before syrinscape.player.syncSystem.events is available.');
             return;
