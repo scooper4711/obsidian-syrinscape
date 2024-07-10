@@ -80,7 +80,6 @@ export default class SyrinscapePlugin extends Plugin {
         // "Reveal" the leaf in case it is in a collapsed sidebar
         workspace.revealLeaf(leaf);
     }
-    console.debug("Syrinscape - leaf:", leaf);
   }
 }
 
@@ -176,7 +175,11 @@ export default class SyrinscapePlugin extends Plugin {
       .catch(error => console.error("Error loading script:", error));
 
     this.loadExternalScript("https://syrinscape.com/visualisation.js")
-      .then(() => console.debug("Script loaded successfully."))
+      .then(() => {
+        console.debug("Script loaded successfully."); 
+        console.log('Syrinscape - Activating Syrinscape player.');
+        syrinscape.config.init()
+      })
       .catch(error => console.error("Error loading script:", error));
   }
   /**
