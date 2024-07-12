@@ -188,8 +188,10 @@ export class SyrinscapePlayerView extends ItemView {
      * and after onOpen has been called.
      */
     async activateSyrinscape() {
-        if (!syrinscape?.player?.syncSystem?.events) {
-            console.error('Syrinscape - activateSyrinscape called before syrinscape.player.syncSystem.events is available.');
+        // Get the global variable syrinscape from the document. If it's not available, log an error and return.
+        if (!isSyrinscapeLoaded()) {
+            console.error('Syrinscape - Syrinscape player not loaded.');
+            new Notice('Failed to load Syrinscape player. Please check the console for more information.');
             return;
         }
         
@@ -218,7 +220,7 @@ export class SyrinscapePlayerView extends ItemView {
             },
 
             onActive() {
-                if (syrinscape.config?.authenticated) {
+                if (isSyrinscapeAuthenticated()) {
                     console.log("Syrinscape - successfully logged in.")
                 } else {
                     console.error("Syrinscape - failed to log in.")
@@ -293,4 +295,36 @@ export class SyrinscapePlayerView extends ItemView {
             syrinscape.player.controlSystem.stopAll();
         }
     }
+    onunload(): void {
+        console.debug('Syrinscape - Unloading view');
+    }
+}
+
+/**
+ * 
+ * @returns true if the syrinscape object is defined in the window, false otherwise
+ */
+export function isSyrinscapeDefined() {
+    return 'syrinscape' in window;
+
+}
+/**
+ * 
+ * @returns true if the syrinscape object is defined in the window and has the necessary properties, false otherwise
+ */
+export function isSyrinscapeLoaded() {
+    try {
+        return isSyrinscapeDefined() && syrinscape.config && syrinscape.player && syrinscape.player.syncSystem && syrinscape.player.syncSystem.events;
+    } catch (error) {
+        return false;
+    }
+    
+}
+
+/**
+ * 
+ * @returns true if the syrinscape object is defined in the window and is authenticated, false otherwise
+ */
+export function isSyrinscapeAuthenticated() {
+    return isSyrinscapeLoaded() && syrinscape.config && syrinscape.config.authenticated;
 }

@@ -1,5 +1,6 @@
 export const SYRINSCAPE_CLASS = 'syrinscape-markdown';
 import { Notice } from "obsidian";
+import { isSyrinscapeAuthenticated } from "SyrinscapePlayerView";
 
 export class SyrinscapeSound {
     constructor(
@@ -35,7 +36,7 @@ export class SyrinscapeSound {
     private callSyrinscapeApi(cmd: string) {
         console.debug(`Syrinscape - ${cmd} ${this.title}-${this.id}-${this.type}`);
         try {
-            if (syrinscape?.player && syrinscape?.player?.controlSystem) {
+            if (isSyrinscapeAuthenticated()) {
                 if (this.type === 'mood') {
                     if (cmd === 'play') {
                         syrinscape.player.controlSystem.startMood(this.id);
