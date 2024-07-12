@@ -93,11 +93,7 @@ export class SyrinscapePlayerWidget extends WidgetType {
     // Widgets only get updated when the raw query changes/the element gets focus and loses it
     // to prevent redraws when the editor updates.
     eq(other: SyrinscapePlayerWidget): boolean {
-        return other.rawQuery === this.rawQuery;//) {
-        // return true;
-        // }
-        // this.plugin.processor.fileMap.get(this.file)?.remove(other.roller);
-        // return false;
+        return other.rawQuery === this.rawQuery;
     }
 
     toDOM() {
