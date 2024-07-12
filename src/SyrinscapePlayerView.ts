@@ -1,5 +1,6 @@
 import { ItemView, Notice, WorkspaceLeaf } from "obsidian";
 import SyrinscapePlugin from "./main";
+import { setAllStopped } from "SyrinscapeSound";
 export const VIEW_TYPE = "syrinscape-player";
 
 export class SyrinscapePlayerView extends ItemView {
@@ -134,6 +135,7 @@ export class SyrinscapePlayerView extends ItemView {
         const stopAll = controlsDiv.createEl('button', { text: '⏹️' });
         stopAll.addEventListener('click', () => {
             syrinscape.player.controlSystem.stopAll();
+            setAllStopped();
         });
         stopAll.setAttribute('aria-label', 'Stop all sounds');
         return stopAll;
@@ -291,6 +293,7 @@ export class SyrinscapePlayerView extends ItemView {
      */
     async onClose() {
         console.debug('Syrinscape - Closing view');
+        setAllStopped();
         if (syrinscape.config) {
             syrinscape.player.controlSystem.stopAll();
         }
