@@ -196,29 +196,34 @@ export class SyrinscapePlayerView extends ItemView {
             new Notice('Failed to load Syrinscape player. Please check the console for more information.');
             return;
         }
-        
-        if (this.localVolume) this.localVolume.value = syrinscape.config.lastLocalVolume || '1';
+        syrinscape.events.playerActive.addListener(() => {
+            console.debug('Syrinscape - Player active. Adding listenters for player view.');
+            if (this.localVolume) this.localVolume.value = syrinscape.config.lastLocalVolume || '1';
 
-        const events = syrinscape.player.syncSystem.events;
-        // Set the title to the current song title
-        events.onChangeMood.addListener((e: { title: string; }) => { if (this.title) this.title.textContent = e.title });
-        // Set the backround image of the syrinscape div to the current soundset image
-        events.onChangeSoundset.addListener((e: { artwork: string; title: string; }) => { if (this.syrinscapeDiv) this.syrinscapeDiv.style.backgroundImage = `url(${e.artwork})` });
+            this.subscribeToArtworkChanges();
+            this.subscribeToVolumeEvents();
+            this.subscribeToVisualizerUpdates();    
+        });
         const authToken = this.plugin.settings.authToken;
         const ctaDiv = this.ctaDiv;
         const interfaceDiv = this.interfaceDiv;
+        this.subscribeToConfigUpdates();
         console.log('Syrinscape - Logging in to Syrinscape player.');
         syrinscape.player.init({
             async configure() {
-                syrinscape.config.init();
-
-                // Audio context. Leave undefined to create one.
-                if (!syrinscape.config.audioContext)
-                    syrinscape.config.audioContext = new AudioContext();
-                // Auth token.
-                syrinscape.config.token = authToken;
-                // Wait until async token change is finished, because `sessionId` might change.
-                syrinscape.config.sync();
+                try {
+                    syrinscape.config.init();
+                    // Audio context. Leave undefined to create one.
+                    if (!syrinscape.config.audioContext)
+                        syrinscape.config.audioContext = new AudioContext();
+                    // Auth token.
+                    syrinscape.config.token = authToken;
+                    // Wait until async token change is finished, because `sessionId` might change.
+                    syrinscape.config.sync();            
+                } catch (error) {
+                    console.error('Syrinscape - Error configuring player:', error);
+                    new Notice('Failed to configure Syrinscape player. Please check the console for more information.');
+                }
             },
 
             onActive() {
@@ -251,6 +256,63 @@ export class SyrinscapePlayerView extends ItemView {
                 if (interfaceDiv) interfaceDiv.style.display = 'none';
             },
         });
+        
+    }
+
+    /**
+     * Subscribe to undocumented APIs to allow for updating the player view background image and title.
+     */
+    private subscribeToArtworkChanges() {
+        const events = syrinscape.player.syncSystem.events;
+        // Set the title to the current song title
+        events.onChangeMood.addListener((e: { title: string; }) => { if (this.title) this.title.textContent = e.title; });
+        // Set the backround image of the syrinscape div to the current soundset image
+        events.onChangeSoundset.addListener((e: { artwork: string; title: string; }) => { if (this.syrinscapeDiv) this.syrinscapeDiv.style.backgroundImage = `url(${e.artwork})`; });
+    }
+
+    /**
+     * Subscribe to the visualiser updates to update the frequency and waveform visualisations.
+     */
+    private subscribeToVisualizerUpdates() {
+        syrinscape.visualisation.add('global', () => {
+            // Get combined frequency and waveform data.
+            let data = syrinscape.player.audioEffectSystem.analyser.getData();
+
+            // Visualise frequency and waveform data.
+            // You can replace this section to visualise the data any way you like.
+            syrinscape.visualisation.d3VisualiseFrequencyData(data, '.d3-frequency');
+            syrinscape.visualisation.d3VisualiseWaveformData(data, '.d3-waveform')
+            // If analyser is still active, report that visualiser is still active.
+            // If no visualisers are active, visualisation loop will be paused.
+            return syrinscape.player.audioEffectSystem.analyser.isActive;
+        });
+    }
+
+    /**
+     * Subscribe to config updates to show/hide the login div and show/hide the player interface.
+     */
+    private subscribeToConfigUpdates() {
+        syrinscape.events.updateConfig.addListener((event: CustomEvent) => {
+            if (!this.loginDiv || !this.title || !this.controlsDiv || !this.visualisationsDiv) return;
+            // console.debug('Syrinscape - updateConfig: ', event);
+            if (event.detail.authenticated || syrinscape.config?.authenticated) {
+                this.loginDiv.style.display = 'none';
+                this.title.style.display = 'block';
+                this.controlsDiv.style.display = 'flex';
+                this.visualisationsDiv.style.display = 'block';
+            } else {
+                this.loginDiv.style.display = 'flex';
+                this.title.style.display = 'none';
+                this.controlsDiv.style.display = 'none';
+                this.visualisationsDiv.style.display = 'none';
+            }
+        });
+    }
+
+    /**
+     * Subscribe to volume events to update the local volume slider and mute button.
+     */
+    private subscribeToVolumeEvents() {
         syrinscape.events.setLocalVolume.addListener((event: { detail: string; }) => {
             if (!this.localVolume || !this.mute) return;
             this.localVolume.value = event.detail;
@@ -267,38 +329,6 @@ export class SyrinscapePlayerView extends ItemView {
                 }
             }
         });
-
-        syrinscape.events.updateConfig.addListener((event: CustomEvent) => {
-            if (!this.loginDiv || !this.title || !this.controlsDiv || !this.visualisationsDiv) return;
-            // console.debug('Syrinscape - updateConfig: ', event);
-            if (event.detail.authenticated || syrinscape.config?.authenticated) {
-                this.loginDiv.style.display = 'none';
-                this.title.style.display = 'block';
-                this.controlsDiv.style.display = 'flex';
-                this.visualisationsDiv.style.display = 'block';
-            } else {
-                this.loginDiv.style.display = 'flex';
-                this.title.style.display = 'none';
-                this.controlsDiv.style.display = 'none';
-                this.visualisationsDiv.style.display = 'none';
-            }
-        });
-
-        // Register 'global' frequency and waveform visualiser.
-        syrinscape.visualisation.add('global', () => {
-            // Get combined frequency and waveform data.
-            let data = syrinscape.player.audioEffectSystem.analyser.getData()
-
-            // Visualise frequency and waveform data.
-            // You can replace this section to visualise the data any way you like.
-            syrinscape.visualisation.d3VisualiseFrequencyData(data, '.d3-frequency')
-            // syrinscape.visualisation.d3VisualiseWaveformData(data, '.d3-waveform')
-
-            // If analyser is still active, report that visualiser is still active.
-            // If no visualisers are active, visualisation loop will be paused.
-            return syrinscape.player.audioEffectSystem.analyser.isActive
-        })
-        
     }
 
     /**
