@@ -12,20 +12,27 @@ export class SyrinscapeSound {
 
     public renderSpan(element: HTMLElement) {
         const syrinscapeDiv = element.createEl("span", { cls: SYRINSCAPE_CLASS });
+        const playText = '▶️';
+        const stopText = '⏹️';
         // make an anchor with the class play, the text ▶️ and hovertext of "Play ${soundTitle}" if it's set, or just "Play"
-        const play = syrinscapeDiv.createEl("a", { cls: "play", text: "▶️", title: this.title ? `Play "${this.title}"` : "Play" });
+        const play = syrinscapeDiv.createEl("a", { cls: `play ${this.type} syrinscape-play-${this.id}`, text: playText, title: this.title ? `Play "${this.title}"` : "Play" });
+        if (!isSyrinscapeAuthenticated()) {
+            console.debug('Syrinscape - Not authenticated, disabling play button.');
+            play.addClass('inactive');
+        }
         play.addEventListener("click", (e) => {
             e.preventDefault();
             this.callSyrinscapeApi("play");
         });
-        // If the type is either oneshot or element, don't display the stop button
-        if (this.type !== 'oneshot' && this.type !== 'element') {
-            const stop = syrinscapeDiv.createEl("a", { cls: "stop", text: "⏹️", title: this.title ? `Stop "${this.title}"` : "Stop" });
-            stop.addEventListener("click", (e) => {
-                e.preventDefault();
-                this.callSyrinscapeApi("stop");
-            });
+        const stop = syrinscapeDiv.createEl("a", { cls: `stop ${this.type} syrinscape-stop-${this.id}`, text: stopText, title: this.title ? `Stop "${this.title}"` : "Stop" });
+        if (!isSyrinscapeAuthenticated()) {
+            console.debug('Syrinscape - Not authenticated, disabling stop button.');
+            stop.addClass('inactive');
         }
+        stop.addEventListener("click", (e) => {
+            e.preventDefault();
+            this.callSyrinscapeApi("stop");
+        });
         return syrinscapeDiv;
     }
 

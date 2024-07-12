@@ -14,6 +14,13 @@
 .syrinscape-markdown a{
     font-family: emoji;
 }
+
+/* target all anchors with the inactive class */
+.syrinscape-markdown a.inactive {
+    pointer-events: none;
+    filter: opacity(0.5);
+}
+
  /* the background of the playing class should be the accent color */
 .syrinscape-markdown a.mood.stop.playing {
     text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px var(--accent), 0 0 40px var(--accent), 0 0 50px var(--accent), 0 0 60px var(--accent), 0 0 70px var(--accent);
@@ -98,23 +105,4 @@
 .syrinscape .local-volume {
     flex-grow: 1;
     margin: 0 1em;
-}
-/*
-Style the syrinscape span
-*/
-
-.syrinscape-markdown a{
-    font-family: emoji;
-}
-
-/* play anchors inside a syrinscape class should replace their text with the text ▶️, with padding to the next icon */
-
-.syrinscape-markdown a.play {
-    display: inline-block;
-    padding-right: 0.1em;
-}
-/* anchors with the stop class inside of syrinscape class should replace their text with the stop icon */
-.syrinscape-markdown a.stop {
-    display: inline-block;
-    padding-right: 0.1em;
 }

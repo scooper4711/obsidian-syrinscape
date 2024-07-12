@@ -224,8 +224,17 @@ export class SyrinscapePlayerView extends ItemView {
             onActive() {
                 if (isSyrinscapeAuthenticated()) {
                     console.log("Syrinscape - successfully logged in.")
+                    // remove inactive from all syrinscape elements
+                    document.querySelectorAll('.syrinscape-markdown a.inactive').forEach((element) => {
+                        element.classList.remove('inactive');
+                    });                    
                 } else {
-                    console.error("Syrinscape - failed to log in.")
+                    console.log("Syrinscape - failed to log in. Disabling play buttons.")
+                    // add inactive from all syrinscape elements
+                    document.querySelectorAll('.syrinscape-markdown a').forEach((element) => {
+                        element.classList.add('inactive');
+                    });
+                    
                     new Notice('Failed to log in to Syrinscape player. Please check your authentication token in preferences.');
                 }
                 if (ctaDiv) ctaDiv.style.display = 'none';
@@ -234,6 +243,10 @@ export class SyrinscapePlayerView extends ItemView {
 
             onInactive() {
                 console.debug("Syrinscape - logged out/deactivated.")
+                // add inactive from all syrinscape elements
+                document.querySelectorAll('.syrinscape-markdown a').forEach((element) => {
+                    element.classList.add('inactive');
+                });
                 if (ctaDiv) ctaDiv.style.display = 'block';
                 if (interfaceDiv) interfaceDiv.style.display = 'none';
             },
