@@ -4,7 +4,7 @@ import { MarkdownPostProcessorContext, Plugin, WorkspaceLeaf} from 'obsidian';
 import { SyrinscapePlayerView, VIEW_TYPE } from "./SyrinscapePlayerView";
 import { SyrinscapeRenderChild } from 'SyrinscapeRenderChild';
 import { inlinePlugin } from 'SyrinscapePlayerWidget';
-import { SyrinscapeSound } from 'SyrinscapeSound';
+import { registerForSyrinscapeEvents, SyrinscapeSound } from 'SyrinscapeSound';
 
 export interface SyrinscapeSettings {
   authToken: string;
@@ -53,7 +53,7 @@ export default class SyrinscapePlugin extends Plugin {
     this.app.workspace.onLayoutReady(() => {
       this.editorSuggest = new SyrinscapeSuggest(this.app, this);
       this.registerEditorSuggest(this.editorSuggest);
-      this.editorSuggest.fetchRemoteLinks();
+      this.editorSuggest.fetchRemoteLinks();      
       console.log("Syrinscape loaded");
     });
   }
@@ -178,10 +178,16 @@ export default class SyrinscapePlugin extends Plugin {
       .then(() => {
         console.debug("Script loaded successfully."); 
         console.log('Syrinscape - Activating Syrinscape player.');
-        syrinscape.config.init()
+        syrinscape.events.playerActive.listeners = [];
+        syrinscape.events.playerActive.addListener(() => {
+          registerForSyrinscapeEvents();
+        });
+        syrinscape.config.init();
       })
       .catch(error => console.error("Error loading script:", error));
   }
+
+
   /**
    * Load an external script.
    * @param scriptUrl the URL of the script to load

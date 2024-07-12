@@ -1,6 +1,7 @@
 import { App, ButtonComponent, PluginSettingTab, Setting } from 'obsidian';
 import SyrinscapePlugin from 'main';
 import { DEFAULT_SETTINGS } from 'main';
+import { isSyrinscapeDefined } from 'SyrinscapePlayerView';
 
 export class SyrinscapeSettingsTab extends PluginSettingTab {
   plugin: SyrinscapePlugin;
@@ -32,6 +33,10 @@ export class SyrinscapeSettingsTab extends PluginSettingTab {
         .setValue(this.plugin.settings.authToken)
         .onChange(async (value) => {
           this.plugin.settings.authToken = value;
+          if (isSyrinscapeDefined()) {
+            syrinscape.config.token = '';
+            syrinscape.config.token = value;
+          }
           await this.plugin.saveData(this.plugin.settings);
         }));
     

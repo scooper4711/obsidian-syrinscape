@@ -4,6 +4,11 @@ declare global {
         [x: string]: any;
         visualisation: any;
         events: {
+            playerActive: any;
+            stopElement: any;
+            startElement: any;
+            stopSample: any;
+            startSample: any;
             startVisualisation: any;
             setLocalVolume: any;
             updateConfig: {
