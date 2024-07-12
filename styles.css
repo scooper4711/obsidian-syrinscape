@@ -10,6 +10,31 @@
     height: 100%;
     width: 100%;
 }
+/* all markdown elements should start out as non-interactive and be covered by a white square */
+.syrinscape-markdown a{
+    font-family: emoji;
+}
+ /* the background of the playing class should be the accent color */
+.syrinscape-markdown a.mood.stop.playing {
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px var(--accent), 0 0 40px var(--accent), 0 0 50px var(--accent), 0 0 60px var(--accent), 0 0 70px var(--accent);
+}
+    /* anchors with the stop class inside of syrinscape class should replace their text with the stop icon */
+.syrinscape-markdown a.stop {
+    display: none;
+    padding-right: 0.1em;
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px var(--accent), 0 0 40px var(--accent), 0 0 50px var(--accent), 0 0 60px var(--accent), 0 0 70px var(--accent);
+}
+
+
+/* anchors with the playing class inside of syrinscape class should be greyed out and non-interactive */
+.syrinscape-markdown a.play.playing {
+    display: none;
+}
+.syrinscape-markdown a.stop.playing {
+    display: inline;
+}
+
+
 /*
  Syrinscape CSS (c) Syrinscape.inc
  */
