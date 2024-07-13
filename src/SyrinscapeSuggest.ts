@@ -58,11 +58,11 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeSound> {
     async fetchRemoteLinks(): Promise<void> {
         // if the remoteLinks map is not empty, then we have already fetched the remote links
         if (this.plugin.settings.csvContent.length > 0) {
-            console.log(`Syrinscape - Remote links already fetched. Skipping download.`);
+            console.debug(`Syrinscape - Remote links already fetched. Skipping download.`);
             this.parseRemoteLinks(this.plugin.settings.csvContent);
             return;
         }
-        console.log("Syrinscape - Downloading CSV file of remote links.");
+        console.debug("Syrinscape - Downloading CSV file of remote links.");
         try {
             const response = await requestUrl({
                 url: 'https://syrinscape.com/account/remote-control-links-csv/',
@@ -101,7 +101,7 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeSound> {
                     const sound = new SyrinscapeSound(row.id.substring(2), row.type === 'element' ? row.sub_type : row.type, soundTitle);
                     this.remoteLinks.set(`${sound.type} ${sound.id} ${sound.title.toLowerCase()}`, sound);
                 }
-                console.log(`Syrinscape - Completed parsing of CSV file of ${this.remoteLinks.size} remote links`)
+                console.debug(`Syrinscape - Completed parsing of CSV file of ${this.remoteLinks.size} remote links`)
             },
             error: (error: any) => {
                 console.error('Syrinscape - Error parsing CSV:', error);

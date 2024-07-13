@@ -1,7 +1,8 @@
-import { App, ButtonComponent, PluginSettingTab, Setting } from 'obsidian';
+import { App, ButtonComponent, Notice, PluginSettingTab, Setting } from 'obsidian';
 import SyrinscapePlugin from 'main';
 import { DEFAULT_SETTINGS } from 'main';
 import { isSyrinscapeDefined } from 'SyrinscapePlayerView';
+import { SyrinscapeSound } from 'SyrinscapeSound';
 
 export class SyrinscapeSettingsTab extends PluginSettingTab {
   plugin: SyrinscapePlugin;
@@ -35,7 +36,9 @@ export class SyrinscapeSettingsTab extends PluginSettingTab {
           this.plugin.settings.authToken = value;
           if (isSyrinscapeDefined()) {
             syrinscape.config.token = '';
+            syrinscape.config.sync();
             syrinscape.config.token = value;
+            this.plugin.playerView?.activateSyrinscape();
           }
           await this.plugin.saveData(this.plugin.settings);
         }));
@@ -83,6 +86,6 @@ export class SyrinscapeSettingsTab extends PluginSettingTab {
         .onClick(async () => {
           this.plugin.clearCache();
           this.plugin.editorSuggest?.fetchRemoteLinks();
-        }));
-  }
+      }));
+    }      
 }
