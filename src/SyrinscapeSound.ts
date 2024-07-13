@@ -40,7 +40,7 @@ export class SyrinscapeSound {
     * Uses the local Syrinscape player to control the sound.
     * @param cmd - The command to send to the local player - either play or stop.
     */
-    private callSyrinscapeApi(cmd: string) {
+    public callSyrinscapeApi(cmd: string) {
         console.debug(`Syrinscape - ${cmd} ${this.title}-${this.id}-${this.type}`);
         try {
             if (isSyrinscapeAuthenticated()) {
@@ -83,7 +83,7 @@ export class SyrinscapeSound {
  */
 export function registerForSyrinscapeEvents() {
     // register for syrinscape.startSample event
-    console.log('Syrinscape - Registering for syrinscape start/stop event.');
+    console.debug('Syrinscape - Registering for syrinscape start/stop event.');
     syrinscape.player.syncSystem.events.onChangeMood.addListener(startMood.bind(this));
     syrinscape.player.syncSystem.events.onChangeSoundset.addListenerOneshot.bind(oneshotChanged.bind(this));
 
@@ -93,7 +93,7 @@ export function registerForSyrinscapeEvents() {
     // syrinscape.events.startSample.addListener(startSample.bind(this));
     // subscribing to stopSample in order to stop one-shots
     syrinscape.events.stopSample.addListener(stopSample.bind(this));
-    console.log('Syrinscape - successfully registered for all events.');
+    console.debug('Syrinscape - successfully registered for all events.');
 }
 
 /**

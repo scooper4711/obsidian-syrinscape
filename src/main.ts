@@ -4,7 +4,7 @@ import { MarkdownPostProcessorContext, Plugin, WorkspaceLeaf} from 'obsidian';
 import { SyrinscapePlayerView, VIEW_TYPE } from "./SyrinscapePlayerView";
 import { SyrinscapeRenderChild } from 'SyrinscapeRenderChild';
 import { inlinePlugin } from 'SyrinscapePlayerWidget';
-import { registerForSyrinscapeEvents, SyrinscapeSound } from 'SyrinscapeSound';
+import { SyrinscapeSound } from 'SyrinscapeSound';
 
 export interface SyrinscapeSettings {
   authToken: string;
@@ -24,7 +24,7 @@ export const DEFAULT_SETTINGS: SyrinscapeSettings = {
 
 export default class SyrinscapePlugin extends Plugin {
   settings: SyrinscapeSettings;
-
+  playerView: SyrinscapePlayerView;
   editorSuggest: SyrinscapeSuggest | null;
 
   /**
@@ -41,7 +41,7 @@ export default class SyrinscapePlugin extends Plugin {
 
     this.registerView(
       VIEW_TYPE,
-      (leaf) => new SyrinscapePlayerView(leaf, this)
+      (leaf) => this.playerView = new SyrinscapePlayerView(leaf, this)
     );
     
     this.addRibbonIcon("speaker", "Open Syrinscape Player", () => {
@@ -102,7 +102,7 @@ export default class SyrinscapePlugin extends Plugin {
       const diff = now.getTime() - this.settings.lastUpdated.getTime();
       const diffDays = Math.floor(diff / (1000 * 60 * 60 * 24));
       if (diffDays > this.settings.maxCacheAge) {
-        console.log(`Syrinscape - Last updated ${diffDays} day(s) ago, more than ${this.settings.maxCacheAge}. Clearing cache`);
+        console.debug(`Syrinscape - Last updated ${diffDays} day(s) ago, more than ${this.settings.maxCacheAge}. Clearing cache`);
         this.clearCache();
       } else {
         console.debug(`Syrinscape - Last updated ${diffDays} day(s) ago. Cache is still valid`);
@@ -167,21 +167,17 @@ export default class SyrinscapePlugin extends Plugin {
    */
   private async loadSyrinscapeScripts() {
     this.loadExternalScript("https://syrinscape.com/integration.js")
-      .then(() => console.debug("Script loaded successfully."))
+      .then(() => console.debug("integration.js script loaded successfully."))
       .catch(error => console.error("Error loading script:", error));
 
     this.loadExternalScript("https://syrinscape.com/player.js")
-      .then(() => console.debug("Script loaded successfully."))
+      .then(() => console.debug("player.js script loaded successfully."))
       .catch(error => console.error("Error loading script:", error));
 
     this.loadExternalScript("https://syrinscape.com/visualisation.js")
       .then(() => {
-        console.debug("Script loaded successfully."); 
-        console.log('Syrinscape - Activating Syrinscape player.');
-        syrinscape.events.playerActive.listeners = [];
-        syrinscape.events.playerActive.addListener(() => {
-          registerForSyrinscapeEvents();
-        });
+        console.debug("visualization.js script loaded successfully."); 
+        console.debug('Syrinscape - Activating Syrinscape player.');
         syrinscape.config.init();
       })
       .catch(error => console.error("Error loading script:", error));

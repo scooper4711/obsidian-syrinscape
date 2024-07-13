@@ -9,7 +9,6 @@ import {
 import { EditorSelection, Range } from "@codemirror/state";
 import { syntaxTree } from "@codemirror/language";
 import {
-    TFile,
     editorEditorField,
     editorLivePreviewField,
     editorInfoField

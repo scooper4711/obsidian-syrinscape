@@ -1,6 +1,6 @@
 import { ItemView, Notice, WorkspaceLeaf } from "obsidian";
 import SyrinscapePlugin from "./main";
-import { setAllStopped } from "SyrinscapeSound";
+import { registerForSyrinscapeEvents, setAllStopped } from "SyrinscapeSound";
 export const VIEW_TYPE = "syrinscape-player";
 
 export class SyrinscapePlayerView extends ItemView {
@@ -189,7 +189,7 @@ export class SyrinscapePlayerView extends ItemView {
      * Must be called only once per view and only after the syrinscape object is available
      * and after onOpen has been called.
      */
-    async activateSyrinscape() {
+    public async activateSyrinscape() {
         // Get the global variable syrinscape from the document. If it's not available, log an error and return.
         if (!isSyrinscapeLoaded()) {
             console.error('Syrinscape - Syrinscape player not loaded.');
@@ -198,6 +198,7 @@ export class SyrinscapePlayerView extends ItemView {
         }
         syrinscape.events.playerActive.addListener(() => {
             console.debug('Syrinscape - Player active. Adding listenters for player view.');
+            registerForSyrinscapeEvents();
             if (this.localVolume) this.localVolume.value = syrinscape.config.lastLocalVolume || '1';
 
             this.subscribeToArtworkChanges();
@@ -208,7 +209,7 @@ export class SyrinscapePlayerView extends ItemView {
         const ctaDiv = this.ctaDiv;
         const interfaceDiv = this.interfaceDiv;
         this.subscribeToConfigUpdates();
-        console.log('Syrinscape - Logging in to Syrinscape player.');
+        console.debug('Syrinscape - Logging in to Syrinscape player.');
         syrinscape.player.init({
             async configure() {
                 try {
@@ -228,13 +229,13 @@ export class SyrinscapePlayerView extends ItemView {
 
             onActive() {
                 if (isSyrinscapeAuthenticated()) {
-                    console.log("Syrinscape - successfully logged in.")
+                    console.log("Syrinscape - successfully logged in to app.syrinscape.com.")
                     // remove inactive from all syrinscape elements
                     document.querySelectorAll('.syrinscape-markdown a.inactive').forEach((element) => {
                         element.classList.remove('inactive');
                     });                    
                 } else {
-                    console.log("Syrinscape - failed to log in. Disabling play buttons.")
+                    console.log("Syrinscape - failed to log in. Please check your authentication token.")
                     // add inactive from all syrinscape elements
                     document.querySelectorAll('.syrinscape-markdown a').forEach((element) => {
                         element.classList.add('inactive');
