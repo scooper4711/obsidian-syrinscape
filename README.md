@@ -22,14 +22,11 @@ Welcome, Game Masters! Are you looking to elevate your tabletop role-playing ses
 
 1. **Install the Plugin:** Find the Syrinscape module in Obsidian's Community Plugin Manager and install it.
 2. **Authenticate:** Retrieve your Auth token from [Syrinscape's website](https://syrinscape.com/online/cp/) and paste it into the plugin settings.
-3. **Embed Sounds:** Use the following markdown syntax to embed Syrinscape moods, music, or sound effects:
+3. **Embed Sounds:** Use the following markdown syntax to embed Syrinscape moods, music, oneshots, or sound effects:
     ```markdown
     `syrinscape:mood:soundId:optional mouseover text`
     `syrinscape:music:soundId:optional mouseover text`
     `syrinscape:sfx:soundId:optional mouseover text`
-    ```
-    For one-shot sounds, use:
-    ```markdown
     `syrinscape:oneshot:soundId:optional mouseover text`
     ```
 4. **Auto-Complete Convenience:** The plugin's auto-complete feature makes adding sounds a breeze, providing you with a list of all accessible sounds.
