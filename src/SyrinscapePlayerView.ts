@@ -407,5 +407,9 @@ export function isSyrinscapeLoaded() {
  * @returns true if the syrinscape object is defined in the window and is authenticated, false otherwise
  */
 export function isSyrinscapeAuthenticated() {
-    return isSyrinscapeLoaded() && syrinscape.config && syrinscape.config.authenticated;
+    try {
+        return isSyrinscapeLoaded() && syrinscape.config.authenticated;
+    } catch (error) {
+        return false;
+    }
 }
