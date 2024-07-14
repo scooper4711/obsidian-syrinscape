@@ -23,13 +23,13 @@
 
  /* the background of the playing class should be the accent color */
 .syrinscape-markdown a.mood.stop.playing {
-    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px var(--accent), 0 0 40px var(--accent), 0 0 50px var(--accent), 0 0 60px var(--accent), 0 0 70px var(--accent);
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px var(--text-muted), 0 0 40px var(--text-muted), 0 0 50px var(--text-muted), 0 0 60px var(--text-muted), 0 0 70px var(--text-muted);
 }
     /* anchors with the stop class inside of syrinscape class should replace their text with the stop icon */
 .syrinscape-markdown a.stop {
     display: none;
     padding-right: 0.1em;
-    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px var(--accent), 0 0 40px var(--accent), 0 0 50px var(--accent), 0 0 60px var(--accent), 0 0 70px var(--accent);
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px var(--text-muted), 0 0 40px var(--text-muted), 0 0 50px var(--text-muted), 0 0 60px var(--text-muted), 0 0 70px var(--text-muted);
 }
 
 
@@ -43,7 +43,7 @@
 
 .syrinscape-markdown a.play.oneshot.playing {
     display: inline;
-    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px var(--accent), 0 0 40px var(--accent), 0 0 50px var(--accent), 0 0 60px var(--accent), 0 0 70px var(--accent);
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px var(--text-muted), 0 0 40px var(--text-muted), 0 0 50px var(--text-muted), 0 0 60px var(--text-muted), 0 0 70px var(--text-muted);
 }
 .syrinscape-markdown a.stop.oneshot.playing {
     display: none;
