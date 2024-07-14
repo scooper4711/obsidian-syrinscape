@@ -189,14 +189,14 @@ export function oneshotChanged(event: CustomEvent<any>) {
  * Respond to the syrinscape.startElement event by adding the playing class to the element.
  */
 export function startElement(event: CustomEvent<{ elementId: number, playlistEntryId: number, timeToStop: number, timeToStopOrNextSample: number }>) {
-    console.debug('Syrinscape - startElement:', event.detail);
+    console.debug('Syrinscape - startElement:', event.detail.elementId);
     setPlaying(event.detail.elementId);
 }
 /**
  * Respond to the syrinscape.startSample event by adding the playing class to the element.
  */
 export function startSample(event: CustomEvent<{ elementId: number, playlistEntryId: number, timeToStop: number, timeToStopOrNextSample: number }>) {
-    console.debug('Syrinscape - startSample:', event.detail);
+    console.debug('Syrinscape - startSample:', event.detail.elementId);
     setPlaying(event.detail.elementId);
 }
 
@@ -204,14 +204,14 @@ export function startSample(event: CustomEvent<{ elementId: number, playlistEntr
  * Respond to the syrinscape.startSample event by removing the playing class from the element.
  */
 export function stopSample(event: CustomEvent<{ elementId: number, playlistEntryId: number, timeToStop: number, sampleId: number }>) {
-    console.debug('Syrinscape - stopSample:', event.detail);
+    console.debug('Syrinscape - stopSample:', event.detail.elementId);
     setStopped(event.detail.elementId, 'sample');
 }
 /**
  * Respond to the syrinscape.stopElement event by removing the playing class from the element.
  */
 export function stopElement(event: CustomEvent<{ elementId: number, playlistEntryId: number, timeToStop: number, sampleId: number }>) {
-    console.debug('Syrinscape - stopElement:', event.detail);
+    console.debug('Syrinscape - stopElement:', event.detail.elementId);
     setStopped(event.detail.elementId);
 }
 

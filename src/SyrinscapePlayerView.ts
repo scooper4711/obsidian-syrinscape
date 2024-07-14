@@ -108,9 +108,7 @@ export class SyrinscapePlayerView extends ItemView {
      */
     private buildActivateButton(ctaDiv: HTMLDivElement) {
         const activateButton = ctaDiv.createEl('button', { text: 'Activate' });
-        activateButton.addEventListener('click', () => {
-            this.activateSyrinscape();
-        });
+        activateButton.addEventListener('click', this.listeners['workspace.onLayoutReady']);
         activateButton.setAttribute('aria-label', 'Activate Syrinscape player');
         return activateButton;
     }
@@ -196,14 +194,15 @@ export class SyrinscapePlayerView extends ItemView {
      */
     public async activateSyrinscape() {
         // Get the global variable syrinscape from the document. If it's not available, log an error and return.
-        if (!isSyrinscapeLoaded()) {
+        if (!isSyrinscapeDefined()) {
             console.error('Syrinscape - Syrinscape player not loaded.');
             new Notice('Failed to load Syrinscape player. Please check the console for more information.');
             return;
         }
-        if (!syrinscape.events.playerActive.listeners.contains(this.listeners['syrinscape.playerActive'])) {
+        await syrinscape.config.init();
+        syrinscape.events.playerActive.listeners.remove(this.listeners['syrinscape.playerActive']);
             syrinscape.events.playerActive.addListener(this.listeners['syrinscape.playerActive']);
-        }
+        
         const authToken = this.plugin.settings.authToken;
         const ctaDiv = this.ctaDiv;
         const interfaceDiv = this.interfaceDiv;
@@ -212,7 +211,6 @@ export class SyrinscapePlayerView extends ItemView {
         syrinscape.player.init({
             async configure() {
                 try {
-                    syrinscape.config.init();
                     // Audio context. Leave undefined to create one.
                     if (!syrinscape.config.audioContext)
                         syrinscape.config.audioContext = new AudioContext();
@@ -314,9 +312,8 @@ export class SyrinscapePlayerView extends ItemView {
      * Subscribe to config updates to show/hide the login div and show/hide the player interface.
      */
     private subscribeToConfigUpdates() {
-        if (!syrinscape.events.updateConfig.listeners.contains(this.listeners['syrinscape.updateConfig'])) {
+        syrinscape.events.updateConfig.listeners.remove(this.listeners['syrinscape.updateConfig']);
             syrinscape.events.updateConfig.addListener(this.listeners['syrinscape.updateConfig']);
-        }
     }
 
     private configUpdated(event: { detail: { authenticated: boolean; }; }) {
@@ -343,7 +340,6 @@ export class SyrinscapePlayerView extends ItemView {
     }
 
     private unsubscribeToVolumeEvents() {
-        syrinscape.events.playerActive.listeners.remove(this.listeners['syrinscape.playerActive']);
         syrinscape.events.setLocalVolume.listeners.remove(this.listeners['syrinscape.setLocalVolume']);
     }
 
@@ -373,7 +369,8 @@ export class SyrinscapePlayerView extends ItemView {
             syrinscape.player.controlSystem.stopAll();
         }
         this.unsubscribeToArtworkChanges();
-        syrinscape.events.updateConfig.listeners.remove(this.listeners['syrinscape.updateConfig']);
+        this.unsubscribeToVolumeEvents();
+        this.subscribeToConfigUpdates();
         unregisterForSyrinscapeEvents()
     }
     onunload(): void {
