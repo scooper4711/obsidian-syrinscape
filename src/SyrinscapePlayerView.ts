@@ -1,6 +1,6 @@
 import { ItemView, Notice, WorkspaceLeaf } from "obsidian";
 import SyrinscapePlugin from "./main";
-import { registerForSyrinscapeEvents, setAllStopped } from "SyrinscapeSound";
+import { registerForSyrinscapeEvents, unregisterForSyrinscapeEvents, setAllStopped } from "SyrinscapeSound";
 export const VIEW_TYPE = "syrinscape-player";
 
 export class SyrinscapePlayerView extends ItemView {
@@ -14,6 +14,14 @@ export class SyrinscapePlayerView extends ItemView {
     title: HTMLHeadingElement | null;
     localVolume: HTMLInputElement | null;
     mute: HTMLButtonElement | null;
+    listeners = {
+        'syrinscape.playerActive' : this.playerActive.bind(this),
+        'syrinscape.setLocalVolume': this.setLocalVolume.bind(this),
+        'syrinscape.updateConfig': this.configUpdated.bind(this),
+        'syrinscape.onMoodChange': this.updateTitle.bind(this),
+        'syrinscape.onSoundsetChange': this.updateArtwork.bind(this),
+        'workspace.onLayoutReady': this.activateSyrinscape.bind(this),
+    };
 
     constructor(leaf: WorkspaceLeaf, plugin: SyrinscapePlugin) {
         super(leaf);
@@ -60,9 +68,7 @@ export class SyrinscapePlayerView extends ItemView {
             container.empty();
             this.buildErrorScreen(container);
         }
-        this.app.workspace.onLayoutReady(() => {
-            this.activateSyrinscape();
-        });
+        this.app.workspace.onLayoutReady(this.listeners['workspace.onLayoutReady']);
     }
 
     /**
@@ -89,7 +95,6 @@ export class SyrinscapePlayerView extends ItemView {
         alertDiv.createEl('h3', { text: 'Authorization required' });
         alertDiv.createEl('p', { text: 'Please enter your authentication token in preferences.' });
         alertDiv.createEl('button', { text: 'Reload', cls: 'syrinscape-reload' }).addEventListener('click', () => {
-            syrinscape.config.init();
             this.onOpen();
         });
     }
@@ -196,15 +201,9 @@ export class SyrinscapePlayerView extends ItemView {
             new Notice('Failed to load Syrinscape player. Please check the console for more information.');
             return;
         }
-        syrinscape.events.playerActive.addListener(() => {
-            console.debug('Syrinscape - Player active. Adding listenters for player view.');
-            registerForSyrinscapeEvents();
-            if (this.localVolume) this.localVolume.value = syrinscape.config.lastLocalVolume || '1';
-
-            this.subscribeToArtworkChanges();
-            this.subscribeToVolumeEvents();
-            this.subscribeToVisualizerUpdates();    
-        });
+        if (!syrinscape.events.playerActive.listeners.contains(this.listeners['syrinscape.playerActive'])) {
+            syrinscape.events.playerActive.addListener(this.listeners['syrinscape.playerActive']);
+        }
         const authToken = this.plugin.settings.authToken;
         const ctaDiv = this.ctaDiv;
         const interfaceDiv = this.interfaceDiv;
@@ -260,15 +259,37 @@ export class SyrinscapePlayerView extends ItemView {
         
     }
 
+    private playerActive() {
+        console.debug('Syrinscape - Player active.');
+        registerForSyrinscapeEvents();
+        if (this.localVolume) this.localVolume.value = syrinscape.config.lastLocalVolume || '1';
+
+        this.subscribeToArtworkChanges();
+        this.subscribeToVolumeEvents();
+        this.subscribeToVisualizerUpdates();
+    }
     /**
      * Subscribe to undocumented APIs to allow for updating the player view background image and title.
      */
     private subscribeToArtworkChanges() {
+        this.unsubscribeToArtworkChanges();
         const events = syrinscape.player.syncSystem.events;
         // Set the title to the current song title
-        events.onChangeMood.addListener((e: { title: string; }) => { if (this.title) this.title.textContent = e.title; });
+        events.onChangeMood.addListener(this.listeners['syrinscape.onMoodChange']);
         // Set the backround image of the syrinscape div to the current soundset image
-        events.onChangeSoundset.addListener((e: { artwork: string; title: string; }) => { if (this.syrinscapeDiv) this.syrinscapeDiv.style.backgroundImage = `url(${e.artwork})`; });
+        events.onChangeSoundset.addListener(this.listeners['syrinscape.onSoundsetChange']);
+    }
+    private unsubscribeToArtworkChanges() {
+        const events = syrinscape.player.syncSystem.events;
+        events.onChangeMood.removeListener(this.listeners['syrinscape.onMoodChange']);
+        events.onChangeSoundset.removeListener(this.listeners['syrinscape.onSoundsetChange']);
+    }
+    private updateTitle(event: {title: string, pk: string}) {
+        if (this.title) this.title.textContent = event.title;
+    }
+
+    private updateArtwork(artwork: string) {
+        if (this.syrinscapeDiv) this.syrinscapeDiv.style.backgroundImage = `url(${artwork})`;
     }
 
     /**
@@ -293,54 +314,67 @@ export class SyrinscapePlayerView extends ItemView {
      * Subscribe to config updates to show/hide the login div and show/hide the player interface.
      */
     private subscribeToConfigUpdates() {
-        syrinscape.events.updateConfig.addListener((event: CustomEvent) => {
-            if (!this.loginDiv || !this.title || !this.controlsDiv || !this.visualisationsDiv) return;
-            // console.debug('Syrinscape - updateConfig: ', event);
-            if (event.detail.authenticated || syrinscape.config?.authenticated) {
-                this.loginDiv.style.display = 'none';
-                this.title.style.display = 'block';
-                this.controlsDiv.style.display = 'flex';
-                this.visualisationsDiv.style.display = 'block';
-            } else {
-                this.loginDiv.style.display = 'flex';
-                this.title.style.display = 'none';
-                this.controlsDiv.style.display = 'none';
-                this.visualisationsDiv.style.display = 'none';
-            }
-        });
+        if (!syrinscape.events.updateConfig.listeners.contains(this.listeners['syrinscape.updateConfig'])) {
+            syrinscape.events.updateConfig.addListener(this.listeners['syrinscape.updateConfig']);
+        }
     }
 
+    private configUpdated(event: { detail: { authenticated: boolean; }; }) {
+        if (!this.loginDiv || !this.title || !this.controlsDiv || !this.visualisationsDiv) return;
+        // console.debug('Syrinscape - updateConfig: ', event);
+        if (event.detail.authenticated || syrinscape.config?.authenticated) {
+            this.loginDiv.style.display = 'none';
+            this.title.style.display = 'block';
+            this.controlsDiv.style.display = 'flex';
+            this.visualisationsDiv.style.display = 'block';
+        } else {
+            this.loginDiv.style.display = 'flex';
+            this.title.style.display = 'none';
+            this.controlsDiv.style.display = 'none';
+            this.visualisationsDiv.style.display = 'none';
+        }
+    }
     /**
      * Subscribe to volume events to update the local volume slider and mute button.
      */
     private subscribeToVolumeEvents() {
-        syrinscape.events.setLocalVolume.addListener((event: { detail: string; }) => {
-            if (!this.localVolume || !this.mute) return;
-            this.localVolume.value = event.detail;
-            const volume = Number(event.detail);
-            if (volume === 0) {
-                this.mute.textContent = '🔇';
-            } else {
-                if (volume < 0.5) {
-                    this.mute.textContent = '🔈';
-                } else if (volume < 1) {
-                    this.mute.textContent = '🔉';
-                } else {
-                    this.mute.textContent = '🔊';
-                }
-            }
-        });
+        this.unsubscribeToVolumeEvents();
+        syrinscape.events.setLocalVolume.addListener(this.listeners['syrinscape.setLocalVolume']);
     }
 
+    private unsubscribeToVolumeEvents() {
+        syrinscape.events.playerActive.listeners.remove(this.listeners['syrinscape.playerActive']);
+        syrinscape.events.setLocalVolume.listeners.remove(this.listeners['syrinscape.setLocalVolume']);
+    }
+
+    private setLocalVolume(event: { detail: string; }) {
+        if (!this.localVolume || !this.mute) return;
+        this.localVolume.value = event.detail;
+        const volume = Number(event.detail);
+        if (volume === 0) {
+            this.mute.textContent = '🔇';
+        } else {
+            if (volume < 0.5) {
+                this.mute.textContent = '🔈';
+            } else if (volume < 1) {
+                this.mute.textContent = '🔉';
+            } else {
+                this.mute.textContent = '🔊';
+            }
+        }
+    }
     /**
      * Called when the view is closed.
      */
     async onClose() {
-        console.debug('Syrinscape - Closing view');
+        console.debug('Syrinscape - Closing view.');
         setAllStopped();
         if (syrinscape.config) {
             syrinscape.player.controlSystem.stopAll();
         }
+        this.unsubscribeToArtworkChanges();
+        syrinscape.events.updateConfig.listeners.remove(this.listeners['syrinscape.updateConfig']);
+        unregisterForSyrinscapeEvents()
     }
     onunload(): void {
         console.debug('Syrinscape - Unloading view');

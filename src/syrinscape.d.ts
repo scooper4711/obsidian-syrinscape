@@ -12,6 +12,7 @@ declare global {
             startVisualisation: any;
             setLocalVolume: any;
             updateConfig: {
+                listeners: any;
                 addListener: (arg0: (event: CustomEvent) => void) => void;
 };
         }

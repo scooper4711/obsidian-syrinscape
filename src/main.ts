@@ -177,8 +177,6 @@ export default class SyrinscapePlugin extends Plugin {
     this.loadExternalScript("https://syrinscape.com/visualisation.js")
       .then(() => {
         console.debug("visualization.js script loaded successfully."); 
-        console.debug('Syrinscape - Activating Syrinscape player.');
-        syrinscape.config.init();
       })
       .catch(error => console.error("Error loading script:", error));
   }
