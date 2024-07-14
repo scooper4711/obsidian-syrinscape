@@ -41,6 +41,13 @@
     display: inline;
 }
 
+.syrinscape-markdown a.play.oneshot.playing {
+    display: inline;
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px var(--accent), 0 0 40px var(--accent), 0 0 50px var(--accent), 0 0 60px var(--accent), 0 0 70px var(--accent);
+}
+.syrinscape-markdown a.stop.oneshot.playing {
+    display: none;
+}
 
 /*
  Syrinscape CSS (c) Syrinscape.inc
