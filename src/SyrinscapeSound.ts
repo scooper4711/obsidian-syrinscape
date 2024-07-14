@@ -15,6 +15,9 @@ export class SyrinscapeSound {
         readonly type: string,
         readonly title: string,
     ) {
+        if (type === 'element') {
+            this.type = 'oneshot'
+        }
     }
 
     public renderSpan(element: HTMLElement) {
@@ -141,13 +144,13 @@ export function setPlaying(elementId: number, type?: string) {
  */
 export function setStopped(elementId: number, type?: string) {
     document.querySelectorAll(`.syrinscape-play-${elementId}`).forEach((element) => {
-        if (type === 'sample' && (element.classList.contains('oneshot')||element.classList.contains('element'))) {
+        if (type === 'sample' && element.classList.contains('oneshot')) {
             element.classList.remove('playing');
         } else if (type !== 'sample')
             element.classList.remove('playing');
       });
       document.querySelectorAll(`.syrinscape-stop-${elementId}`).forEach((element) => {
-        if (type === 'sample' && (element.classList.contains('oneshot')||element.classList.contains('element'))) {
+        if (type === 'sample' && element.classList.contains('oneshot')) {
             element.classList.remove('playing');
         } else if (type !== 'sample')
             element.classList.remove('playing');
