@@ -24,6 +24,28 @@ export class SyrinscapeSound {
 
     public renderSpan(element: HTMLElement) {
         const syrinscapeDiv = element.createEl("span", { cls: SYRINSCAPE_CLASS });
+        if (this.type === 'oneshot') {
+            this.renderPlayStop(syrinscapeDiv);
+        } else {
+            this.renderCheckbox(syrinscapeDiv);
+        }
+        return syrinscapeDiv;
+    }
+
+    private renderCheckbox(syrinscapeDiv: HTMLSpanElement) {
+        const label = syrinscapeDiv.createEl("label", { cls: 'switch' });
+        const input = label.createEl("input", { type: 'checkbox', cls: `syrinscape-${this.type}-${this.id}` });
+        const span = label.createEl("span", { cls: 'slider round' });
+        input.addEventListener('change', (e) => {
+            if (input.checked) {
+                this.callSyrinscapeApi("play");
+            } else {
+                this.callSyrinscapeApi("stop");
+            }
+        });
+    }
+
+    private renderPlayStop(syrinscapeDiv: HTMLSpanElement) {
         const playText = '▶️';
         const stopText = '⏹️';
         // make an anchor with the class play, the text ▶️ and hovertext of "Play ${soundTitle}" if it's set, or just "Play"
@@ -45,7 +67,6 @@ export class SyrinscapeSound {
             e.preventDefault();
             this.callSyrinscapeApi("stop");
         });
-        return syrinscapeDiv;
     }
 
     /**
