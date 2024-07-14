@@ -288,8 +288,8 @@ export class SyrinscapePlayerView extends ItemView {
         if (this.title) this.title.textContent = event.title;
     }
 
-    private updateArtwork(artwork: string) {
-        if (this.syrinscapeDiv) this.syrinscapeDiv.style.backgroundImage = `url(${artwork})`;
+    private updateArtwork(event: {artwork: string}) {
+        if (this.syrinscapeDiv) this.syrinscapeDiv.style.backgroundImage = `url(${event.artwork})`;
     }
 
     /**
