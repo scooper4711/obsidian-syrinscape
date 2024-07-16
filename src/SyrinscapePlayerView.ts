@@ -135,7 +135,7 @@ export class SyrinscapePlayerView extends ItemView {
      * @returns the stop button element
      */
     private buildStopButton(controlsDiv: HTMLDivElement) {
-        const stopAll = controlsDiv.createEl('button', { text: '⏹️' });
+        const stopAll = controlsDiv.createEl('button', { cls: 'stopAll', text: '⏹️' });
         stopAll.addEventListener('click', () => {
             syrinscape.player.controlSystem.stopAll();
             setAllStopped();
@@ -150,28 +150,64 @@ export class SyrinscapePlayerView extends ItemView {
      * @returns an object containing the volume slider and mute button elements
      */
     private buildVolumeControls(parentDiv: HTMLDivElement) {
-        const localVolume = parentDiv.createEl('input', { cls: 'local-volume', type: 'range' });
-        this.localVolume = localVolume;
-        localVolume.min = '0';
-        localVolume.max = '1.5';
-        localVolume.step = '0.01';
-        localVolume.value = '1';
-        localVolume.addEventListener('input', () => {
-            syrinscape.player.audioSystem.setLocalVolume(localVolume.value);
-        });
-        localVolume.setAttribute('aria-label', `Volume: ${Math.round(Number(localVolume.value) * 100)}%`);
-        localVolume.addEventListener('change', () => {
-            if (this.localVolume) {
-                syrinscape.config.lastLocalVolume = localVolume.value;
-                this.localVolume.setAttribute('aria-label', `Volume: ${Math.round(Number(this.localVolume.value) * 100)}%`);
-            }
-        });
+        const volumeStack = parentDiv.createDiv({ cls: 'volume-stack' });
 
+        this.localVolume = this.createVolumeSlider(volumeStack, 'local-volume', (value) => {
+            syrinscape.player.audioSystem.setLocalVolume(value);
+            syrinscape.config.lastLocalVolume = value;
+        }, 'Local');
+        
+        this.createVolumeSlider(volumeStack, 'oneshot-volume', (value) => {
+            syrinscape.player.elementSystem.oneshotSystem.setVolume(value);
+        }, 'One-shot');
         this.mute = parentDiv.createEl('button', { cls: 'mute', text: '🔈' });
         this.mute.addEventListener('click', () => {
             syrinscape.player.audioSystem.toggleMute();
         });
         this.mute.setAttribute('aria-label', 'Mute');
+    }
+
+    private createVolumeSlider(parentDiv: HTMLDivElement, sliderClass: string, setVolumeFunction: (e:string) => void, volumeType: string) {
+        const volumeSlider = parentDiv.createEl('input', { cls: sliderClass, type: 'range' });
+        volumeSlider.min = '0';
+        volumeSlider.max = '1.5';
+        volumeSlider.step = '0.01';
+        volumeSlider.value = '1';
+    
+        // Create a tooltip element
+        const volumeTooltip = parentDiv.createDiv({ cls: 'volume-tooltip' });
+        volumeTooltip.style.position = 'absolute';
+        volumeTooltip.style.display = 'none'; // Initially hidden
+    
+        const updateTooltip = () => {
+            const volumePercentage = Math.round(Number(volumeSlider.value) * 100);
+            volumeTooltip.textContent = `${volumeType} Volume: ${volumePercentage}%`;
+        
+            // Calculate the right edge of the parent div
+            const parentRightEdge = parentDiv.offsetLeft + parentDiv.offsetWidth;
+            // Calculate the desired left position of the tooltip to make it right-aligned
+            const tooltipLeft = parentRightEdge - volumeTooltip.offsetWidth;
+        
+            // Adjust the tooltip position
+            volumeTooltip.style.left = `${tooltipLeft}px`;
+            volumeTooltip.style.top = `${volumeSlider.offsetTop - 30}px`; // Adjust as needed
+            volumeTooltip.style.display = 'block';
+        };    
+        volumeSlider.addEventListener('input', () => {
+            setVolumeFunction(volumeSlider.value);
+            updateTooltip();
+        });
+    
+        volumeSlider.addEventListener('change', () => {
+            setVolumeFunction(volumeSlider.value);
+            updateTooltip();
+        });
+    
+        // Optionally, hide the tooltip when not interacting
+        volumeSlider.addEventListener('mouseenter', () => volumeTooltip.style.display = 'block');
+        volumeSlider.addEventListener('mouseleave', () => volumeTooltip.style.display = 'none');
+    
+        return volumeSlider;
     }
 
     /**
