@@ -24,7 +24,6 @@ export const DEFAULT_SETTINGS: SyrinscapeSettings = {
 
 export default class SyrinscapePlugin extends Plugin {
   settings: SyrinscapeSettings;
-  playerView: SyrinscapePlayerView;
   editorSuggest: SyrinscapeSuggest | null;
 
   /**
@@ -41,7 +40,7 @@ export default class SyrinscapePlugin extends Plugin {
 
     this.registerView(
       VIEW_TYPE,
-      (leaf) => this.playerView = new SyrinscapePlayerView(leaf, this)
+      (leaf) => new SyrinscapePlayerView(leaf, this)
     );
     
     this.addRibbonIcon("speaker", "Open Syrinscape Player", () => {

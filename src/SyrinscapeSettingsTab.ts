@@ -1,7 +1,7 @@
 import { App, ButtonComponent, Notice, PluginSettingTab, Setting } from 'obsidian';
 import SyrinscapePlugin from 'main';
 import { DEFAULT_SETTINGS } from 'main';
-import { isSyrinscapeDefined } from 'SyrinscapePlayerView';
+import { isSyrinscapeDefined, SyrinscapePlayerView, VIEW_TYPE } from 'SyrinscapePlayerView';
 import { SyrinscapeSound } from 'SyrinscapeSound';
 
 export class SyrinscapeSettingsTab extends PluginSettingTab {
@@ -38,10 +38,14 @@ export class SyrinscapeSettingsTab extends PluginSettingTab {
             syrinscape.config.token = '';
             syrinscape.config.sync();
             syrinscape.config.token = value;
-            this.plugin.playerView?.activateSyrinscape();
-          }
+            for (let leaf of this.plugin.app.workspace.getLeavesOfType(VIEW_TYPE)) {
+              let view = leaf.view;
+              if (view instanceof SyrinscapePlayerView) {
+                view.activateSyrinscape();
+              }
+            }
           await this.plugin.saveData(this.plugin.settings);
-        }));
+        }}));
     
     // Number setting for the maximum cache age, in days
     new Setting(containerEl)
