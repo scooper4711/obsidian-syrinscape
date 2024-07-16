@@ -1,3 +1,52 @@
+.syrinscape {
+    overflow: hidden;
+}
+
+/* volume stack is a flex layout column style */
+.syrinscape .volume-stack {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0;
+    justify-content: start;
+    align-items: stretch;
+    height: 100%;
+    width: 100%;
+}
+
+@keyframes illuminate {
+    0% {
+        text-shadow: none;
+    }
+    50% {
+        text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 0.2em var(--color-accent), 0 0 0.4em var(--color-accent), 0 0 0.6em var(--color-accent), 0 0 0.8em var(--color-accent), 0 0 1em var(--color-accent);
+    }
+    100% {
+        text-shadow: none;
+    }
+}
+
+/* Apply the animation to the stopAll button when it has the 'clicked' class */
+.syrinscape .stopAll:active, .syrinscape .mute:active {
+    animation: illuminate 0.5s ease-out;
+}
+
+.volume-tooltip {
+    position: absolute;
+    display: none; /* Initially hidden */
+    background-color: var(--background-modifier-message);
+    color: var(--text-on-accent);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    z-index: 100; /* Ensure it's above other elements */
+    white-space: nowrap; /* Prevents the text from wrapping */
+}
+
+.syrinscape .stopAll, .syrinscape .mute {
+    flex-grow: 0;
+    font-size: 2em;
+    padding: 10px; /* Adjust padding as needed for visual space */
+}
 .syrinscape button {
     background-color: transparent;
 }
@@ -110,9 +159,13 @@
     align-items: center;
     margin: 50px auto;
     position: relative;  /* always above the visualisation */
-    width: 75%;
+    flex-direction: row;
+    width: calc(100% - 40px); /* Adjust based on your specific needs */
 }
-.syrinscape .local-volume {
+.syrinscape .local-volume, .syrinscape .oneshot-volume {
+    box-sizing: border-box;
     flex-grow: 1;
-    margin: 0 1em;
+    margin: 0.75em;
+    width: calc(100% - 1.5em);
+    min-width: 50px;
 }

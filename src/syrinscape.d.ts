@@ -17,6 +17,7 @@ declare global {
 };
         }
         player: {
+            elementSystem: any;
             syncSystem: any;
             init: (arg0: { configure(): Promise<void>; onActive(): void; onInactive(): void; }) => void;
             controlSystem: {
