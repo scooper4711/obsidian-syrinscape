@@ -63,6 +63,13 @@
     height: 100%;
     width: 100%;
 }
+.syrinscape .alert button {
+    color: var(--text-error);
+    background-color: var(--background-primary-alt);
+    border-radius: var(--button-radius);
+    opacity: 100%;
+    font-size: 2em;
+}
 /* all markdown elements should start out as non-interactive and be covered by a white square */
 .syrinscape-markdown a{
     font-family: emoji;
@@ -116,7 +123,7 @@
     width: 100%;
 }
 .syrinscape .cta {
-    display: block;
+    display: flex;
     margin-top: -50%;
 }
 .syrinscape .interface {

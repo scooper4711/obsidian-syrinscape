@@ -45,7 +45,7 @@ export class SyrinscapePlayerView extends ItemView {
         container.empty();
         try {
             this.syrinscapeDiv = container.createDiv({ cls: 'syrinscape' });
-            this.ctaDiv = this.syrinscapeDiv.createDiv({ cls: 'cta' });
+            this.ctaDiv = this.syrinscapeDiv.createDiv({ cls: 'cta alert' });
             this.interfaceDiv = this.syrinscapeDiv.createDiv({ cls: 'interface' });
             const visualisationsContainerDiv = this.interfaceDiv.createDiv({ cls: 'visualisations-container' });
             this.visualisationsDiv = visualisationsContainerDiv.createDiv({ cls: 'visualisations' });
