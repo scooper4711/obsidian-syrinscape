@@ -1,8 +1,7 @@
-import { App, ButtonComponent, Notice, PluginSettingTab, Setting } from 'obsidian';
+import { App, PluginSettingTab, Setting } from 'obsidian';
 import SyrinscapePlugin from 'main';
 import { DEFAULT_SETTINGS } from 'main';
 import { isSyrinscapeDefined, SyrinscapePlayerView, VIEW_TYPE } from 'SyrinscapePlayerView';
-import { SyrinscapeSound } from 'SyrinscapeSound';
 
 export class SyrinscapeSettingsTab extends PluginSettingTab {
   plugin: SyrinscapePlugin;

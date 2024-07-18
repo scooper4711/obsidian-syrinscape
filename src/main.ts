@@ -116,8 +116,8 @@ export default class SyrinscapePlugin extends Plugin {
    * @param context the editor context
    * @returns 
    */
-  async markdownPostProcessor(element: HTMLElement, context: MarkdownPostProcessorContext): Promise<any> {
-    let codes = element.querySelectorAll('code');
+  async markdownPostProcessor(element: HTMLElement, context: MarkdownPostProcessorContext): Promise<unknown> {
+    const codes = element.querySelectorAll('code');
     // console.debug('Syrinscape - markdownPostProcessor - codes:', codes.length, 'element:', element, 'context:', context);
     // No code found
     if (!codes.length) {
@@ -127,7 +127,7 @@ export default class SyrinscapePlugin extends Plugin {
       if (!codeBlock.textContent) {
         return;
       }
-      let sound = this.parseSoundString(codeBlock.textContent);
+      const sound = this.parseSoundString(codeBlock.textContent);
       if (!sound) {
         return;
       }

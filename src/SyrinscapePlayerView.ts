@@ -51,9 +51,9 @@ export class SyrinscapePlayerView extends ItemView {
             this.visualisationsDiv = visualisationsContainerDiv.createDiv({ cls: 'visualisations' });
             this.buildVisualizer(this.visualisationsDiv);
             this.buildActivateButton(this.ctaDiv);
-            const launch = this.buildLaunchButton(this.interfaceDiv);
+            this.buildLaunchButton(this.interfaceDiv);
             this.controlsDiv = this.interfaceDiv.createDiv({ cls: 'controls' });
-            const stopAll = this.buildStopButton(this.controlsDiv);
+            this.buildStopButton(this.controlsDiv);
             // create a button with the image of the syrinscape logo
             // Set local volume when the slider changes
             this.buildVolumeControls(this.controlsDiv);
@@ -332,7 +332,7 @@ export class SyrinscapePlayerView extends ItemView {
     private subscribeToVisualizerUpdates() {
         syrinscape.visualisation.add('global', () => {
             // Get combined frequency and waveform data.
-            let data = syrinscape.player.audioEffectSystem.analyser.getData();
+            const data = syrinscape.player.audioEffectSystem.analyser.getData();
 
             // Visualise frequency and waveform data.
             // You can replace this section to visualise the data any way you like.

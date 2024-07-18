@@ -55,7 +55,7 @@ function inlineRender(view: EditorView, plugin: SyrinscapePlugin) {
                 if (selectionAndRangeOverlap(selection, start, end)) return;
 
                 const original = view.state.doc.sliceString(start, end).trim();
-                if (!/^syrinscape(?:\+|\-|\-mod)?:\s*([\s\S]+)\s*?/.test(original))
+                if (!/^syrinscape(?:\+|-|-mod)?:\s*([\s\S]+)\s*?/.test(original))
                     return;
                 const sound = plugin.parseSoundString(original);
                 if (!sound) return;
@@ -96,7 +96,7 @@ export class SyrinscapePlayerWidget extends WidgetType {
     }
 
     toDOM() {
-        let element = document.createElement("span");
+        const element = document.createElement("span");
         this.sound.renderSpan(element);
         return element;
     }
@@ -116,7 +116,6 @@ export class SyrinscapePlayerWidget extends WidgetType {
             if ((event as MouseEvent).shiftKey) {
                 // Set the cursor after the element so that it doesn't select starting from the last cursor position.
                 if (currentPos) {
-                    //@ts-ignore
                     const { editor } = this.view.state
                         .field(editorEditorField)
                         .state.field(editorInfoField);
@@ -134,7 +133,7 @@ export function inlinePlugin(plugin: SyrinscapePlugin) {
     return ViewPlugin.fromClass(
         class {
             decorations: DecorationSet;
-            constructor(view: EditorView) {
+            constructor() {
                 this.decorations = Decoration.none;
             }
 

@@ -182,7 +182,7 @@ export function startMood(event: { title: string, pk: number }) {
  * Not used.
  * @param event the event representing a changed oneshot
  */
-export function oneshotChanged(event: CustomEvent<any>) {
+export function oneshotChanged(event: CustomEvent<unknown>) {
     console.debug("Syrinscape - oneshotChanged: ", event);
 }
 /**

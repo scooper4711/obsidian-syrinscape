@@ -1,24 +1,55 @@
 // syrinscape.d.ts
 declare global {
-    var syrinscape: {
-        [x: string]: any;
-        visualisation: any;
+    const syrinscape: {
+        [x: string]: unknown;
+        visualisation: {
+            add(arg0: string, arg1: () => boolean): unknown;
+            d3VisualiseFrequencyData(data: { frequency: number[]; waveform: number[]; }, label: string): void;
+            d3VisualiseWaveformData(data: { frequency: number[]; waveform: number[]; }, label: string): void;
+        };
         events: {
-            playerActive: any;
-            stopElement: any;
-            startElement: any;
-            stopSample: any;
-            startSample: any;
-            startVisualisation: any;
-            setLocalVolume: any;
+            playerActive: {
+                listeners: ((arg0: (event: CustomEvent) => void)=>void)[];
+                addListener: (arg0: (event: CustomEvent) => void) => () => void;
+            };
+            stopElement: {
+                listeners: ((arg0: (event: CustomEvent) => void)=>void)[];
+                addListener: (arg0: (event: CustomEvent) => void) => () => void;
+            };
+            startElement: {
+                listeners: ((arg0: (event: CustomEvent) => void)=>void)[];
+                addListener: (arg0: (event: CustomEvent) => void) => () => void;
+            };
+            stopSample: {
+                listeners: ((arg0: (event: CustomEvent) => void)=>void)[];
+                addListener: (arg0: (event: CustomEvent) => void) => () => void;
+            };
+            startSample: unknown;
+            startVisualisation: unknown;
+            setLocalVolume: {
+                listeners: ((arg0: (event: CustomEvent) => void)=>void)[];
+                addListener: (arg0: (event: CustomEvent) => void) => () => void;                
+            };
             updateConfig: {
-                listeners: any;
-                addListener: (arg0: (event: CustomEvent) => void) => void;
+                listeners: ((arg0: (event: CustomEvent) => void)=>void)[];
+                addListener: (arg0: (event: CustomEvent) => void) => () => void;
 };
         }
         player: {
-            elementSystem: any;
-            syncSystem: any;
+            elementSystem: {oneshotSystem: {setVolume(volume: string): void;};};
+            syncSystem: {
+                events: {
+                    onChangeMood: {
+                        addListener: (arg0: (event: CustomEvent) => void) => () => void;
+                        removeListener: (arg0: (event: CustomEvent) => void) => void;
+                    }
+                    onChangeSoundset: {
+                        addListenerOneshot(event: CustomEvent<{artwork: string, pk: number, title: string}>): () => void;
+                        addListener: (arg0: (event: CustomEvent) => void) => () => void;
+                        removeListener: (arg0: (event: CustomEvent) => void) => void;
+                    }
+                };
+            };
             init: (arg0: { configure(): Promise<void>; onActive(): void; onInactive(): void; }) => void;
             controlSystem: {
                 stopElements(soundid: string[]): unknown;
@@ -33,8 +64,7 @@ declare global {
             }
             audioEffectSystem: {
                 analyser: {
-                    isActive: any;
-                    isActivate: boolean;
+                    isActive: boolean;
                     getData(): {
                         frequency: number[];
                         waveform: number[];
@@ -54,7 +84,7 @@ declare global {
             addListener(callback: () => void): void;
         };
         integration: {
-            events: any;
+            events: unknown;
             requestAuthToken(sessionId?: string): void;
             launchAsGameMaster(): void;
         };
