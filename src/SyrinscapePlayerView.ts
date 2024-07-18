@@ -22,6 +22,7 @@ export class SyrinscapePlayerView extends ItemView {
         'syrinscape.onSoundsetChange': this.updateArtwork.bind(this),
         'workspace.onLayoutReady': this.activateSyrinscape.bind(this),
     };
+    unsubscribeCallbacks: (() => void)[] = [];
 
     constructor(leaf: WorkspaceLeaf, plugin: SyrinscapePlugin) {
         super(leaf);
@@ -236,8 +237,8 @@ export class SyrinscapePlayerView extends ItemView {
             return;
         }
         await syrinscape.config.init();
-        syrinscape.events.playerActive.listeners.remove(this.listeners['syrinscape.playerActive']);
-            syrinscape.events.playerActive.addListener(this.listeners['syrinscape.playerActive']);
+        // syrinscape.events.playerActive.listeners.remove(this.listeners['syrinscape.playerActive']);
+        this.unsubscribeCallbacks.push(syrinscape.events.playerActive.addListener(this.listeners['syrinscape.playerActive']));
         
         const authToken = this.plugin.settings.authToken;
         const ctaDiv = this.ctaDiv;
@@ -309,9 +310,9 @@ export class SyrinscapePlayerView extends ItemView {
         this.unsubscribeToArtworkChanges();
         const events = syrinscape.player.syncSystem.events;
         // Set the title to the current song title
-        events.onChangeMood.addListener(this.listeners['syrinscape.onMoodChange']);
+        this.unsubscribeCallbacks.push(events.onChangeMood.addListener(this.listeners['syrinscape.onMoodChange']));
         // Set the backround image of the syrinscape div to the current soundset image
-        events.onChangeSoundset.addListener(this.listeners['syrinscape.onSoundsetChange']);
+        this.unsubscribeCallbacks.push(events.onChangeSoundset.addListener(this.listeners['syrinscape.onSoundsetChange']));
     }
     private unsubscribeToArtworkChanges() {
         const events = syrinscape.player.syncSystem.events;
@@ -348,8 +349,8 @@ export class SyrinscapePlayerView extends ItemView {
      * Subscribe to config updates to show/hide the login div and show/hide the player interface.
      */
     private subscribeToConfigUpdates() {
-        syrinscape.events.updateConfig.listeners.remove(this.listeners['syrinscape.updateConfig']);
-            syrinscape.events.updateConfig.addListener(this.listeners['syrinscape.updateConfig']);
+        // syrinscape.events.updateConfig.listeners.remove(this.listeners['syrinscape.updateConfig']);
+        this.unsubscribeCallbacks.push(syrinscape.events.updateConfig.addListener(this.listeners['syrinscape.updateConfig']));
     }
 
     private configUpdated(event: { detail: { authenticated: boolean; }; }) {
@@ -371,13 +372,13 @@ export class SyrinscapePlayerView extends ItemView {
      * Subscribe to volume events to update the local volume slider and mute button.
      */
     private subscribeToVolumeEvents() {
-        this.unsubscribeToVolumeEvents();
-        syrinscape.events.setLocalVolume.addListener(this.listeners['syrinscape.setLocalVolume']);
+        // this.unsubscribeToVolumeEvents();
+        this.unsubscribeCallbacks.push(syrinscape.events.setLocalVolume.addListener(this.listeners['syrinscape.setLocalVolume']));
     }
 
-    private unsubscribeToVolumeEvents() {
-        syrinscape.events.setLocalVolume.listeners.remove(this.listeners['syrinscape.setLocalVolume']);
-    }
+    // private unsubscribeToVolumeEvents() {
+    //     syrinscape.events.setLocalVolume.listeners.remove(this.listeners['syrinscape.setLocalVolume']);
+    // }
 
     private setLocalVolume(event: { detail: string; }) {
         if (!this.localVolume || !this.mute) return;
@@ -404,10 +405,17 @@ export class SyrinscapePlayerView extends ItemView {
         if (syrinscape.config) {
             syrinscape.player.controlSystem.stopAll();
         }
-        this.unsubscribeToArtworkChanges();
-        this.unsubscribeToVolumeEvents();
-        this.subscribeToConfigUpdates();
+        // this.unsubscribeToArtworkChanges();
+        // this.unsubscribeToVolumeEvents();
+        // this.subscribeToConfigUpdates();
         unregisterForSyrinscapeEvents()
+        while (this.unsubscribeCallbacks.length > 0) {
+            const unsubscribe = this.unsubscribeCallbacks.pop();
+            // confirm that unsubscribe is a function before calling it
+            if (unsubscribe && typeof unsubscribe === 'function') {
+                unsubscribe();
+            }
+        }
     }
     onunload(): void {
         console.debug('Syrinscape - Unloading view');

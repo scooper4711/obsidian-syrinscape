@@ -8,6 +8,7 @@ const listeners = {
     'syrinscape.startElement': startElement.bind(this), 
     'syrinscape.stopElement': stopElement.bind(this), 
     'syrinscape.stopSample': stopSample.bind(this)}
+const unsubscribeCallbacks: (() => void)[] = [];
 
 export class SyrinscapeSound {
     constructor(
@@ -95,15 +96,15 @@ export function registerForSyrinscapeEvents() {
     // register for syrinscape.startSample event
     console.debug('Syrinscape - Registering for syrinscape start/stop event.');
     unregisterForSyrinscapeEvents();
-    syrinscape.player.syncSystem.events.onChangeMood.addListener(listeners['syrinscape.startMood']);
-    syrinscape.player.syncSystem.events.onChangeSoundset.addListenerOneshot(listeners['syrinscape.oneShotChanged']);
+    unsubscribeCallbacks.push(syrinscape.player.syncSystem.events.onChangeMood.addListener(listeners['syrinscape.startMood']));
+    unsubscribeCallbacks.push(syrinscape.player.syncSystem.events.onChangeSoundset.addListenerOneshot(listeners['syrinscape.oneShotChanged']));
 
-    syrinscape.events.startElement.addListener(listeners['syrinscape.startElement']);
-    syrinscape.events.stopElement.addListener(listeners['syrinscape.stopElement']);
+    unsubscribeCallbacks.push(syrinscape.events.startElement.addListener(listeners['syrinscape.startElement']));
+    unsubscribeCallbacks.push(syrinscape.events.stopElement.addListener(listeners['syrinscape.stopElement']));
     // intentionally not subscribing to startSample. one-shots will emit a startElement event, but not a stopElement event.
     // syrinscape.events.startSample.addListener(startSample.bind(this));
     // subscribing to stopSample in order to stop one-shots
-    syrinscape.events.stopSample.addListener(listeners['syrinscape.stopSample']);
+    unsubscribeCallbacks.push(syrinscape.events.stopSample.addListener(listeners['syrinscape.stopSample']));
     console.debug('Syrinscape - successfully registered for all events.');
 }
 
@@ -111,12 +112,18 @@ export function registerForSyrinscapeEvents() {
  * remove listeners for Syrinscape events for the play/stop buttons.
  */
 export function unregisterForSyrinscapeEvents() {
-    syrinscape.player.syncSystem.events.onChangeMood.removeListener(listeners['syrinscape.startMood']);
-    syrinscape.player.syncSystem.events.onChangeSoundset.removeListener(listeners['syrinscape.oneShotChanged']);
-    syrinscape.events.startElement.listeners.remove(listeners['syrinscape.startElement']);
-    syrinscape.events.stopElement.listeners.remove(listeners['syrinscape.stopElement']);
-    //syrinscape.events.startSample.listeners.remove(listeners['syrinscape.startSample']);
-    syrinscape.events.stopSample.listeners.remove(listeners['syrinscape.stopSample']);
+    // syrinscape.player.syncSystem.events.onChangeMood.removeListener(listeners['syrinscape.startMood']);
+    // syrinscape.player.syncSystem.events.onChangeSoundset.removeListener(listeners['syrinscape.oneShotChanged']);
+    // syrinscape.events.startElement.listeners.remove(listeners['syrinscape.startElement']);
+    // syrinscape.events.stopElement.listeners.remove(listeners['syrinscape.stopElement']);
+    // //syrinscape.events.startSample.listeners.remove(listeners['syrinscape.startSample']);
+    // syrinscape.events.stopSample.listeners.remove(listeners['syrinscape.stopSample']);
+    while (unsubscribeCallbacks.length > 0) {
+        const unsubscribe = unsubscribeCallbacks.pop();
+        if (typeof unsubscribe === 'function') {
+            unsubscribe();
+        }
+    }
     console.debug('Syrinscape - removed all event listeners.');
 }
 
