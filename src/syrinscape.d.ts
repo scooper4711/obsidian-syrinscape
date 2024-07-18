@@ -40,10 +40,12 @@ declare global {
             syncSystem: {
                 events: {
                     onChangeMood: {
+                        _listeners: ((arg0: (event: CustomEvent) => void) => void)[];
                         addListener: (arg0: (event: CustomEvent) => void) => () => void;
                         removeListener: (arg0: (event: CustomEvent) => void) => void;
                     }
                     onChangeSoundset: {
+                        _listeners: ((arg0: (event: CustomEvent<{artwork: string, pk: number, title: string}>) => void) => void)[];
                         addListenerOneshot(event: CustomEvent<{artwork: string, pk: number, title: string}>): () => void;
                         addListener: (arg0: (event: CustomEvent) => void) => () => void;
                         removeListener: (arg0: (event: CustomEvent) => void) => void;

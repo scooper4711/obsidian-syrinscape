@@ -14,14 +14,7 @@ export class SyrinscapePlayerView extends ItemView {
     title: HTMLHeadingElement | null;
     localVolume: HTMLInputElement | null;
     mute: HTMLButtonElement | null;
-    listeners = {
-        'syrinscape.playerActive' : this.playerActive.bind(this),
-        'syrinscape.setLocalVolume': this.setLocalVolume.bind(this),
-        'syrinscape.updateConfig': this.configUpdated.bind(this),
-        'syrinscape.onMoodChange': this.updateTitle.bind(this),
-        'syrinscape.onSoundsetChange': this.updateArtwork.bind(this),
-        'workspace.onLayoutReady': this.activateSyrinscape.bind(this),
-    };
+    unsubscribeCallbacks: (() => void)[] = [];
 
     constructor(leaf: WorkspaceLeaf, plugin: SyrinscapePlugin) {
         super(leaf);
@@ -68,7 +61,7 @@ export class SyrinscapePlayerView extends ItemView {
             container.empty();
             this.buildErrorScreen(container);
         }
-        this.app.workspace.onLayoutReady(this.listeners['workspace.onLayoutReady']);
+        this.app.workspace.onLayoutReady(this.activateSyrinscape.bind(this));
     }
 
     /**
@@ -108,7 +101,7 @@ export class SyrinscapePlayerView extends ItemView {
      */
     private buildActivateButton(ctaDiv: HTMLDivElement) {
         const activateButton = ctaDiv.createEl('button', { text: 'Activate' });
-        activateButton.addEventListener('click', this.listeners['workspace.onLayoutReady']);
+        activateButton.addEventListener('click', this.activateSyrinscape.bind(this));
         activateButton.setAttribute('aria-label', 'Activate Syrinscape player');
         return activateButton;
     }
@@ -236,8 +229,8 @@ export class SyrinscapePlayerView extends ItemView {
             return;
         }
         await syrinscape.config.init();
-        syrinscape.events.playerActive.listeners.remove(this.listeners['syrinscape.playerActive']);
-            syrinscape.events.playerActive.addListener(this.listeners['syrinscape.playerActive']);
+        // syrinscape.events.playerActive.listeners.remove(this.listeners['syrinscape.playerActive']);
+        this.unsubscribeCallbacks.push(syrinscape.events.playerActive.addListener(this.playerActive.bind(this)));
         
         const authToken = this.plugin.settings.authToken;
         const ctaDiv = this.ctaDiv;
@@ -246,18 +239,7 @@ export class SyrinscapePlayerView extends ItemView {
         console.debug('Syrinscape - Logging in to Syrinscape player.');
         syrinscape.player.init({
             async configure() {
-                try {
-                    // Audio context. Leave undefined to create one.
-                    if (!syrinscape.config.audioContext)
-                        syrinscape.config.audioContext = new AudioContext();
-                    // Auth token.
-                    syrinscape.config.token = authToken;
-                    // Wait until async token change is finished, because `sessionId` might change.
-                    syrinscape.config.sync();            
-                } catch (error) {
-                    console.error('Syrinscape - Error configuring player:', error);
-                    new Notice('Failed to configure Syrinscape player. Please check the console for more information.');
-                }
+                loginToSyrinscape(authToken);
             },
 
             onActive() {
@@ -306,18 +288,13 @@ export class SyrinscapePlayerView extends ItemView {
      * Subscribe to undocumented APIs to allow for updating the player view background image and title.
      */
     private subscribeToArtworkChanges() {
-        this.unsubscribeToArtworkChanges();
         const events = syrinscape.player.syncSystem.events;
         // Set the title to the current song title
-        events.onChangeMood.addListener(this.listeners['syrinscape.onMoodChange']);
+        events.onChangeMood.addListener(this.updateTitle.bind(this));
         // Set the backround image of the syrinscape div to the current soundset image
-        events.onChangeSoundset.addListener(this.listeners['syrinscape.onSoundsetChange']);
+        events.onChangeSoundset.addListener(this.updateArtwork.bind(this));
     }
-    private unsubscribeToArtworkChanges() {
-        const events = syrinscape.player.syncSystem.events;
-        events.onChangeMood.removeListener(this.listeners['syrinscape.onMoodChange']);
-        events.onChangeSoundset.removeListener(this.listeners['syrinscape.onSoundsetChange']);
-    }
+
     private updateTitle(event: {title: string, pk: string}) {
         if (this.title) this.title.textContent = event.title;
     }
@@ -348,8 +325,7 @@ export class SyrinscapePlayerView extends ItemView {
      * Subscribe to config updates to show/hide the login div and show/hide the player interface.
      */
     private subscribeToConfigUpdates() {
-        syrinscape.events.updateConfig.listeners.remove(this.listeners['syrinscape.updateConfig']);
-            syrinscape.events.updateConfig.addListener(this.listeners['syrinscape.updateConfig']);
+        this.unsubscribeCallbacks.push(syrinscape.events.updateConfig.addListener(this.configUpdated.bind(this)));
     }
 
     private configUpdated(event: { detail: { authenticated: boolean; }; }) {
@@ -371,15 +347,15 @@ export class SyrinscapePlayerView extends ItemView {
      * Subscribe to volume events to update the local volume slider and mute button.
      */
     private subscribeToVolumeEvents() {
-        this.unsubscribeToVolumeEvents();
-        syrinscape.events.setLocalVolume.addListener(this.listeners['syrinscape.setLocalVolume']);
+        this.unsubscribeCallbacks.push(syrinscape.events.setLocalVolume.addListener(this.setLocalVolume.bind(this)));
     }
 
-    private unsubscribeToVolumeEvents() {
-        syrinscape.events.setLocalVolume.listeners.remove(this.listeners['syrinscape.setLocalVolume']);
-    }
-
-    private setLocalVolume(event: { detail: string; }) {
+    /**
+     * Update the local volume slider and mute button based on slider movement.
+     * @param event the event containing the volume value
+     * @returns void
+     */
+    private setLocalVolume(event: { detail: string; }): void {
         if (!this.localVolume || !this.mute) return;
         this.localVolume.value = event.detail;
         const volume = Number(event.detail);
@@ -398,19 +374,40 @@ export class SyrinscapePlayerView extends ItemView {
     /**
      * Called when the view is closed.
      */
-    async onClose() {
+    async onClose(): Promise<void> {
         console.debug('Syrinscape - Closing view.');
         setAllStopped();
         if (syrinscape.config) {
             syrinscape.player.controlSystem.stopAll();
         }
-        this.unsubscribeToArtworkChanges();
-        this.unsubscribeToVolumeEvents();
-        this.subscribeToConfigUpdates();
-        unregisterForSyrinscapeEvents()
     }
     onunload(): void {
         console.debug('Syrinscape - Unloading view');
+        unregisterForSyrinscapeEvents()
+        syrinscape.visualisation.add('global', () => {return false});
+        while (this.unsubscribeCallbacks.length > 0) {
+            const unsubscribe = this.unsubscribeCallbacks.pop();
+            // confirm that unsubscribe is a function before calling it
+            if (unsubscribe && typeof unsubscribe === 'function') {
+                unsubscribe();
+            }
+        }
+        console.debug('Syrinscape - Unsubscribed from all events.');
+    }
+
+}
+
+function loginToSyrinscape(authToken: string) {
+    try {
+        if (!syrinscape.config.audioContext)
+            syrinscape.config.audioContext = new AudioContext();
+        // Auth token.
+        syrinscape.config.token = authToken;
+        // Wait until async token change is finished, because `sessionId` might change.
+        syrinscape.config.sync();
+    } catch (error) {
+        console.error('Syrinscape - Error configuring player:', error);
+        new Notice('Failed to configure Syrinscape player. Please check the console for more information.');
     }
 }
 
