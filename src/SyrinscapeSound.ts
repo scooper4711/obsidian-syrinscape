@@ -1,5 +1,6 @@
 export const SYRINSCAPE_CLASS = 'syrinscape-markdown';
 import { Notice } from "obsidian";
+import { debug } from "./SyrinscapeDebug";
 import { isSyrinscapeAuthenticated } from "SyrinscapePlayerView";
 
 const listeners = {
@@ -28,7 +29,7 @@ export class SyrinscapeSound {
         // make an anchor with the class play, the text ▶️ and hovertext of "Play ${soundTitle}" if it's set, or just "Play"
         const play = syrinscapeDiv.createEl("a", { cls: `play ${this.type} syrinscape-play-${this.id}`, text: playText, title: this.title ? `Play "${this.title}"` : "Play" });
         if (!isSyrinscapeAuthenticated()) {
-            console.debug('Syrinscape - Not authenticated, disabling play button.');
+            debug('Not authenticated, disabling play button.');
             play.addClass('inactive');
         }
         play.addEventListener("click", (e) => {
@@ -37,7 +38,7 @@ export class SyrinscapeSound {
         });
         const stop = syrinscapeDiv.createEl("a", { cls: `stop ${this.type} syrinscape-stop-${this.id}`, text: stopText, title: this.title ? `Stop "${this.title}"` : "Stop" });
         if (!isSyrinscapeAuthenticated()) {
-            console.debug('Syrinscape - Not authenticated, disabling stop button.');
+            debug('Not authenticated, disabling stop button.');
             stop.addClass('inactive');
         }
         stop.addEventListener("click", (e) => {
@@ -52,7 +53,7 @@ export class SyrinscapeSound {
     * @param cmd - The command to send to the local player - either play or stop.
     */
     public callSyrinscapeApi(cmd: string) {
-        console.debug(`Syrinscape - ${cmd} ${this.title}-${this.id}-${this.type}`);
+        debug(cmd," ", this.title,"-",this.id,"-",this.type);
         try {
             if (isSyrinscapeAuthenticated()) {
                 if (this.type === 'mood') {
@@ -94,7 +95,7 @@ export class SyrinscapeSound {
  */
 export function registerForSyrinscapeEvents() {
     // register for syrinscape.startSample event
-    console.debug('Syrinscape - Registering for syrinscape start/stop event.');
+    debug('Registering for syrinscape start/stop event.');
     syrinscape.player.syncSystem.events.onChangeMood.addListener(listeners['syrinscape.startMood']);
     syrinscape.player.syncSystem.events.onChangeSoundset.addListenerOneshot(listeners['syrinscape.oneShotChanged']);
 
@@ -104,7 +105,7 @@ export function registerForSyrinscapeEvents() {
     // syrinscape.events.startSample.addListener(startSample.bind(this));
     // subscribing to stopSample in order to stop one-shots
     unsubscribeCallbacks.push(syrinscape.events.stopSample.addListener(listeners['syrinscape.stopSample']));
-    console.debug('Syrinscape - successfully registered for all events.');
+    debug('successfully registered for all events.');
 }
 
 /**
@@ -123,7 +124,7 @@ export function unregisterForSyrinscapeEvents() {
     while (syrinscape.player.syncSystem.events.onChangeSoundset._listeners.length > 0) {
         syrinscape.player.syncSystem.events.onChangeSoundset._listeners.pop();
     }
-    console.debug('Syrinscape - removed all SyrinscapeSound event listeners.');
+    debug('removed all SyrinscapeSound event listeners.');
 }
 
 /**
@@ -180,7 +181,7 @@ export function setAllStopped() {
  * @param event the event representing a started mood
  */
 export function startMood(event: { title: string, pk: number }) {
-    console.debug('Syrinscape - startMood:', event);
+    debug('startMood:', event);
     setPlaying(event.pk, "mood");
 }
 
@@ -189,20 +190,20 @@ export function startMood(event: { title: string, pk: number }) {
  * @param event the event representing a changed oneshot
  */
 export function oneshotChanged(event: CustomEvent<unknown>) {
-    console.debug("Syrinscape - oneshotChanged: ", event);
+    debug("Syrinscape - oneshotChanged: ", event);
 }
 /**
  * Respond to the syrinscape.startElement event by adding the playing class to the element.
  */
 export function startElement(event: CustomEvent<{ elementId: number, playlistEntryId: number, timeToStop: number, timeToStopOrNextSample: number }>) {
-    console.debug('Syrinscape - startElement:', event.detail.elementId);
+    debug('startElement:', event.detail.elementId);
     setPlaying(event.detail.elementId);
 }
 /**
  * Respond to the syrinscape.startSample event by adding the playing class to the element.
  */
 export function startSample(event: CustomEvent<{ elementId: number, playlistEntryId: number, timeToStop: number, timeToStopOrNextSample: number }>) {
-    console.debug('Syrinscape - startSample:', event.detail.elementId);
+    debug('startSample:', event.detail.elementId);
     setPlaying(event.detail.elementId);
 }
 
@@ -210,14 +211,14 @@ export function startSample(event: CustomEvent<{ elementId: number, playlistEntr
  * Respond to the syrinscape.startSample event by removing the playing class from the element.
  */
 export function stopSample(event: CustomEvent<{ elementId: number, playlistEntryId: number, timeToStop: number, sampleId: number }>) {
-    console.debug('Syrinscape - stopSample:', event.detail.elementId);
+    debug('stopSample:', event.detail.elementId);
     setStopped(event.detail.elementId, 'sample');
 }
 /**
  * Respond to the syrinscape.stopElement event by removing the playing class from the element.
  */
 export function stopElement(event: CustomEvent<{ elementId: number, playlistEntryId: number, timeToStop: number, sampleId: number }>) {
-    console.debug('Syrinscape - stopElement:', event.detail.elementId);
+    debug('stopElement:', event.detail.elementId);
     setStopped(event.detail.elementId);
 }
 

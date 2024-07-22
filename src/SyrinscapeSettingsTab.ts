@@ -37,8 +37,8 @@ export class SyrinscapeSettingsTab extends PluginSettingTab {
             syrinscape.config.token = '';
             syrinscape.config.sync();
             syrinscape.config.token = value;
-            for (let leaf of this.plugin.app.workspace.getLeavesOfType(VIEW_TYPE)) {
-              let view = leaf.view;
+            for (const leaf of this.plugin.app.workspace.getLeavesOfType(VIEW_TYPE)) {
+              const view = leaf.view;
               if (view instanceof SyrinscapePlayerView) {
                 view.activateSyrinscape();
               }

@@ -1,5 +1,6 @@
 import { SyrinscapeSettingsTab } from 'SyrinscapeSettingsTab';
 import SyrinscapeSuggest from 'SyrinscapeSuggest';
+import { debug, setDebug } from 'SyrinscapeDebug';
 import { MarkdownPostProcessorContext, Plugin, WorkspaceLeaf} from 'obsidian';
 import { SyrinscapePlayerView, VIEW_TYPE } from "./SyrinscapePlayerView";
 import { SyrinscapeRenderChild } from 'SyrinscapeRenderChild';
@@ -7,6 +8,7 @@ import { inlinePlugin } from 'SyrinscapePlayerWidget';
 import { SyrinscapeSound } from 'SyrinscapeSound';
 
 export interface SyrinscapeSettings {
+  debug: boolean;
   authToken: string;
   triggerWord: string;
   csvContent: string;
@@ -19,7 +21,8 @@ export const DEFAULT_SETTINGS: SyrinscapeSettings = {
   triggerWord: 'syrinscape',
   csvContent: '',
   lastUpdated: null,
-  maxCacheAge: 7
+  maxCacheAge: 7,
+  debug: false
 };
 
 export default class SyrinscapePlugin extends Plugin {
@@ -95,16 +98,16 @@ export default class SyrinscapePlugin extends Plugin {
    * if the lastUpdated is more than settings.maxCacheAge days ago, fetch the remote links
    */
   async checkForExpiredData() {
-    console.debug('Syrinscape - lastUpdated:', this.settings.lastUpdated);
+    debug('lastUpdated:', this.settings.lastUpdated);
     if (this.settings.lastUpdated) {
       const now = new Date();
       const diff = now.getTime() - this.settings.lastUpdated.getTime();
       const diffDays = Math.floor(diff / (1000 * 60 * 60 * 24));
       if (diffDays > this.settings.maxCacheAge) {
-        console.debug(`Syrinscape - Last updated ${diffDays} day(s) ago, more than ${this.settings.maxCacheAge}. Clearing cache`);
+        debug(`Last updated ${diffDays} day(s) ago, more than ${this.settings.maxCacheAge}. Clearing cache`);
         this.clearCache();
       } else {
-        console.debug(`Syrinscape - Last updated ${diffDays} day(s) ago. Cache is still valid`);
+        debug(`Last updated ${diffDays} day(s) ago. Cache is still valid`);
       }
     }
   }
@@ -118,7 +121,7 @@ export default class SyrinscapePlugin extends Plugin {
    */
   async markdownPostProcessor(element: HTMLElement, context: MarkdownPostProcessorContext): Promise<unknown> {
     const codes = element.querySelectorAll('code');
-    // console.debug('Syrinscape - markdownPostProcessor - codes:', codes.length, 'element:', element, 'context:', context);
+    // debug('markdownPostProcessor - codes:', codes.length, 'element:', element, 'context:', context);
     // No code found
     if (!codes.length) {
       return
@@ -131,7 +134,7 @@ export default class SyrinscapePlugin extends Plugin {
       if (!sound) {
         return;
       }
-      context.addChild(new SyrinscapeRenderChild(this.settings, codeBlock, sound));
+      context.addChild(new SyrinscapeRenderChild(codeBlock, sound));
     })
 
   }
@@ -155,6 +158,7 @@ export default class SyrinscapePlugin extends Plugin {
 
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    setDebug(this.settings.debug);
     this.settings.lastUpdated = this.settings.lastUpdated ? new Date(this.settings.lastUpdated) : null;
   }
 
@@ -166,16 +170,16 @@ export default class SyrinscapePlugin extends Plugin {
    */
   private async loadSyrinscapeScripts() {
     this.loadExternalScript("https://syrinscape.com/integration.js")
-      .then(() => console.debug("integration.js script loaded successfully."))
+      .then(() => debug("integration.js script loaded successfully."))
       .catch(error => console.error("Error loading script:", error));
 
     this.loadExternalScript("https://syrinscape.com/player.js")
-      .then(() => console.debug("player.js script loaded successfully."))
+      .then(() => debug("player.js script loaded successfully."))
       .catch(error => console.error("Error loading script:", error));
 
     this.loadExternalScript("https://syrinscape.com/visualisation.js")
       .then(() => {
-        console.debug("visualization.js script loaded successfully."); 
+        debug("visualization.js script loaded successfully."); 
       })
       .catch(error => console.error("Error loading script:", error));
   }

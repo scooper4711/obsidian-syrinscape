@@ -1,5 +1,6 @@
 import { ItemView, Notice, WorkspaceLeaf } from "obsidian";
 import SyrinscapePlugin from "./main";
+import { debug } from "./SyrinscapeDebug";
 import { registerForSyrinscapeEvents, unregisterForSyrinscapeEvents, setAllStopped } from "SyrinscapeSound";
 export const VIEW_TYPE = "syrinscape-player";
 
@@ -234,7 +235,7 @@ export class SyrinscapePlayerView extends ItemView {
         const ctaDiv = this.ctaDiv;
         const interfaceDiv = this.interfaceDiv;
         this.subscribeToConfigUpdates();
-        console.debug('Syrinscape - Logging in to Syrinscape player.');
+        debug('Logging in to Syrinscape player.');
         syrinscape.player.init({
             async configure() {
                 loginToSyrinscape(authToken);
@@ -261,7 +262,7 @@ export class SyrinscapePlayerView extends ItemView {
             },
 
             onInactive() {
-                console.debug("Syrinscape - logged out/deactivated.")
+                debug("logged out/deactivated.")
                 // add inactive from all syrinscape elements
                 document.querySelectorAll('.syrinscape-markdown a').forEach((element) => {
                     element.classList.add('inactive');
@@ -274,7 +275,7 @@ export class SyrinscapePlayerView extends ItemView {
     }
 
     private playerActive() {
-        console.debug('Syrinscape - Player active.');
+        debug('Player active.');
         registerForSyrinscapeEvents();
         if (this.localVolume) this.localVolume.value = syrinscape.config.lastLocalVolume || '1';
 
@@ -328,7 +329,7 @@ export class SyrinscapePlayerView extends ItemView {
 
     private configUpdated(event: { detail: { authenticated: boolean; }; }) {
         if (!this.loginDiv || !this.title || !this.controlsDiv || !this.visualisationsDiv) return;
-        // console.debug('Syrinscape - updateConfig: ', event);
+        debug('updateConfig: ', event);
         if (event.detail.authenticated || syrinscape.config?.authenticated) {
             this.loginDiv.style.display = 'none';
             this.title.style.display = 'block';
@@ -373,14 +374,14 @@ export class SyrinscapePlayerView extends ItemView {
      * Called when the view is closed.
      */
     async onClose(): Promise<void> {
-        console.debug('Syrinscape - Closing view.');
+        debug('Closing view.');
         setAllStopped();
         if (syrinscape.config) {
             syrinscape.player.controlSystem.stopAll();
         }
     }
     onunload(): void {
-        console.debug('Syrinscape - Unloading view');
+        debug('Unloading view');
         unregisterForSyrinscapeEvents()
         syrinscape.visualisation.add('global', () => {return false});
         while (this.unsubscribeCallbacks.length > 0) {
@@ -390,7 +391,7 @@ export class SyrinscapePlayerView extends ItemView {
                 unsubscribe();
             }
         }
-        console.debug('Syrinscape - Unsubscribed from all events.');
+        debug('Unsubscribed from all events.');
     }
 
 }

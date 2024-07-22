@@ -11,6 +11,7 @@ import {
 } from "obsidian"
 import * as Papa from 'papaparse';
 import SyrinscapePlugin from "main";
+import { debug } from "SyrinscapeDebug";
 import { SyrinscapeSound } from "SyrinscapeSound";
 
 ;
@@ -58,11 +59,11 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeSound> {
     async fetchRemoteLinks(): Promise<void> {
         // if the remoteLinks map is not empty, then we have already fetched the remote links
         if (this.plugin.settings.csvContent.length > 0) {
-            console.debug(`Syrinscape - Remote links already fetched. Skipping download.`);
+            debug(`Syrinscape - Remote links already fetched. Skipping download.`);
             this.parseRemoteLinks(this.plugin.settings.csvContent);
             return;
         }
-        console.debug("Syrinscape - Downloading CSV file of remote links.");
+        debug("Syrinscape - Downloading CSV file of remote links.");
         try {
             const response = await requestUrl({
                 url: 'https://syrinscape.com/account/remote-control-links-csv/',
@@ -101,9 +102,9 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeSound> {
                     const sound = new SyrinscapeSound(row.id.substring(2), row.type === 'element' ? row.sub_type : row.type, soundTitle);
                     this.remoteLinks.set(`${sound.type} ${sound.id} ${sound.title.toLowerCase()}`, sound);
                 }
-                console.debug(`Syrinscape - Completed parsing of CSV file of ${this.remoteLinks.size} remote links`)
+                debug(`Syrinscape - Completed parsing of CSV file of ${this.remoteLinks.size} remote links`)
             },
-            error: (error: any) => {
+            error: (error: unknown) => {
                 console.error('Syrinscape - Error parsing CSV:', error);
             }
         });
@@ -114,12 +115,12 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeSound> {
      * @param suggestion The suggestion to render
      * @param el the HTML element to render the suggestion in
      */
-    renderSuggestion(suggestion: SyrinscapeSound, el: HTMLElement) {
-        const suggestionsContainerEl = el.createSpan({cls: "syrinscape-suggestion", text: `${suggestion.type}:${suggestion.id}:${suggestion.title}`});
+    renderSuggestion(suggestion: SyrinscapeSound, el: HTMLElement): HTMLElement {
+        return el.createSpan({cls: "syrinscape-suggestion", text: `${suggestion.type}:${suggestion.id}:${suggestion.title}`});
     }
 
     selectSuggestion(suggestion: SyrinscapeSound, _evt: MouseEvent | KeyboardEvent): void {
-        console.debug('Syrinscape - selectSuggestion:', suggestion);
+        debug('selectSuggestion:', suggestion);
         const editor = this.context!.editor;
         const selectedText = `${suggestion.type}:${suggestion.id}:${suggestion.title}`
 
