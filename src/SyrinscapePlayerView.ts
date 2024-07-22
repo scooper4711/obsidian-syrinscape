@@ -176,14 +176,12 @@ export class SyrinscapePlayerView extends ItemView {
             const volumePercentage = Math.round(Number(volumeSlider.value) * 100);
             volumeTooltip.textContent = `${volumeType} Volume: ${volumePercentage}%`;
         
-            // Calculate the right edge of the parent div
-            const parentRightEdge = parentDiv.offsetLeft + parentDiv.offsetWidth;
-            // Calculate the desired left position of the tooltip to make it right-aligned
-            const tooltipLeft = parentRightEdge - volumeTooltip.offsetWidth;
+            // Calculate the left edge of the tooltip as ofset from the volume div
+            const tooltipLeft = volumeSlider.offsetLeft + 30;
         
             // Adjust the tooltip position
             volumeTooltip.style.left = `${tooltipLeft}px`;
-            volumeTooltip.style.top = `${volumeSlider.offsetTop - 30}px`; // Adjust as needed
+            volumeTooltip.style.top = `${volumeSlider.offsetTop - 40}px`; // Adjust as needed
             volumeTooltip.style.display = 'block';
         };    
         volumeSlider.addEventListener('input', () => {
@@ -197,7 +195,7 @@ export class SyrinscapePlayerView extends ItemView {
         });
     
         // Optionally, hide the tooltip when not interacting
-        volumeSlider.addEventListener('mouseenter', () => volumeTooltip.style.display = 'block');
+        volumeSlider.addEventListener('mouseenter', () => {updateTooltip()});
         volumeSlider.addEventListener('mouseleave', () => volumeTooltip.style.display = 'none');
     
         return volumeSlider;
