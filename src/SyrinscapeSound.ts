@@ -43,7 +43,7 @@ export class SyrinscapeSound {
                         }
                     });
                 } else {
-                    document.querySelectorAll(`.${this.type} .syrinscape-${this.id}`).forEach((element) => {
+                    document.querySelectorAll(`.${this.type}.syrinscape-${this.id}`).forEach((element) => {
                         const inputElement = element as HTMLInputElement;
                         inputElement.checked = true;
                     });
@@ -52,12 +52,12 @@ export class SyrinscapeSound {
             } else {
                 this.callSyrinscapeApi("stop");
                 if (this.type === 'mood') {
-                    document.querySelectorAll(`.${this.type} .syrinscape-${this.id}`).forEach((element) => {
+                    document.querySelectorAll(`.${this.type}.syrinscape-${this.id}`).forEach((element) => {
                         const inputElement = element as HTMLInputElement;
                         inputElement.checked = false;
                     });
                 } else {
-                    document.querySelectorAll(`.${this.type} .syrinscape-${this.id}`).forEach((element) => {
+                    document.querySelectorAll(`.${this.type}.syrinscape-${this.id}`).forEach((element) => {
                         const inputElement = element as HTMLInputElement;
                         inputElement.checked = false;
                     });
@@ -175,8 +175,13 @@ export function setAllStopped() {
  */
 export function stopElement(event: CustomEvent<{ elementId: number, playlistEntryId: number, timeToStop: number, sampleId: number }>) {
     console.debug('stopElement:', event.detail.elementId);
-    document.querySelectorAll(`.syrinscape-${event.detail.elementId}`).forEach((element) => {
+    const elementsToStop = document.querySelectorAll(`.syrinscape-${event.detail.elementId}`);
+    console.debug('stopElement:', elementsToStop);
+    elementsToStop.forEach((element) => {
         element.classList.remove('playing');
+        if (element instanceof HTMLInputElement) {
+            element.checked = false;
+        }
     });
 }
 

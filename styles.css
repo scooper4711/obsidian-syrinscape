@@ -17,36 +17,45 @@
     0% {
         text-shadow: none;
     }
+
     50% {
         text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 0.2em var(--color-accent), 0 0 0.4em var(--color-accent), 0 0 0.6em var(--color-accent), 0 0 0.8em var(--color-accent), 0 0 1em var(--color-accent);
     }
+
     100% {
         text-shadow: none;
     }
 }
 
 /* Apply the animation to the stopAll button when it has the 'clicked' class */
-.syrinscape .stopAll:active, .syrinscape .mute:active {
+.syrinscape .stopAll:active,
+.syrinscape .mute:active {
     animation: illuminate 0.5s ease-out;
 }
 
 .syrinscape .volume-tooltip {
     position: absolute;
-    display: none; /* Initially hidden */
+    display: none;
+    /* Initially hidden */
     background-color: var(--background-modifier-message);
     color: var(--text-on-accent);
     padding: 5px 10px;
     border-radius: 4px;
     font-size: 14px;
-    z-index: 100; /* Ensure it's above other elements */
-    white-space: nowrap; /* Prevents the text from wrapping */
+    z-index: 100;
+    /* Ensure it's above other elements */
+    white-space: nowrap;
+    /* Prevents the text from wrapping */
 }
 
-.syrinscape .stopAll, .syrinscape .mute {
+.syrinscape .stopAll,
+.syrinscape .mute {
     flex-grow: 0;
     font-size: 2em;
-    padding: 10px; /* Adjust padding as needed for visual space */
+    padding: 10px;
+    /* Adjust padding as needed for visual space */
 }
+
 .syrinscape button {
     background-color: transparent;
 }
@@ -58,17 +67,17 @@
     display: inline-block;
     width: 1.76em;
     height: 1em;
-  }
-  
-  /* Hide default HTML checkbox */
-  .syrinscape-markdown .switch input {
+}
+
+/* Hide default HTML checkbox */
+.syrinscape-markdown .switch input {
     opacity: 0;
     width: 0;
     height: 0;
-  }
-  
-  /* The slider */
-  .syrinscape-markdown .slider {
+}
+
+/* The slider */
+.syrinscape-markdown .slider {
     position: absolute;
     cursor: pointer;
     top: 0;
@@ -77,9 +86,9 @@
     bottom: 0;
     -webkit-transition: .4s;
     transition: .4s;
-  }
-  
-  .syrinscape-markdown .slider:before {
+}
+
+.syrinscape-markdown .slider:before {
     position: absolute;
     content: "";
     height: 0.76em;
@@ -91,8 +100,8 @@
     background-color: var(--background-primary);
     -webkit-transition: .4s;
     transition: .4s;
-  }
-  
+}
+
 .syrinscape-markdown span.sfx {
     background-color: var(--background-primary-alt);
 }
@@ -128,30 +137,31 @@
 .syrinscape-markdown input.mood:checked+.slider {
     background-color: var(--background-modifier-success);
 }
-  
-  .syrinscape-markdown input:focus + .slider {
+
+.syrinscape-markdown input:focus+.slider {
     box-shadow: 0 0 1px var(--accent2-lite);
-  }
-  
-  .syrinscape-markdown input:checked + .slider:before {
+}
+
+.syrinscape-markdown input:checked+.slider:before {
     -webkit-transform: translateX(0.75em);
     -ms-transform: translateX(0.75em);
     transform: translateX(0.75em);
-  }
-  
-  /* Rounded sliders */
-  .syrinscape-markdown .slider.round {
+}
+
+/* Rounded sliders */
+.syrinscape-markdown .slider.round {
     border-radius: var(--checkbox-radius);
-  }
-  
-  .syrinscape-markdown .slider.round:before {
+}
+
+.syrinscape-markdown .slider.round:before {
     border-radius: var(--checkbox-radius);
-  }
+}
 
 
 .syrinscape .title {
     background-color: rgba(255, 255, 255, 0.5);
 }
+
 /* flexbox with a colum layout */
 .syrinscape .alert {
     display: flex;
@@ -162,6 +172,7 @@
     height: 100%;
     width: 100%;
 }
+
 .syrinscape .alert button {
     color: var(--text-error);
     background-color: var(--background-primary-alt);
@@ -169,8 +180,9 @@
     opacity: 100%;
     font-size: 2em;
 }
+
 /* all markdown elements should start out as non-interactive and be covered by a white square */
-.syrinscape-markdown a{
+.syrinscape-markdown a {
     font-family: emoji;
 }
 
@@ -189,7 +201,7 @@
 /*
  Syrinscape CSS (c) Syrinscape.inc
  */
- .syrinscape {
+.syrinscape {
     align-items: center;
     background-image: url("https://syrinscape.com/static/img/BG-Base.jpg");
     background-size: cover;
@@ -199,14 +211,17 @@
     position: relative;
     width: 100%;
 }
+
 .syrinscape .cta {
     display: flex;
     margin-top: -50%;
 }
+
 .syrinscape .interface {
     display: none;
     margin-top: -50%;
 }
+
 .syrinscape .visualisations-container {
     left: 0;
     bottom: 0;
@@ -214,11 +229,13 @@
     position: absolute;
     width: 100%;
 }
+
 .syrinscape .visualisations {
     padding-top: 50%;
     position: relative;
     width: 100%;
 }
+
 .syrinscape .d3-frequency {
     height: 100%;
     left: 0;
@@ -227,6 +244,7 @@
     transform: scaleY(-1);
     width: 100%;
 }
+
 .syrinscape .d3-waveform {
     height: 100%;
     left: 0;
@@ -235,19 +253,25 @@
     transform: scaleY(-1);
     width: 100%;
 }
+
 .syrinscape .d3-waveform svg {
     height: 100%;
     width: 100%;
 }
+
 .syrinscape .controls {
     display: flex;
     align-items: center;
     margin: 50px auto;
-    position: relative;  /* always above the visualisation */
+    position: relative;
+    /* always above the visualisation */
     flex-direction: row;
-    width: calc(100% - 40px); /* Adjust based on your specific needs */
+    width: calc(100% - 40px);
+    /* Adjust based on your specific needs */
 }
-.syrinscape .local-volume, .syrinscape .oneshot-volume {
+
+.syrinscape .local-volume,
+.syrinscape .oneshot-volume {
     box-sizing: border-box;
     flex-grow: 1;
     margin: 0.75em;
