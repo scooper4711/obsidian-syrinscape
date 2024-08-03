@@ -18,12 +18,13 @@ Welcome, Game Masters! Are you looking to elevate your tabletop role-playing ses
 
 **Custom Soundboard:** Create a personalized soundboard for quick access. Bookmark it or drag it to the left-hand ribbon for instant availability during your game sessions.
 
-![Soundboard](soundboard.png)
+![Soundboard](doc/soundboard.png)
 
 **Embedded Player Control:** Control the sound directly within Obsidian. See what's playing, adjust the volume, and quickly mute or stop all sounds with ease. Need more control? Launch the Syrinscape browser version with a single click.
+
 ![embedded player](doc/embedded-player.png)
 
-### **Getting Started: How to Use**
+### Getting Started: How to Use
 
 1. **Install the Plugin:** Find the Syrinscape module in Obsidian's Community Plugin Manager and install it.
 2. **Authenticate:** Retrieve your Auth token from [Syrinscape's website](https://syrinscape.com/online/cp/) and paste it into the plugin settings.
