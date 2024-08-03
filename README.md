@@ -5,7 +5,7 @@ Welcome, Game Masters! Are you looking to elevate your tabletop role-playing ses
 ### See it in action
 
 ![Demo](doc/demo.gif)
-<img src="https://user-images.githubusercontent.com/link-to-your-image.png" width="200" />
+
 ### **What this plugin offers**
 
 **Seamless Integration:** Manage your TTRPG campaigns using Obsidian? Perfect! This plugin integrates Syrinscape Web Player directly into Obsidian, so no more switching between tabs or apps. Everything you need is right at your fingertips.
@@ -18,7 +18,9 @@ Welcome, Game Masters! Are you looking to elevate your tabletop role-playing ses
 
 **Custom Soundboard:** Create a personalized soundboard for quick access. Bookmark it or drag it to the left-hand ribbon for instant availability during your game sessions.
 
-![So![Soundboard](soundboard.png)Embedded Player Control:** Control the sound directly within Obsidian. See what's playing, adjust the volume, and quickly mute or stop all sounds with ease. Need more control? Launch the Syrinscape browser version with a single click.
+![Soundboard](soundboard.png)
+
+**Embedded Player Control:** Control the sound directly within Obsidian. See what's playing, adjust the volume, and quickly mute or stop all sounds with ease. Need more control? Launch the Syrinscape browser version with a single click.
 ![embedded player](doc/embedded-player.png)
 
 ### **Getting Started: How to Use**
