@@ -4,10 +4,7 @@ Welcome, Game Masters! Are you looking to elevate your tabletop role-playing ses
 
 ### See it in action
 
-<video width="80%" controls>
-  <source src="doc/demo.gif" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+![Demo](doc/demo.gif)
 
 ### **Why You'll Love This Plugin**
 
