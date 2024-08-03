@@ -248,6 +248,13 @@ export class SyrinscapePlayerView extends ItemView {
                     document.querySelectorAll('.syrinscape-markdown a.inactive').forEach((element) => {
                         element.classList.remove('inactive');
                     });                    
+                    document.querySelectorAll('.syrinscape-markdown input.inactive').forEach((element) => {
+                        element.classList.remove('inactive');
+                    });                    
+                    document.querySelectorAll('.syrinscape-markdown span.inactive').forEach((element) => {
+                        element.classList.remove('inactive');
+                    });                    
+
                 } else {
                     console.log("Syrinscape - failed to log in. Please check your authentication token.")
                     // add inactive from all syrinscape elements
