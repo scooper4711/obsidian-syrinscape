@@ -41,7 +41,7 @@ export class SyrinscapeSound {
      * @param syrinscapeDiv - The div to render the checkbox in.
      */
     private renderSlider(syrinscapeDiv: HTMLSpanElement) {
-        const label = syrinscapeDiv.createEl("label", { cls: 'switch' });
+        const label = syrinscapeDiv.createEl("label", { cls: 'switch' ,  title: this.title ? `Play "${this.title}"` : "Play" });
         const input = label.createEl("input", { type: 'checkbox', cls: `${this.type} syrinscape-${this.id}` });
         const span = label.createEl("span", { cls: `slider round ${this.type}` });
         // eslint-disable-next-line @typescript-eslint/no-unused-vars

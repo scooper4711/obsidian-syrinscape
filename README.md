@@ -2,6 +2,13 @@
 
 Welcome, Game Masters! Are you looking to elevate your tabletop role-playing sessions with immersive soundscapes and dynamic audio effects? Look no further! The Syrinscape Player plugin for Obsidian is here to transform your game into an unforgettable auditory adventure. Say goodbye to playing disc jockey while GMing. Prep the perfect mood ahead of time and have instant access to it during your session, complete with a an easy play/stop button to remind you to activate it at just the right moment.
 
+### See it in action
+
+<video width="80%" controls>
+  <source src="doc/demo.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
 ### **Why You'll Love This Plugin**
 
 **Seamless Integration:** Manage your TTRPG campaigns using Obsidian? Perfect! This plugin integrates Syrinscape Web Player directly into Obsidian, so no more switching between tabs or apps. Everything you need is right at your fingertips.
