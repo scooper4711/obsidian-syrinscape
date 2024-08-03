@@ -20,7 +20,7 @@ Welcome, Game Masters! Are you looking to elevate your tabletop role-playing ses
 
 ![Soundboard](doc/soundboard.png)
 
-**Embedded Player Control:** Control the sound directly within Obsidian. See what's playing, adjust the volume, and quickly mute or stop all sounds with ease. Need more control? Launch the Syrinscape browser version with a single click.
+**Embedded Player Control:** Control the sound directly within Obsidian. See what's playing, adjust the volume, and quickly mute or stop all sounds with ease. Need more control? Launch the Syrinscape browser version with a single click of the Syrinscape Logo.
 
 ![embedded player](doc/embedded-player.png)
 
