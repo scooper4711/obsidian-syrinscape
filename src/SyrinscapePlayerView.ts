@@ -1,7 +1,7 @@
 import { ItemView, Notice, WorkspaceLeaf } from "obsidian";
 import SyrinscapePlugin from "./main";
 import { debug } from "./SyrinscapeDebug";
-import { registerForSyrinscapeEvents, unregisterForSyrinscapeEvents, setAllStopped } from "SyrinscapeSound";
+import { registerForSyrinscapeEvents, unregisterForSyrinscapeEvents, setAllStopped, SYRINSCAPE_CLASS } from "SyrinscapeSound";
 export const VIEW_TYPE = "syrinscape-player";
 
 export class SyrinscapePlayerView extends ItemView {
@@ -245,13 +245,20 @@ export class SyrinscapePlayerView extends ItemView {
                 if (isSyrinscapeAuthenticated()) {
                     console.log("Syrinscape - successfully logged in to app.syrinscape.com.")
                     // remove inactive from all syrinscape elements
-                    document.querySelectorAll('.syrinscape-markdown a.inactive').forEach((element) => {
+                    document.querySelectorAll(`.${SYRINSCAPE_CLASS} a.inactive`).forEach((element) => {
                         element.classList.remove('inactive');
                     });                    
+                    document.querySelectorAll(`.${SYRINSCAPE_CLASS} input.inactive`).forEach((element) => {
+                        element.classList.remove('inactive');
+                    });                    
+                    document.querySelectorAll(`.${SYRINSCAPE_CLASS} span.inactive`).forEach((element) => {
+                        element.classList.remove('inactive');
+                    });                    
+
                 } else {
                     console.log("Syrinscape - failed to log in. Please check your authentication token.")
                     // add inactive from all syrinscape elements
-                    document.querySelectorAll('.syrinscape-markdown a').forEach((element) => {
+                    document.querySelectorAll(`.${SYRINSCAPE_CLASS} a`).forEach((element) => {
                         element.classList.add('inactive');
                     });
                     
@@ -264,7 +271,7 @@ export class SyrinscapePlayerView extends ItemView {
             onInactive() {
                 debug("logged out/deactivated.")
                 // add inactive from all syrinscape elements
-                document.querySelectorAll('.syrinscape-markdown a').forEach((element) => {
+                document.querySelectorAll(`.${SYRINSCAPE_CLASS} a`).forEach((element) => {
                     element.classList.add('inactive');
                 });
                 if (ctaDiv) ctaDiv.style.display = 'block';
@@ -442,3 +449,17 @@ export function isSyrinscapeAuthenticated() {
         return false;
     }
 }
+
+export function resetArtwork() {
+    // get the syrinscape player div and set the background image to the default image
+    document.querySelectorAll('.syrinscape').forEach((element) => {
+        const syrinscapeDiv = element as HTMLDivElement;
+        syrinscapeDiv.style.backgroundImage = 'url("https://syrinscape.com/static/img/BG-Base.jpg")';
+    });
+    // reset the title to "Syrinscape Player"
+    document.querySelectorAll('.title h2').forEach((element) => {
+        const title = element as HTMLHeadingElement;
+        title.textContent = 'Syrinscape Player';
+    });
+}
+

@@ -26,14 +26,14 @@ function selectionAndRangeOverlap(
             return true;
         }
     }
-
     return false;
 }
 
 function inlineRender(view: EditorView, plugin: SyrinscapePlugin) {
     const currentFile = this.app.workspace.getActiveFile();
-    if (!currentFile) return;
-
+    if (!currentFile) {
+        return;
+    }
     const widgets: Range<Decoration>[] = [];
     const selection = view.state.selection;
     const regex = new RegExp(".*?_?inline-code_?.*");
