@@ -21,26 +21,21 @@ function selectionAndRangeOverlap(
     rangeFrom: number,
     rangeTo: number
 ) {
-    console.debug("selectionAndRangeOverlap", selection, rangeFrom, rangeTo);
     for (const range of selection.ranges) {
         if (range.from <= rangeTo && range.to >= rangeFrom) {
-            console.debug("selectionAndRangeOverlap - true");
             return true;
         }
     }
-    console.debug("selectionAndRangeOverlap - false");
     return false;
 }
 
 function inlineRender(view: EditorView, plugin: SyrinscapePlugin) {
     const currentFile = this.app.workspace.getActiveFile();
     if (!currentFile) {
-        console.debug("inlineRender - No active file");
         return;
     }
     const widgets: Range<Decoration>[] = [];
     const selection = view.state.selection;
-    console.debug("inlineRender", selection);
     const regex = new RegExp(".*?_?inline-code_?.*");
     for (const { from, to } of view.visibleRanges) {
         syntaxTree(view.state).iterate({

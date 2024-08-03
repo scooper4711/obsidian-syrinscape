@@ -90,5 +90,17 @@ export class SyrinscapeSettingsTab extends PluginSettingTab {
           this.plugin.clearCache();
           this.plugin.editorSuggest?.fetchRemoteLinks();
       }));
-    }      
+
+    // Create a button for the boolean setting to enable debug logging
+    new Setting(containerEl)
+      .setName('Debug logging')
+      .setDesc('Enable debug logging to the console.')
+      .addToggle(toggle => toggle
+        .setValue(this.plugin.settings.debug)
+        .onChange(async (value) => {
+          this.plugin.settings.debug = value;
+          await this.plugin.saveData(this.plugin.settings);
+        }));
+  }      
+
 }

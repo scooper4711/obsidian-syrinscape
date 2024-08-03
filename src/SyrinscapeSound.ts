@@ -1,32 +1,46 @@
 export const SYRINSCAPE_CLASS = 'syrinscape-markdown';
 import { Notice } from "obsidian";
 import { debug } from "./SyrinscapeDebug";
-import { isSyrinscapeAuthenticated } from "SyrinscapePlayerView";
+import { isSyrinscapeAuthenticated, resetArtwork } from "SyrinscapePlayerView";
 
 const unsubscribeCallbacks: (() => void)[] = [];
 
 export class SyrinscapeSound {
     constructor(
         readonly id: string,
+        // type has to be one of 'mood', 'sfx', 'music' or 'oneshot' (or 'element' for backwards compatibility)
         readonly type: string,
         readonly title: string,
     ) {
+        if ([ 'mood', 'sfx', 'music', 'oneshot', 'element' ].indexOf(type) === -1) {
+            new Notice(`Please use one of 'mood', 'sfx', 'music' or 'oneshot' for sound type.`);
+            throw new Error(`Invalid type ${type} for SyrinscapeSound.`);
+        }
         if (type === 'element') {
             this.type = 'oneshot'
         }
     }
 
+    /**
+     * Render the span for the sound element and the controls.
+     * @param element - The element to render the span in.
+     * @returns The span element.
+     */
     public renderSpan(element: HTMLElement) {
         const syrinscapeDiv = element.createEl("span", { cls: SYRINSCAPE_CLASS });
         if (this.type === 'oneshot') {
-            this.renderPlayStop(syrinscapeDiv);
+            this.renderOneshotPlay(syrinscapeDiv);
         } else {
-            this.renderCheckbox(syrinscapeDiv);
+            this.renderSlider(syrinscapeDiv);
         }
         return syrinscapeDiv;
     }
 
-    private renderCheckbox(syrinscapeDiv: HTMLSpanElement) {
+    /**
+     * Render the controls for a mood or sfx sound.
+     * @param syrinscapeDiv - The div to render the checkbox in.
+     */
+    private renderSlider(syrinscapeDiv: HTMLSpanElement) {
         const label = syrinscapeDiv.createEl("label", { cls: 'switch' });
         const input = label.createEl("input", { type: 'checkbox', cls: `${this.type} syrinscape-${this.id}` });
         const span = label.createEl("span", { cls: `slider round ${this.type}` });
@@ -55,6 +69,7 @@ export class SyrinscapeSound {
                     document.querySelectorAll(`.${this.type}.syrinscape-${this.id}`).forEach((element) => {
                         const inputElement = element as HTMLInputElement;
                         inputElement.checked = false;
+                        resetArtwork();
                     });
                 } else {
                     document.querySelectorAll(`.${this.type}.syrinscape-${this.id}`).forEach((element) => {
@@ -79,7 +94,11 @@ export class SyrinscapeSound {
 
     }
 
-    private renderPlayStop(syrinscapeDiv: HTMLSpanElement) {
+    /**
+     * Render the play button for a oneshot sound.
+     * @param syrinscapeDiv - The div to render the play button in.
+     */
+    private renderOneshotPlay(syrinscapeDiv: HTMLSpanElement) {
         // make an anchor with the class play, the text ▶️ and hovertext of "Play ${soundTitle}" if it's set, or just "Play"
         const play = syrinscapeDiv.createEl("a", { cls: `${this.type} syrinscape-${this.id}`, text: '▶️', title: this.title ? `Play "${this.title}"` : "Play" });
         if (!isSyrinscapeAuthenticated()) {
@@ -156,14 +175,15 @@ export function unregisterForSyrinscapeEvents() {
 
 
 /**
- * Remove the playing class from all elements.
+ * Visually update all elements to show they're stopped.
  */
 export function setAllStopped() {
-    console.debug('setAllStopped');
+    debug('setAllStopped');
     document.querySelectorAll('.playing').forEach((element) => {
         element.classList.remove('playing');
     });
-    document.querySelectorAll('.syrinscape-markdown input').forEach((element) => {
+    resetArtwork();
+    document.querySelectorAll(`.${SYRINSCAPE_CLASS} input`).forEach((element) => {
         const inputElement = element as HTMLInputElement;
         inputElement.checked = false;
     });
@@ -171,12 +191,13 @@ export function setAllStopped() {
 
 
 /**
- * Respond to the syrinscape.stopElement event by removing the playing class from the element.
+ * Visually update all elements representing a given sound element to indicate they're stopped.
+ * @param event the event from Syrinscape indicating a sound element has stopped playing.
  */
 export function stopElement(event: CustomEvent<{ elementId: number, playlistEntryId: number, timeToStop: number, sampleId: number }>) {
-    console.debug('stopElement:', event.detail.elementId);
+    debug('stopElement:', event.detail.elementId);
     const elementsToStop = document.querySelectorAll(`.syrinscape-${event.detail.elementId}`);
-    console.debug('stopElement:', elementsToStop);
+    debug('stopElement:', elementsToStop);
     elementsToStop.forEach((element) => {
         element.classList.remove('playing');
         if (element instanceof HTMLInputElement) {
@@ -185,8 +206,12 @@ export function stopElement(event: CustomEvent<{ elementId: number, playlistEntr
     });
 }
 
+/**
+ * Visually update all elements representing a given sound element to indicate they're playing.
+ * @param event the event from Syrinscape indicating a sound element has started playing.
+ */
 export function startElement(event: CustomEvent<{ elementId: number; timeToFirstSample: string; }>) {
-    console.debug('startElement:', event.detail.elementId);
+    debug('startElement:', event.detail.elementId);
     document.querySelectorAll(`.oneshot.syrinscape-${event.detail.elementId}`).forEach((element) => {
         const inputElement = element as HTMLInputElement;
         inputElement.classList.add('playing');

@@ -1,3 +1,52 @@
+/* @settings
+name: Syrinscape
+id: syrinscape-player
+settings:
+  - 
+    id: mood-slider-color
+    title: Mood Slider Background Color
+    description: The color used to indicate that the chosen slider controls a mood. All other mood sliders will be turned off when one mood is turned on. It is useful to have a different color for this slider to differentiate it from the others.
+    type: variable-themed-color
+    format: hex
+    default-light: '#637CEB'
+    default-dark: '#5E5E5E'
+  - 
+    id: music-slider-color
+    title: Music Slider Background Color
+    type: variable-themed-color
+    format: hex
+    default-light: '#4A6E7E'
+    default-dark: '#8196A7'
+  - 
+    id: sfx-slider-color
+    title: Sound Effect (sfx) Slider Background Color
+    type: variable-themed-color
+    format: hex
+    default-light: '#4A6E7E'
+    default-dark: '#8196A7'
+  - 
+    id: knob-color
+    title: Color of the slider knob
+    type: variable-themed-color
+    format: hex
+    default-light: '#FFFFFF'
+    default-dark: '#AFB0B1'
+*/
+
+body.theme-dark.css-settings-manager {
+    --mood-slider-color: #5E5E5E;
+    --music-slider-color: #8196A7;
+    --sfx-slider-color: #8196A7;
+    --slider-knob-color: #AFB0B1;
+}
+
+body.theme-light.css-settings-manager {
+    --mood-slider-color: #637CEB;
+    --music-slider-color: #4A6E7E;
+    --sfx-slider-color: #4A6E7E;
+    --slider-knob-color: white;
+}
+
 .syrinscape {
     overflow: hidden;
 }
@@ -97,49 +146,49 @@
     left: 0.1em;
     right: 0.1em;
     bottom: 0.12em;
-    background-color: var(--background-primary);
+    background-color: var(--slider-knob-color);
     -webkit-transition: .4s;
     transition: .4s;
 }
 
 .syrinscape-markdown span.sfx {
-    background-color: var(--background-primary-alt);
+    background-color: var(--sfx-slider-color);
 }
 
 .syrinscape-markdown input.sfx:checked+.slider {
-    background-color: var(---background-primary-alt);
+    background-color: var(--sfx-slider-color);
 }
 
 .syrinscape-markdown input.sfx:checked+.slider {
-    background-color: var(--background-primary-alt);
+    background-color: var(--sfx-slider-color);
 }
 
 .syrinscape-markdown span.music {
-    background-color: var(--background-primary-alt);
+    background-color: var(--music-slider-color);
 }
 
 .syrinscape-markdown input.music:checked+.slider {
-    background-color: var(--background-primary-alt);
+    background-color: var(--music-slider-color);
 }
 
 .syrinscape-markdown input.music:checked+.slider {
-    background-color: var(--background-primary-alt);
+    background-color: var(--music-slider-color);
 }
 
 .syrinscape-markdown span.mood {
-    background-color: var(--background-modifier-success);
+    background-color: var(--mood-slider-color);
 }
 
 .syrinscape-markdown input.mood:checked+.slider {
-    background-color: var(--background-modifier-success);
+    background-color: var(--mood-slider-color);
 }
 
 .syrinscape-markdown input.mood:checked+.slider {
-    background-color: var(--background-modifier-success);
+    background-color: var(--mood-slider-color);
 }
 
 .syrinscape-markdown input:focus+.slider {
-    box-shadow: 0 0 1px var(--accent2-lite);
+    box-shadow: 0 0 1px var(--slider-knob-color);
 }
 
 .syrinscape-markdown input:checked+.slider:before {
