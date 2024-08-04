@@ -44,8 +44,9 @@ export class SyrinscapeSettingsTab extends PluginSettingTab {
               }
             }
           await this.plugin.saveData(this.plugin.settings);
-        }}));
-    
+        }})
+        .inputEl.setAttr('type','password'));
+
     // Number setting for the maximum cache age, in days
     new Setting(containerEl)
       .setName('Cache age')
