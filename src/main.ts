@@ -14,6 +14,7 @@ export interface SyrinscapeSettings {
   csvContent: string;
   lastUpdated: Date|null;
   maxCacheAge: number;
+  lastVolume?: string;
 };
 
 export const DEFAULT_SETTINGS: SyrinscapeSettings = {
@@ -22,7 +23,8 @@ export const DEFAULT_SETTINGS: SyrinscapeSettings = {
   csvContent: '',
   lastUpdated: null,
   maxCacheAge: 7,
-  debug: false
+  debug: false,
+  lastVolume: '50'
 };
 
 export default class SyrinscapePlugin extends Plugin {
@@ -34,7 +36,6 @@ export default class SyrinscapePlugin extends Plugin {
    */
   async onload() {
     await this.loadSettings();
-    this.app.workspace.trigger("parse-style-settings")
     await this.loadSyrinscapeScripts();
 
     this.addSettingTab(new SyrinscapeSettingsTab(this.app, this));

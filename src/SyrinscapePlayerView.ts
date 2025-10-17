@@ -35,7 +35,37 @@ export class SyrinscapePlayerView extends ItemView {
      * Build the Syrinscape player view.
      */
     async onOpen() {
+        // Initial setup
         const container = this.containerEl.children[1];
+        container.empty();
+        await this.onShow();
+    }
+
+    /**
+     * Called when the view becomes visible
+     */
+    async onShow() {
+        const container = this.containerEl.children[1];
+        container.empty();
+
+        try {
+            this.syrinscapeDiv = container.createDiv({ cls: 'syrinscape' });
+            this.ctaDiv = this.syrinscapeDiv.createDiv({ cls: 'cta alert' });
+            this.interfaceDiv = this.syrinscapeDiv.createDiv({ cls: 'interface' });
+            
+            // Wait for Syrinscape to be defined and initialized
+            if (isSyrinscapeDefined() && syrinscape.player?.audioSystem) {
+                // Restore previous volume (convert from percentage to 0-1.5 range)
+                const savedPercentage = this.plugin.settings.lastVolume || '50';
+                const volumeValue = (parseFloat(savedPercentage) / 100 * 1.5).toString();
+                syrinscape.player.audioSystem.setLocalVolume(volumeValue);
+            }
+        } catch (error) {
+            console.error('Failed to initialize Syrinscape view:', error);
+            container.empty();
+            this.buildErrorScreen(container);
+            throw error;
+        }
         container.empty();
         try {
             this.syrinscapeDiv = container.createDiv({ cls: 'syrinscape' });
@@ -146,12 +176,15 @@ export class SyrinscapePlayerView extends ItemView {
     private buildVolumeControls(parentDiv: HTMLDivElement) {
         const volumeStack = parentDiv.createDiv({ cls: 'volume-stack' });
 
-        this.localVolume = this.createVolumeSlider(volumeStack, 'local-volume', (value) => {
+        this.localVolume = this.createVolumeSlider(volumeStack, 'local-volume', async (value: string) => {
             syrinscape.player.audioSystem.setLocalVolume(value);
-            syrinscape.config.lastLocalVolume = value;
+            // Convert volume (0-1.5) to percentage (0-100) for storage
+            const percentage = (parseFloat(value) / 1.5 * 100).toString();
+            this.plugin.settings.lastVolume = percentage;
+            await this.plugin.saveData(this.plugin.settings);
         }, 'Local');
         
-        this.createVolumeSlider(volumeStack, 'oneshot-volume', (value) => {
+        this.createVolumeSlider(volumeStack, 'oneshot-volume', (value: string) => {
             syrinscape.player.elementSystem.oneshotSystem.setVolume(value);
         }, 'One-shot');
         this.mute = parentDiv.createEl('button', { cls: 'mute', text: '🔈' });
@@ -380,6 +413,20 @@ export class SyrinscapePlayerView extends ItemView {
     /**
      * Called when the view is closed.
      */
+    async onHide(): Promise<void> {
+        debug('Hiding view.');
+        // Pause resources when view is hidden
+        if (this.syrinscapeDiv) {
+            // Unregister from Syrinscape events but keep the connection alive
+            unregisterForSyrinscapeEvents();
+            
+            // Mute audio without stopping
+            if (syrinscape.player?.audioSystem) {
+                syrinscape.player.audioSystem.setLocalVolume('0');
+            }
+        }
+    }
+
     async onClose(): Promise<void> {
         debug('Closing view.');
         setAllStopped();
