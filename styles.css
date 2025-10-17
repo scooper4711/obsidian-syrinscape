@@ -5,7 +5,7 @@ settings:
   - 
     id: mood-slider-color
     title: Mood Slider Background Color
-    description: The color used to indicate that the chosen slider controls a mood. All other mood sliders will be turned off when one mood is turned on. It is useful to have a different color for this slider to differentiate it from the others.
+    description: The color used to indicate that the chosen slider controls a mood. All other mood sliders will be turned off when one mood is turned on.
     type: variable-themed-color
     format: hex
     default-light: '#637CEB'
@@ -33,18 +33,28 @@ settings:
     default-dark: '#AFB0B1'
 */
 
-body.theme-dark.css-settings-manager {
+/* Default theme variables - These work without Style Settings */
+:root {
+    --mood-slider-color: #637CEB;
+    --music-slider-color: #4A6E7E;
+    --sfx-slider-color: #4A6E7E;
+    --slider-knob-color: white;
+}
+
+/* Dark theme overrides - These work without Style Settings */
+.theme-dark {
     --mood-slider-color: #5E5E5E;
     --music-slider-color: #8196A7;
     --sfx-slider-color: #8196A7;
     --slider-knob-color: #AFB0B1;
 }
 
-body.theme-light.css-settings-manager {
-    --mood-slider-color: #637CEB;
-    --music-slider-color: #4A6E7E;
-    --sfx-slider-color: #4A6E7E;
-    --slider-knob-color: white;
+/* Style Settings overrides - These only apply if Style Settings is installed */
+.css-settings-manager {
+    --mood-slider-color: var(--mood-slider-color, inherit);
+    --music-slider-color: var(--music-slider-color, inherit);
+    --sfx-slider-color: var(--sfx-slider-color, inherit);
+    --slider-knob-color: var(--knob-color, inherit);
 }
 
 .syrinscape {
