@@ -36,6 +36,10 @@ export default class SyrinscapePlugin extends Plugin {
    */
   async onload() {
     await this.loadSettings();
+    
+    // Trigger Style Settings to parse our CSS variables
+    this.app.workspace.trigger('parse-style-settings');
+    
     await this.loadSyrinscapeScripts();
 
     this.addSettingTab(new SyrinscapeSettingsTab(this.app, this));

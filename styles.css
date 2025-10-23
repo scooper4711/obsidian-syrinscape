@@ -3,7 +3,7 @@ name: Syrinscape
 id: syrinscape-player
 settings:
   - 
-    id: mood-slider-color
+    id: syrinscape-mood-color
     title: Mood Slider Background Color
     description: The color used to indicate that the chosen slider controls a mood. All other mood sliders will be turned off when one mood is turned on.
     type: variable-themed-color
@@ -11,50 +11,58 @@ settings:
     default-light: '#637CEB'
     default-dark: '#5E5E5E'
   - 
-    id: music-slider-color
+    id: syrinscape-music-color
     title: Music Slider Background Color
     type: variable-themed-color
     format: hex
     default-light: '#4A6E7E'
     default-dark: '#8196A7'
   - 
-    id: sfx-slider-color
+    id: syrinscape-sfx-color
     title: Sound Effect (sfx) Slider Background Color
     type: variable-themed-color
     format: hex
     default-light: '#4A6E7E'
     default-dark: '#8196A7'
   - 
-    id: knob-color
+    id: syrinscape-knob-color
     title: Color of the slider knob
     type: variable-themed-color
     format: hex
     default-light: '#FFFFFF'
     default-dark: '#AFB0B1'
+  - 
+    id: syrinscape-toggle-radius
+    title: Toggle Button Roundness
+    description: Adjust how rounded the toggle buttons are. 0 is square, 100 is fully rounded.
+    type: variable-number-slider
+    default: 50
+    min: 0
+    max: 100
+    step: 10
 */
 
 /* Default theme variables - These work without Style Settings */
 :root {
-    --mood-slider-color: #637CEB;
-    --music-slider-color: #4A6E7E;
-    --sfx-slider-color: #4A6E7E;
-    --slider-knob-color: white;
+    --mood-slider-color: var(--syrinscape-mood-color, #637CEB);
+    --music-slider-color: var(--syrinscape-music-color, #4A6E7E);
+    --sfx-slider-color: var(--syrinscape-sfx-color, #4A6E7E);
+    --slider-knob-color: var(--syrinscape-knob-color, white);
+    --checkbox-radius: 8px;
 }
 
 /* Dark theme overrides - These work without Style Settings */
 .theme-dark {
-    --mood-slider-color: #5E5E5E;
-    --music-slider-color: #8196A7;
-    --sfx-slider-color: #8196A7;
-    --slider-knob-color: #AFB0B1;
+    --mood-slider-color: var(--syrinscape-mood-color, #5E5E5E);
+    --music-slider-color: var(--syrinscape-music-color, #8196A7);
+    --sfx-slider-color: var(--syrinscape-sfx-color, #8196A7);
+    --slider-knob-color: var(--syrinscape-knob-color, #AFB0B1);
 }
 
 /* Style Settings overrides - These only apply if Style Settings is installed */
-.css-settings-manager {
-    --mood-slider-color: var(--mood-slider-color, inherit);
-    --music-slider-color: var(--music-slider-color, inherit);
-    --sfx-slider-color: var(--sfx-slider-color, inherit);
-    --slider-knob-color: var(--knob-color, inherit);
+body.css-settings-manager {
+    /* Convert the 0-100 value to pixels for the radius */
+    --checkbox-radius: calc(var(--syrinscape-toggle-radius, 50) * 0.16px);
 }
 
 .syrinscape {
@@ -213,7 +221,7 @@ settings:
 }
 
 .syrinscape-markdown .slider.round:before {
-    border-radius: var(--checkbox-radius);
+    border-radius: calc(var(--checkbox-radius) * 0.75);
 }
 
 
