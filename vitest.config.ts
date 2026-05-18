@@ -13,18 +13,19 @@ export default defineConfig({
       'SyrinscapeRenderChild': path.resolve(__dirname, 'src/SyrinscapeRenderChild.ts'),
       'SyrinscapePlayerWidget': path.resolve(__dirname, 'src/SyrinscapePlayerWidget.ts'),
       'SyrinscapeSettingsTab': path.resolve(__dirname, 'src/SyrinscapeSettingsTab.ts'),
+      './assets': path.resolve(__dirname, 'src/assets.ts'),
     }
   },
   test: {
     globals: true,
-    environment: 'node',
+    environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
       reportsDirectory: 'coverage',
       include: ['src/**/*.ts'],
-      exclude: ['src/syrinscape.d.ts']
+      exclude: ['src/syrinscape.d.ts', 'src/SyrinscapePlayerWidget.ts']
     }
   }
 });

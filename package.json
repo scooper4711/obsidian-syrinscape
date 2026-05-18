@@ -24,6 +24,7 @@
     "esbuild": "0.23.0",
     "eslint": "^8.56.0",
     "globals": "^15.8.0",
+    "jsdom": "^29.1.1",
     "obsidian": "latest",
     "tslib": "2.6.3",
     "typescript": "5.5.3",
@@ -32,6 +33,8 @@
   },
   "dependencies": {
     "@codemirror/language": "^6.10.2",
+    "@codemirror/state": "^6.0.0",
+    "@codemirror/view": "^6.0.0",
     "codemirror": "^6.0.1",
     "papaparse": "^5.4.1"
   }

@@ -24,3 +24,6 @@ styles.css.orig
 
 # Test coverage
 coverage/
+
+# Downloaded reports
+*.mhtml

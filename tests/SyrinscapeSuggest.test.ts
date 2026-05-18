@@ -20,7 +20,6 @@ vi.mock('SyrinscapeSettingsTab', () => ({
 
 import SyrinscapeSuggest from '../src/SyrinscapeSuggest';
 import SyrinscapePlugin from '../src/main';
-import { SyrinscapeSound } from '../src/SyrinscapeSound';
 
 describe('SyrinscapeSuggest', () => {
   let suggest: SyrinscapeSuggest;
@@ -66,11 +65,53 @@ describe('SyrinscapeSuggest', () => {
       const result = suggest.findTriggerWordOccurrence(line, '`syrinscape:', 36);
       expect(result).toBe(18);
     });
+
+    it('handles cursor at exact end of trigger word', () => {
+      const line = '`syrinscape:';
+      const result = suggest.findTriggerWordOccurrence(line, '`syrinscape:', 12);
+      expect(result).toBe(0);
+    });
+
+    it('handles empty line', () => {
+      const result = suggest.findTriggerWordOccurrence('', '`syrinscape:', 0);
+      expect(result).toBe(-1);
+    });
+  });
+
+  describe('onTrigger', () => {
+    it('returns trigger info when trigger word is found', () => {
+      const cursor = { line: 0, ch: 20 };
+      const editor = {
+        getLine: vi.fn(() => '`syrinscape:mood:123'),
+      };
+      const result = suggest.onTrigger(cursor, editor as never, null);
+      expect(result).not.toBeNull();
+      expect(result!.query).toBe('mood:123');
+    });
+
+    it('returns null when trigger word is not found', () => {
+      const cursor = { line: 0, ch: 10 };
+      const editor = {
+        getLine: vi.fn(() => 'plain text'),
+      };
+      const result = suggest.onTrigger(cursor, editor as never, null);
+      expect(result).toBeNull();
+    });
+
+    it('uses custom trigger word from settings', () => {
+      plugin.settings.triggerWord = 'sscape';
+      const cursor = { line: 0, ch: 12 };
+      const editor = {
+        getLine: vi.fn(() => '`sscape:mood'),
+      };
+      const result = suggest.onTrigger(cursor, editor as never, null);
+      expect(result).not.toBeNull();
+      expect(result!.query).toBe('mood');
+    });
   });
 
   describe('getSuggestions', () => {
     beforeEach(() => {
-      // Populate remoteLinks via parseRemoteLinks
       suggest.parseRemoteLinks(
         'id,status,subcategory,product_or_pack,soundset,name,type,sub_type,genre_players_play_url,genre_players_stop_url,online_player_play_url,online_player_stop_url\n' +
         'pk123,active,cat,pack,Battle,Sword Clash,element,oneshot,,,, \n' +
@@ -110,6 +151,19 @@ describe('SyrinscapeSuggest', () => {
       const context = { query: 'nonexistent' } as unknown;
       const results = suggest.getSuggestions(context as never);
       expect(results.length).toBe(0);
+    });
+
+    it('filters by id', () => {
+      const context = { query: '123' } as unknown;
+      const results = suggest.getSuggestions(context as never);
+      expect(results.length).toBe(1);
+      expect(results[0].id).toBe('123');
+    });
+
+    it('is case insensitive', () => {
+      const context = { query: 'SWORD' } as unknown;
+      const results = suggest.getSuggestions(context as never);
+      expect(results.length).toBe(1);
     });
   });
 
@@ -161,6 +215,112 @@ describe('SyrinscapeSuggest', () => {
       const context = { query: '' } as unknown;
       const results = suggest.getSuggestions(context as never);
       expect(results.length).toBe(0);
+    });
+
+    it('clears existing entries before parsing', () => {
+      suggest.parseRemoteLinks(
+        'id,status,subcategory,product_or_pack,soundset,name,type,sub_type,genre_players_play_url,genre_players_stop_url,online_player_play_url,online_player_stop_url\n' +
+        'pk1,active,cat,pack,Set,First,mood,mood,,,, '
+      );
+      suggest.parseRemoteLinks(
+        'id,status,subcategory,product_or_pack,soundset,name,type,sub_type,genre_players_play_url,genre_players_stop_url,online_player_play_url,online_player_stop_url\n' +
+        'pk2,active,cat,pack,Set,Second,mood,mood,,,, '
+      );
+      const context = { query: '' } as unknown;
+      const results = suggest.getSuggestions(context as never);
+      expect(results.length).toBe(1);
+      expect(results[0].title).toContain('Second');
+    });
+
+    it('combines name and soundset in title', () => {
+      suggest.parseRemoteLinks(
+        'id,status,subcategory,product_or_pack,soundset,name,type,sub_type,genre_players_play_url,genre_players_stop_url,online_player_play_url,online_player_stop_url\n' +
+        'pk10,active,cat,pack,Dungeon Crawl,Drip,element,sfx,,,, '
+      );
+      const context = { query: '' } as unknown;
+      const results = suggest.getSuggestions(context as never);
+      expect(results[0].title).toBe('Drip (Dungeon Crawl)');
+    });
+  });
+
+  describe('renderSuggestion', () => {
+    it('creates a span with suggestion text', () => {
+      suggest.parseRemoteLinks(
+        'id,status,subcategory,product_or_pack,soundset,name,type,sub_type,genre_players_play_url,genre_players_stop_url,online_player_play_url,online_player_stop_url\n' +
+        'pk100,active,cat,pack,Set,Thunder,element,oneshot,,,, '
+      );
+      const context = { query: '' } as unknown;
+      const results = suggest.getSuggestions(context as never);
+      const el = document.createElement('div');
+      const rendered = suggest.renderSuggestion(results[0], el);
+      expect(rendered.textContent).toContain('oneshot');
+      expect(rendered.textContent).toContain('100');
+      expect(rendered.textContent).toContain('Thunder');
+      expect(rendered.classList.contains('syrinscape-suggestion')).toBe(true);
+    });
+  });
+
+  describe('fetchRemoteLinks', () => {
+    it('uses cached content when available', async () => {
+      plugin.settings.csvContent = 'id,status,subcategory,product_or_pack,soundset,name,type,sub_type,genre_players_play_url,genre_players_stop_url,online_player_play_url,online_player_stop_url\npk1,active,cat,pack,Set,Cached,mood,mood,,,, ';
+      await suggest.fetchRemoteLinks();
+      const context = { query: '' } as unknown;
+      const results = suggest.getSuggestions(context as never);
+      expect(results.length).toBe(1);
+      expect(results[0].title).toContain('Cached');
+    });
+
+    it('downloads CSV when cache is empty', async () => {
+      const { requestUrl } = await import('obsidian');
+      const mockRequestUrl = vi.mocked(requestUrl);
+      mockRequestUrl.mockResolvedValue({
+        text: 'id,status,subcategory,product_or_pack,soundset,name,type,sub_type,genre_players_play_url,genre_players_stop_url,online_player_play_url,online_player_stop_url\npk99,active,cat,pack,Set,Downloaded,mood,mood,,,, ',
+      });
+
+      plugin.settings.csvContent = '';
+      await suggest.fetchRemoteLinks();
+      const context = { query: '' } as unknown;
+      const results = suggest.getSuggestions(context as never);
+      expect(results.length).toBe(1);
+      expect(results[0].title).toContain('Downloaded');
+      expect(plugin.saveSettings).toHaveBeenCalled();
+    });
+
+    it('handles fetch error gracefully', async () => {
+      const { requestUrl } = await import('obsidian');
+      const mockRequestUrl = vi.mocked(requestUrl);
+      mockRequestUrl.mockRejectedValue(new Error('Network error'));
+
+      plugin.settings.csvContent = '';
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      await suggest.fetchRemoteLinks();
+      expect(consoleSpy).toHaveBeenCalled();
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('selectSuggestion', () => {
+    it('replaces text in editor with selected suggestion', () => {
+      suggest.parseRemoteLinks(
+        'id,status,subcategory,product_or_pack,soundset,name,type,sub_type,genre_players_play_url,genre_players_stop_url,online_player_play_url,online_player_stop_url\n' +
+        'pk100,active,cat,pack,Set,Thunder,element,oneshot,,,, '
+      );
+      const context = { query: '' } as unknown;
+      const results = suggest.getSuggestions(context as never);
+
+      const mockEditor = {
+        getCursor: vi.fn((type?: string) => ({ line: 0, ch: type === 'from' ? 20 : 20 })),
+        replaceRange: vi.fn(),
+      };
+
+      // Set the context on the suggest instance
+      (suggest as unknown as { context: { query: string; editor: unknown } }).context = {
+        query: 'thunder',
+        editor: mockEditor,
+      };
+
+      suggest.selectSuggestion(results[0], new MouseEvent('click'));
+      expect(mockEditor.replaceRange).toHaveBeenCalled();
     });
   });
 });
