@@ -65,6 +65,16 @@ describe('SyrinscapePlayerView utility functions', () => {
       expect(isSyrinscapeLoaded()).toBe(false);
       (window as Record<string, unknown>).syrinscape = original;
     });
+
+    it('returns false when syrinscape throws', () => {
+      const original = (window as Record<string, unknown>).syrinscape;
+      Object.defineProperty(window, 'syrinscape', {
+        get() { throw new Error('broken'); },
+        configurable: true,
+      });
+      expect(isSyrinscapeLoaded()).toBe(false);
+      Object.defineProperty(window, 'syrinscape', { value: original, writable: true, configurable: true });
+    });
   });
 
   describe('isSyrinscapeAuthenticated', () => {
@@ -83,6 +93,16 @@ describe('SyrinscapePlayerView utility functions', () => {
       delete (window as Record<string, unknown>).syrinscape;
       expect(isSyrinscapeAuthenticated()).toBe(false);
       (window as Record<string, unknown>).syrinscape = original;
+    });
+
+    it('returns false when syrinscape throws', () => {
+      const original = (window as Record<string, unknown>).syrinscape;
+      Object.defineProperty(window, 'syrinscape', {
+        get() { throw new Error('broken'); },
+        configurable: true,
+      });
+      expect(isSyrinscapeAuthenticated()).toBe(false);
+      Object.defineProperty(window, 'syrinscape', { value: original, writable: true, configurable: true });
     });
   });
 
@@ -496,6 +516,23 @@ describe('SyrinscapePlayerView class', () => {
       expect(view.ctaDiv?.classList.contains('is-hidden')).toBe(false);
       expect(view.interfaceDiv?.classList.contains('is-hidden')).toBe(true);
     });
+
+    it('unsubscribes all callbacks during onInactive', async () => {
+      const unsub1 = vi.fn();
+      const unsub2 = vi.fn();
+
+      syrinscapeMock.player.init.mockImplementation((opts: { configure: () => void; onActive: () => void; onInactive: () => void }) => {
+        view.unsubscribeCallbacks.push(unsub1, unsub2);
+        opts.onInactive();
+      });
+
+      await view.onOpen();
+      await view.activateSyrinscape();
+
+      expect(unsub1).toHaveBeenCalled();
+      expect(unsub2).toHaveBeenCalled();
+      expect(view.unsubscribeCallbacks.length).toBe(0);
+    });
   });
 
   describe('updateArtwork and updateTitle', () => {
@@ -550,6 +587,56 @@ describe('SyrinscapePlayerView class', () => {
         expect(syrinscapeMock.visualisation.d3VisualiseWaveformData).toHaveBeenCalled();
         expect(result).toBe(true);
       }
+    });
+  });
+
+  describe('volume slider saves settings', () => {
+    it('saves volume percentage to plugin settings on input', async () => {
+      await view.onOpen();
+      const slider = view.localVolume as HTMLInputElement;
+      if (slider) {
+        slider.value = '0.75';
+        slider.dispatchEvent(new Event('input'));
+        // Wait for async saveData
+        await vi.waitFor(() => {
+          expect(plugin.saveData).toHaveBeenCalled();
+        });
+        expect(plugin.settings.lastVolume).toBe('50');
+      }
+    });
+
+    it('oneshot volume slider calls setVolume', async () => {
+      await view.onOpen();
+      const container = view.containerEl.children[1];
+      const oneshotSlider = container.querySelector('.oneshot-volume') as HTMLInputElement;
+      if (oneshotSlider) {
+        oneshotSlider.value = '1.0';
+        oneshotSlider.dispatchEvent(new Event('input'));
+        expect(syrinscapeMock.player.elementSystem.oneshotSystem.setVolume).toHaveBeenCalledWith('1.0');
+      }
+    });
+  });
+
+  describe('waitForSyrinscapeInit', () => {
+    it('resolves after syrinscape is fully initialized', async () => {
+      vi.useFakeTimers();
+      syrinscapeMock.config.authenticated = true;
+
+      // Make onActive call waitForSyrinscapeInit which should resolve
+      syrinscapeMock.player.init.mockImplementation((opts: { configure: () => void; onActive: () => void; onInactive: () => void }) => {
+        opts.onActive();
+      });
+
+      await view.onOpen();
+      const activatePromise = view.activateSyrinscape();
+
+      // Advance past the 200ms init delay
+      await vi.advanceTimersByTimeAsync(300);
+      await activatePromise;
+
+      // The waitForSyrinscapeInit should have resolved and set up events
+      expect(syrinscapeMock.visualisation.add).toHaveBeenCalled();
+      vi.useRealTimers();
     });
   });
 });
