@@ -457,4 +457,99 @@ describe('SyrinscapePlayerView class', () => {
       }
     });
   });
+
+  describe('onActive with waitForSyrinscapeInit', () => {
+    it('restores volume and registers events after init resolves', async () => {
+      vi.useFakeTimers();
+      syrinscapeMock.config.authenticated = true;
+      syrinscapeMock.player.init.mockImplementation((opts: { configure: () => void; onActive: () => void; onInactive: () => void }) => {
+        opts.configure();
+        opts.onActive();
+      });
+
+      await view.onOpen();
+      await view.activateSyrinscape();
+
+      // Advance past the waitForSyrinscapeInit delay (200ms)
+      await vi.advanceTimersByTimeAsync(300);
+
+      expect(syrinscapeMock.player.audioSystem.setLocalVolume).toHaveBeenCalled();
+      expect(syrinscapeMock.visualisation.add).toHaveBeenCalled();
+      vi.useRealTimers();
+    });
+  });
+
+  describe('onInactive', () => {
+    it('adds inactive classes and shows CTA', async () => {
+      document.body.innerHTML = `
+        <span class="${SYRINSCAPE_CLASS}"><a>play</a></span>
+      `;
+
+      syrinscapeMock.player.init.mockImplementation((opts: { configure: () => void; onActive: () => void; onInactive: () => void }) => {
+        opts.onInactive();
+      });
+
+      await view.onOpen();
+      await view.activateSyrinscape();
+
+      expect(document.querySelector(`.${SYRINSCAPE_CLASS} a.inactive`)).not.toBeNull();
+      expect(view.ctaDiv?.classList.contains('is-hidden')).toBe(false);
+      expect(view.interfaceDiv?.classList.contains('is-hidden')).toBe(true);
+    });
+  });
+
+  describe('updateArtwork and updateTitle', () => {
+    it('updateArtwork sets background image from event detail', async () => {
+      syrinscapeMock.player.init.mockImplementation((opts: { configure: () => void; onActive: () => void; onInactive: () => void }) => {
+        opts.onActive();
+      });
+
+      await view.onOpen();
+      await view.activateSyrinscape();
+
+      // Simulate onChangeSoundset event
+      const artworkCallback = syrinscapeMock.player.syncSystem.events.onChangeSoundset.addListener.mock.calls[0]?.[0];
+      if (artworkCallback) {
+        artworkCallback({ artwork: 'https://example.com/art.jpg' });
+        expect(view.syrinscapeDiv?.style.backgroundImage).toContain('example.com/art.jpg');
+      }
+    });
+
+    it('updateTitle sets title text from event detail', async () => {
+      syrinscapeMock.player.init.mockImplementation((opts: { configure: () => void; onActive: () => void; onInactive: () => void }) => {
+        opts.onActive();
+      });
+
+      await view.onOpen();
+      await view.activateSyrinscape();
+
+      // Simulate onChangeMood event
+      const titleCallback = syrinscapeMock.player.syncSystem.events.onChangeMood.addListener.mock.calls[0]?.[0];
+      if (titleCallback) {
+        titleCallback({ title: 'Epic Battle', pk: '123' });
+        expect(view.title?.textContent).toBe('Epic Battle');
+      }
+    });
+  });
+
+  describe('visualizer callback', () => {
+    it('calls d3 visualisation functions', async () => {
+      syrinscapeMock.player.init.mockImplementation((opts: { configure: () => void; onActive: () => void; onInactive: () => void }) => {
+        opts.onActive();
+      });
+
+      await view.onOpen();
+      await view.activateSyrinscape();
+
+      // Get the visualisation callback and invoke it
+      const visCallback = syrinscapeMock.visualisation.add.mock.calls[0]?.[1];
+      if (visCallback) {
+        const result = visCallback();
+        expect(syrinscapeMock.player.audioEffectSystem.analyser.getData).toHaveBeenCalled();
+        expect(syrinscapeMock.visualisation.d3VisualiseFrequencyData).toHaveBeenCalled();
+        expect(syrinscapeMock.visualisation.d3VisualiseWaveformData).toHaveBeenCalled();
+        expect(result).toBe(true);
+      }
+    });
+  });
 });

@@ -1,5 +1,16 @@
 ## **Enhance Your TTRPG Experience with the Syrinscape Player Plugin for Obsidian!**
 
+[![Build](https://github.com/scooper4711/obsidian-syrinscape/actions/workflows/ci.yml/badge.svg)](https://github.com/scooper4711/obsidian-syrinscape/actions/workflows/ci.yml)
+[![GitHub release](https://img.shields.io/github/v/release/scooper4711/obsidian-syrinscape)](https://github.com/scooper4711/obsidian-syrinscape/releases/latest)
+[![GitHub issues](https://img.shields.io/github/issues/scooper4711/obsidian-syrinscape)](https://github.com/scooper4711/obsidian-syrinscape/issues)
+[![License: MIT](https://img.shields.io/github/license/scooper4711/obsidian-syrinscape)](https://github.com/scooper4711/obsidian-syrinscape/blob/main/LICENCE)
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=scooper4711_obsidian-syrinscape&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=scooper4711_obsidian-syrinscape)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=scooper4711_obsidian-syrinscape&metric=coverage)](https://sonarcloud.io/summary/new_code?id=scooper4711_obsidian-syrinscape)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=scooper4711_obsidian-syrinscape&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=scooper4711_obsidian-syrinscape)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=scooper4711_obsidian-syrinscape&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=scooper4711_obsidian-syrinscape)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=scooper4711_obsidian-syrinscape&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=scooper4711_obsidian-syrinscape)
+
 Welcome, Game Masters! Are you looking to elevate your tabletop role-playing sessions with immersive soundscapes and dynamic audio effects? Look no further! The Syrinscape Player plugin for Obsidian is here to transform your game into an unforgettable auditory adventure. Say goodbye to playing disc jockey while GMing. Prep the perfect mood ahead of time and have instant access to it during your session, complete with a an easy play/stop button to remind you to activate it at just the right moment.
 
 ### See it in action
