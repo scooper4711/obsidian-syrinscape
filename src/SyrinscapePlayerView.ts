@@ -7,15 +7,15 @@ export const VIEW_TYPE = "syrinscape-player";
 
 export class SyrinscapePlayerView extends ItemView {
     plugin: SyrinscapePlugin;
-    ctaDiv: HTMLDivElement|null; 
-    interfaceDiv: HTMLDivElement|null;
-    syrinscapeDiv: HTMLDivElement|null;
-    visualisationsDiv: HTMLDivElement|null;
-    controlsDiv: HTMLDivElement|null;
-    loginDiv: HTMLDivElement|null;
-    title: HTMLHeadingElement | null;
-    localVolume: HTMLInputElement | null;
-    mute: HTMLButtonElement | null;
+    ctaDiv: HTMLDivElement | null = null;
+    interfaceDiv: HTMLDivElement | null = null;
+    syrinscapeDiv: HTMLDivElement | null = null;
+    visualisationsDiv: HTMLDivElement | null = null;
+    controlsDiv: HTMLDivElement | null = null;
+    loginDiv: HTMLDivElement | null = null;
+    title: HTMLHeadingElement | null = null;
+    localVolume: HTMLInputElement | null = null;
+    mute: HTMLButtonElement | null = null;
     unsubscribeCallbacks: (() => void)[] = [];
 
     constructor(leaf: WorkspaceLeaf, plugin: SyrinscapePlugin) {
@@ -386,12 +386,13 @@ export class SyrinscapePlayerView extends ItemView {
         events.onChangeSoundset.addListener(this.updateArtwork.bind(this));
     }
 
-    private updateTitle(event: {title: string, pk: string}) {
-        if (this.title) this.title.textContent = event.title;
+    private updateTitle(event: CustomEvent<{title: string, pk: string}>) {
+        if (this.title) this.title.textContent = event.detail?.title ?? (event as unknown as {title: string}).title;
     }
 
-    private updateArtwork(event: {artwork: string}) {
-        if (this.syrinscapeDiv) this.syrinscapeDiv.style.backgroundImage = `url(${event.artwork})`;
+    private updateArtwork(event: CustomEvent<{artwork: string}>) {
+        const artwork = event.detail?.artwork ?? (event as unknown as {artwork: string}).artwork;
+        if (this.syrinscapeDiv && artwork) this.syrinscapeDiv.style.backgroundImage = `url(${artwork})`;
     }
 
     /**

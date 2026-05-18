@@ -28,8 +28,8 @@ export const DEFAULT_SETTINGS: SyrinscapeSettings = {
 };
 
 export default class SyrinscapePlugin extends Plugin {
-  settings: SyrinscapeSettings;
-  editorSuggest: SyrinscapeSuggest | null;
+  settings: SyrinscapeSettings = DEFAULT_SETTINGS;
+  editorSuggest: SyrinscapeSuggest | null = null;
 
   /**
    * Load the plugin and register the settings, markdown post processor, and view.

@@ -30,7 +30,7 @@ function selectionAndRangeOverlap(
 }
 
 function inlineRender(view: EditorView, plugin: SyrinscapePlugin) {
-    const currentFile = this.app.workspace.getActiveFile();
+    const currentFile = plugin.app.workspace.getActiveFile();
     if (!currentFile) {
         return;
     }
