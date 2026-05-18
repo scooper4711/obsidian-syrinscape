@@ -27,7 +27,7 @@ export class SyrinscapeSound {
      * @returns The span element.
      */
     public renderSpan(element: HTMLElement) {
-        const syrinscapeDiv = element.createEl("span", { cls: SYRINSCAPE_CLASS });
+        const syrinscapeDiv = element.createSpan({ cls: SYRINSCAPE_CLASS });
         if (this.type === 'oneshot') {
             this.renderOneshotPlay(syrinscapeDiv);
         } else {
@@ -42,13 +42,13 @@ export class SyrinscapeSound {
      */
     private renderSlider(syrinscapeDiv: HTMLSpanElement) {
         const label = syrinscapeDiv.createEl("label", { cls: 'switch' ,  title: this.title ? `Play "${this.title}"` : "Play" });
-        const input = label.createEl("input", { type: 'checkbox', cls: `${this.type} syrinscape-${this.id}` });
-        const span = label.createEl("span", { cls: `slider round ${this.type}` });
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const input = label.createEl("input", { type: 'checkbox', cls: `${this.type} syrinscape-${this.id}` }) as HTMLInputElement;
+        const span = label.createSpan({ cls: `slider round ${this.type}` });
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars -- event parameter required by addEventListener signature
         input.addEventListener('change', (e) => {
             if (input.checked) {
                 if (this.type === 'mood') {
-                    document.querySelectorAll('.mood').forEach((element) => {
+                    activeDocument.querySelectorAll('.mood').forEach((element) => {
                         const inputElement = element as HTMLInputElement;
                         if (inputElement.classList.contains('syrinscape-' + this.id)) {
                             inputElement.checked = true;
@@ -57,7 +57,7 @@ export class SyrinscapeSound {
                         }
                     });
                 } else {
-                    document.querySelectorAll(`.${this.type}.syrinscape-${this.id}`).forEach((element) => {
+                    activeDocument.querySelectorAll(`.${this.type}.syrinscape-${this.id}`).forEach((element) => {
                         const inputElement = element as HTMLInputElement;
                         inputElement.checked = true;
                     });
@@ -66,13 +66,13 @@ export class SyrinscapeSound {
             } else {
                 this.callSyrinscapeApi("stop");
                 if (this.type === 'mood') {
-                    document.querySelectorAll(`.${this.type}.syrinscape-${this.id}`).forEach((element) => {
+                    activeDocument.querySelectorAll(`.${this.type}.syrinscape-${this.id}`).forEach((element) => {
                         const inputElement = element as HTMLInputElement;
                         inputElement.checked = false;
                         resetArtwork();
                     });
                 } else {
-                    document.querySelectorAll(`.${this.type}.syrinscape-${this.id}`).forEach((element) => {
+                    activeDocument.querySelectorAll(`.${this.type}.syrinscape-${this.id}`).forEach((element) => {
                         const inputElement = element as HTMLInputElement;
                         inputElement.checked = false;
                     });
@@ -179,11 +179,11 @@ export function unregisterForSyrinscapeEvents() {
  */
 export function setAllStopped() {
     debug('setAllStopped');
-    document.querySelectorAll('.playing').forEach((element) => {
+    activeDocument.querySelectorAll('.playing').forEach((element) => {
         element.classList.remove('playing');
     });
     resetArtwork();
-    document.querySelectorAll(`.${SYRINSCAPE_CLASS} input`).forEach((element) => {
+    activeDocument.querySelectorAll(`.${SYRINSCAPE_CLASS} input`).forEach((element) => {
         const inputElement = element as HTMLInputElement;
         inputElement.checked = false;
     });
@@ -196,11 +196,11 @@ export function setAllStopped() {
  */
 export function stopElement(event: CustomEvent<{ elementId: number, playlistEntryId: number, timeToStop: number, sampleId: number }>) {
     debug('stopElement:', event.detail.elementId);
-    const elementsToStop = document.querySelectorAll(`.syrinscape-${event.detail.elementId}`);
+    const elementsToStop = activeDocument.querySelectorAll(`.syrinscape-${event.detail.elementId}`);
     debug('stopElement:', elementsToStop);
     elementsToStop.forEach((element) => {
         element.classList.remove('playing');
-        if (element instanceof HTMLInputElement) {
+        if (element.instanceOf(HTMLInputElement)) {
             element.checked = false;
         }
     });
@@ -212,11 +212,11 @@ export function stopElement(event: CustomEvent<{ elementId: number, playlistEntr
  */
 export function startElement(event: CustomEvent<{ elementId: number; timeToFirstSample: string; }>) {
     debug('startElement:', event.detail.elementId);
-    document.querySelectorAll(`.oneshot.syrinscape-${event.detail.elementId}`).forEach((element) => {
+    activeDocument.querySelectorAll(`.oneshot.syrinscape-${event.detail.elementId}`).forEach((element) => {
         const inputElement = element as HTMLInputElement;
         inputElement.classList.add('playing');
         // remove the playing class after 3 seconds
-        setTimeout(() => {
+        activeWindow.setTimeout(() => {
             inputElement.classList.remove('playing');
         }, 3000);
     });

@@ -2,6 +2,7 @@ import { ItemView, Notice, WorkspaceLeaf } from "obsidian";
 import SyrinscapePlugin from "./main";
 import { debug } from "./SyrinscapeDebug";
 import { registerForSyrinscapeEvents, unregisterForSyrinscapeEvents, setAllStopped, SYRINSCAPE_CLASS } from "SyrinscapeSound";
+import { SYRINSCAPE_BG_IMAGE, SYRINSCAPE_LOGO_IMAGE } from "./assets";
 export const VIEW_TYPE = "syrinscape-player";
 
 export class SyrinscapePlayerView extends ItemView {
@@ -31,12 +32,12 @@ export class SyrinscapePlayerView extends ItemView {
         return new Promise((resolve) => {
             const checkInit = () => {
                 if (isSyrinscapeDefined() && 
-                    syrinscape.player && syrinscape.player.audioSystem &&
+                    syrinscape.player?.audioSystem &&
                     syrinscape.config) {
                     // Add a small delay to ensure complete initialization
-                    setTimeout(resolve, 200);
+                    activeWindow.setTimeout(resolve, 200);
                 } else {
-                    setTimeout(checkInit, 100); // Check every 100ms
+                    activeWindow.setTimeout(checkInit, 100); // Check every 100ms
                 }
             };
             checkInit();
@@ -73,7 +74,7 @@ export class SyrinscapePlayerView extends ItemView {
         try {
             this.syrinscapeDiv = container.createDiv({ cls: 'syrinscape' });
             this.ctaDiv = this.syrinscapeDiv.createDiv({ cls: 'cta alert' });
-            this.interfaceDiv = this.syrinscapeDiv.createDiv({ cls: 'interface' });
+            this.interfaceDiv = this.syrinscapeDiv.createDiv({ cls: 'interface is-hidden' });
             const visualisationsContainerDiv = this.interfaceDiv.createDiv({ cls: 'visualisations-container' });
             this.visualisationsDiv = visualisationsContainerDiv.createDiv({ cls: 'visualisations' });
             this.buildVisualizer(this.visualisationsDiv);
@@ -84,8 +85,8 @@ export class SyrinscapePlayerView extends ItemView {
             // create a button with the image of the syrinscape logo
             // Set local volume when the slider changes
             this.buildVolumeControls(this.controlsDiv);
-            this.title = this.interfaceDiv.createDiv({ cls: 'title' }).createEl('h2', { text: 'Syrinscape Player' });
-            this.controlsDiv.style.display = 'none';
+            this.title = this.interfaceDiv.createDiv({ cls: 'title' }).createEl('h2', { text: 'Syrinscape Player' }) as HTMLHeadingElement;
+            this.controlsDiv.classList.add('is-hidden');
             this.loginDiv = this.interfaceDiv.createDiv({ cls: 'syrinscape-alert' });
             this.buildLoginButton(this.loginDiv);
         } catch (error) {
@@ -107,7 +108,7 @@ export class SyrinscapePlayerView extends ItemView {
         errorDiv.createEl('h3', { text: 'Failed to build Syrinscape player view' });
         errorDiv.createEl('p', { text: 'Please check the console for more information.' });
         errorDiv.createEl('button', { text: 'Reload', cls: 'syrinscape-reload' }).addEventListener('click', () => {
-            this.onOpen();
+            void this.onOpen();
         });
     }
 
@@ -122,7 +123,7 @@ export class SyrinscapePlayerView extends ItemView {
         alertDiv.createEl('h3', { text: 'Authorization required' });
         alertDiv.createEl('p', { text: 'Please enter your authentication token in preferences.' });
         alertDiv.createEl('button', { text: 'Reload', cls: 'syrinscape-reload' }).addEventListener('click', () => {
-            this.onOpen();
+            void this.onOpen();
         });
     }
 
@@ -147,7 +148,7 @@ export class SyrinscapePlayerView extends ItemView {
      */
     private buildLaunchButton(controlsDiv: HTMLDivElement) {
         const launch = controlsDiv.createEl('input', { cls: 'launch', type: 'image' });
-        launch.setAttribute('src', 'https://app.syrinscape.com/static/basic-player/logo.png');
+        launch.setAttribute('src', SYRINSCAPE_LOGO_IMAGE);
         launch.setAttribute('width', '100%');
         launch.setAttribute('aria-label', 'Launch Syrinscape player in an external browser');
         launch.addEventListener('click', () => {
@@ -182,7 +183,7 @@ export class SyrinscapePlayerView extends ItemView {
         this.localVolume = this.createVolumeSlider(volumeStack, 'local-volume', async (value: string) => {
             syrinscape.player.audioSystem.setLocalVolume(value);
             // Convert volume (0-1.5) to percentage (0-100) for storage
-            const percentage = (parseFloat(value) / 1.5 * 100).toString();
+            const percentage = (Number.parseFloat(value) / 1.5 * 100).toString();
             this.plugin.settings.lastVolume = percentage;
             await this.plugin.saveData(this.plugin.settings);
         }, 'Local');
@@ -190,7 +191,7 @@ export class SyrinscapePlayerView extends ItemView {
         this.createVolumeSlider(volumeStack, 'oneshot-volume', (value: string) => {
             syrinscape.player.elementSystem.oneshotSystem.setVolume(value);
         }, 'One-shot');
-        this.mute = parentDiv.createEl('button', { cls: 'mute', text: '🔈' });
+        this.mute = parentDiv.createEl('button', { cls: 'mute', text: '🔈' }) as HTMLButtonElement;
         this.mute.addEventListener('click', () => {
             syrinscape.player.audioSystem.toggleMute();
         });
@@ -198,7 +199,7 @@ export class SyrinscapePlayerView extends ItemView {
     }
 
     private createVolumeSlider(parentDiv: HTMLDivElement, sliderClass: string, setVolumeFunction: (e:string) => void, volumeType: string) {
-        const volumeSlider = parentDiv.createEl('input', { cls: sliderClass, type: 'range' });
+        const volumeSlider = parentDiv.createEl('input', { cls: sliderClass, type: 'range' }) as HTMLInputElement;
         volumeSlider.min = '0';
         volumeSlider.max = '1.5';
         volumeSlider.step = '0.01';
@@ -206,8 +207,7 @@ export class SyrinscapePlayerView extends ItemView {
     
         // Create a tooltip element
         const volumeTooltip = parentDiv.createDiv({ cls: 'volume-tooltip' });
-        volumeTooltip.style.position = 'absolute';
-        volumeTooltip.style.display = 'none'; // Initially hidden
+        volumeTooltip.classList.add('is-hidden');
     
         const updateTooltip = () => {
             const volumePercentage = Math.round(Number(volumeSlider.value) * 100);
@@ -218,8 +218,8 @@ export class SyrinscapePlayerView extends ItemView {
         
             // Adjust the tooltip position
             volumeTooltip.style.left = `${tooltipLeft}px`;
-            volumeTooltip.style.top = `${volumeSlider.offsetTop - 40}px`; // Adjust as needed
-            volumeTooltip.style.display = 'block';
+            volumeTooltip.style.top = `${volumeSlider.offsetTop - 40}px`;
+            volumeTooltip.classList.remove('is-hidden');
         };    
         volumeSlider.addEventListener('input', () => {
             setVolumeFunction(volumeSlider.value);
@@ -233,7 +233,7 @@ export class SyrinscapePlayerView extends ItemView {
     
         // Optionally, hide the tooltip when not interacting
         volumeSlider.addEventListener('mouseenter', () => {updateTooltip()});
-        volumeSlider.addEventListener('mouseleave', () => volumeTooltip.style.display = 'none');
+        volumeSlider.addEventListener('mouseleave', () => volumeTooltip.classList.add('is-hidden'));
     
         return volumeSlider;
     }
@@ -257,14 +257,29 @@ export class SyrinscapePlayerView extends ItemView {
      * and after onOpen has been called.
      */
     public async activateSyrinscape() {
-        // Get the global variable syrinscape from the document. If it's not available, log an error and return.
+        // Wait for the Syrinscape scripts to load (they're loaded asynchronously)
         if (!isSyrinscapeDefined()) {
-            console.error('Syrinscape - Syrinscape player not loaded.');
-            new Notice('Failed to load Syrinscape player. Please check the console for more information.');
-            return;
+            debug('Syrinscape player not yet loaded, waiting...');
+            const loaded = await new Promise<boolean>((resolve) => {
+                let attempts = 0;
+                const check = () => {
+                    if (isSyrinscapeDefined()) {
+                        resolve(true);
+                    } else if (attempts++ > 50) {
+                        resolve(false);
+                    } else {
+                        activeWindow.setTimeout(check, 200);
+                    }
+                };
+                check();
+            });
+            if (!loaded) {
+                console.error('Syrinscape - Syrinscape player not loaded.');
+                new Notice('Failed to load Syrinscape player. Please check the console for more information.');
+                return;
+            }
         }
         await syrinscape.config.init();
-        // syrinscape.events.playerActive.listeners.remove(this.listeners['syrinscape.playerActive']);
         this.unsubscribeCallbacks.push(syrinscape.events.playerActive.addListener(this.playerActive.bind(this)));
         
         const authToken = this.plugin.settings.authToken;
@@ -282,25 +297,33 @@ export class SyrinscapePlayerView extends ItemView {
                 // When the player becomes active, ensure authenticated UI and subscribe to events
                 if (isSyrinscapeAuthenticated()) {
                     console.log("Syrinscape - successfully logged in to app.syrinscape.com.");
-                    document.querySelectorAll(`.${SYRINSCAPE_CLASS} a.inactive`).forEach((element) => element.classList.remove('inactive'));
-                    document.querySelectorAll(`.${SYRINSCAPE_CLASS} input.inactive`).forEach((element) => element.classList.remove('inactive'));
-                    document.querySelectorAll(`.${SYRINSCAPE_CLASS} span.inactive`).forEach((element) => element.classList.remove('inactive'));
+                    activeDocument.querySelectorAll(`.${SYRINSCAPE_CLASS} a.inactive`).forEach((element) => element.classList.remove('inactive'));
+                    activeDocument.querySelectorAll(`.${SYRINSCAPE_CLASS} input.inactive`).forEach((element) => element.classList.remove('inactive'));
+                    activeDocument.querySelectorAll(`.${SYRINSCAPE_CLASS} span.inactive`).forEach((element) => element.classList.remove('inactive'));
                 } else {
                     console.log("Syrinscape - failed to log in. Please check your authentication token.");
-                    document.querySelectorAll(`.${SYRINSCAPE_CLASS} a`).forEach((element) => element.classList.add('inactive'));
+                    activeDocument.querySelectorAll(`.${SYRINSCAPE_CLASS} a`).forEach((element) => element.classList.add('inactive'));
                     new Notice('Failed to log in to Syrinscape player. Please check your authentication token in preferences.');
                 }
 
-                if (ctaDiv) ctaDiv.style.display = 'none';
-                if (interfaceDiv) interfaceDiv.style.display = 'block';
+                if (ctaDiv) ctaDiv.classList.add('is-hidden');
+                if (interfaceDiv) interfaceDiv.classList.remove('is-hidden');
+
+                // Show controls when authenticated
+                if (isSyrinscapeAuthenticated()) {
+                    if (this.controlsDiv) this.controlsDiv.classList.remove('is-hidden');
+                    if (this.visualisationsDiv) this.visualisationsDiv.classList.remove('is-hidden');
+                    if (this.loginDiv) this.loginDiv.classList.add('is-hidden');
+                    if (this.title) this.title.classList.remove('is-hidden');
+                }
 
                 // Ensure the player subsystems are ready before using them
-                this.waitForSyrinscapeInit().then(() => {
+                void this.waitForSyrinscapeInit().then(() => {
                     try {
                         // Restore local volume slider from stored percentage
                         if (this.localVolume) {
                             const savedPercentage = this.plugin.settings.lastVolume || '50';
-                            const volumeValue = (parseFloat(savedPercentage) / 100 * 1.5).toString();
+                            const volumeValue = (Number.parseFloat(savedPercentage) / 100 * 1.5).toString();
                             if (syrinscape.player?.audioSystem?.setLocalVolume) {
                                 syrinscape.player.audioSystem.setLocalVolume(volumeValue);
                             }
@@ -323,9 +346,9 @@ export class SyrinscapePlayerView extends ItemView {
             onInactive: () => {
                 // When the player becomes inactive, mark UI and unsubscribe from active handlers
                 debug('Syrinscape - player onInactive');
-                document.querySelectorAll(`.${SYRINSCAPE_CLASS} a`).forEach((element) => element.classList.add('inactive'));
-                if (ctaDiv) ctaDiv.style.display = 'block';
-                if (interfaceDiv) interfaceDiv.style.display = 'none';
+                activeDocument.querySelectorAll(`.${SYRINSCAPE_CLASS} a`).forEach((element) => element.classList.add('inactive'));
+                if (ctaDiv) ctaDiv.classList.remove('is-hidden');
+                if (interfaceDiv) interfaceDiv.classList.add('is-hidden');
 
                 // Unsubscribe event listeners we added during onActive
                 try {
@@ -400,15 +423,15 @@ export class SyrinscapePlayerView extends ItemView {
         if (!this.loginDiv || !this.title || !this.controlsDiv || !this.visualisationsDiv) return;
         debug('updateConfig: ', event);
         if (event.detail.authenticated || syrinscape.config?.authenticated) {
-            this.loginDiv.style.display = 'none';
-            this.title.style.display = 'block';
-            this.controlsDiv.style.display = 'flex';
-            this.visualisationsDiv.style.display = 'block';
+            this.loginDiv.classList.add('is-hidden');
+            this.title.classList.remove('is-hidden');
+            this.controlsDiv.classList.remove('is-hidden');
+            this.visualisationsDiv.classList.remove('is-hidden');
         } else {
-            this.loginDiv.style.display = 'flex';
-            this.title.style.display = 'none';
-            this.controlsDiv.style.display = 'none';
-            this.visualisationsDiv.style.display = 'none';
+            this.loginDiv.classList.remove('is-hidden');
+            this.title.classList.add('is-hidden');
+            this.controlsDiv.classList.add('is-hidden');
+            this.visualisationsDiv.classList.add('is-hidden');
         }
     }
     /**
@@ -429,14 +452,12 @@ export class SyrinscapePlayerView extends ItemView {
         const volume = Number(event.detail);
         if (volume === 0) {
             this.mute.textContent = '🔇';
+        } else if (volume < 0.5) {
+            this.mute.textContent = '🔈';
+        } else if (volume < 1) {
+            this.mute.textContent = '🔉';
         } else {
-            if (volume < 0.5) {
-                this.mute.textContent = '🔈';
-            } else if (volume < 1) {
-                this.mute.textContent = '🔉';
-            } else {
-                this.mute.textContent = '🔊';
-            }
+            this.mute.textContent = '🔊';
         }
     }
     /**
@@ -507,8 +528,8 @@ export function isSyrinscapeDefined() {
  */
 export function isSyrinscapeLoaded() {
     try {
-        return isSyrinscapeDefined() && syrinscape.config && syrinscape.player && syrinscape.player.syncSystem && syrinscape.player.syncSystem.events;
-    } catch (error) {
+        return isSyrinscapeDefined() && syrinscape.config && syrinscape.player?.syncSystem?.events;
+    } catch (_error) {
         return false;
     }
     
@@ -521,21 +542,20 @@ export function isSyrinscapeLoaded() {
 export function isSyrinscapeAuthenticated() {
     try {
         return isSyrinscapeLoaded() && syrinscape.config.authenticated;
-    } catch (error) {
+    } catch (_error) {
         return false;
     }
 }
 
 export function resetArtwork() {
     // get the syrinscape player div and set the background image to the default image
-    document.querySelectorAll('.syrinscape').forEach((element) => {
+    activeDocument.querySelectorAll('.syrinscape').forEach((element) => {
         const syrinscapeDiv = element as HTMLDivElement;
-        syrinscapeDiv.style.backgroundImage = 'url("https://syrinscape.com/static/img/BG-Base.jpg")';
+        syrinscapeDiv.style.backgroundImage = `url("${SYRINSCAPE_BG_IMAGE}")`;
     });
     // reset the title to "Syrinscape Player"
-    document.querySelectorAll('.title h2').forEach((element) => {
+    activeDocument.querySelectorAll('.title h2').forEach((element) => {
         const title = element as HTMLHeadingElement;
         title.textContent = 'Syrinscape Player';
     });
 }
-

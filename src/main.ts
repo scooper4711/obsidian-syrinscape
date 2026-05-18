@@ -198,8 +198,9 @@ export default class SyrinscapePlugin extends Plugin {
    */
   private loadExternalScript(scriptUrl: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      // Create script element
-      const script = document.createElement('script');
+      // Create script element — using native DOM API here because Obsidian's
+      // createEl doesn't properly trigger script loading when appended to head
+      const script = document.createElement('script') as HTMLScriptElement;
       script.src = scriptUrl;
 
       // Resolve promise once script loads

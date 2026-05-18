@@ -96,7 +96,7 @@ export class SyrinscapePlayerWidget extends WidgetType {
     }
 
     toDOM() {
-        const element = document.createElement("span");
+        const element = createSpan();
         this.sound.renderSpan(element);
         return element;
     }
