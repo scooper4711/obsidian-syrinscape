@@ -1,7 +1,8 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import SyrinscapePlugin from 'main';
 import { DEFAULT_SETTINGS } from 'main';
-import { isSyrinscapeDefined, SyrinscapePlayerView, VIEW_TYPE } from 'SyrinscapePlayerView';
+import { isSyrinscapeDefined } from 'SyrinscapeUtils';
+import { SyrinscapePlayerView, VIEW_TYPE } from 'SyrinscapePlayerView';
 
 export class SyrinscapeSettingsTab extends PluginSettingTab {
   plugin: SyrinscapePlugin;

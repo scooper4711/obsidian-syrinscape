@@ -10,6 +10,7 @@ export default defineConfig({
       'SyrinscapeSound': path.resolve(__dirname, 'src/SyrinscapeSound.ts'),
       'SyrinscapeSuggest': path.resolve(__dirname, 'src/SyrinscapeSuggest.ts'),
       'SyrinscapePlayerView': path.resolve(__dirname, 'src/SyrinscapePlayerView.ts'),
+      'SyrinscapeUtils': path.resolve(__dirname, 'src/SyrinscapeUtils.ts'),
       'SyrinscapeRenderChild': path.resolve(__dirname, 'src/SyrinscapeRenderChild.ts'),
       'SyrinscapePlayerWidget': path.resolve(__dirname, 'src/SyrinscapePlayerWidget.ts'),
       'SyrinscapeSettingsTab': path.resolve(__dirname, 'src/SyrinscapeSettingsTab.ts'),

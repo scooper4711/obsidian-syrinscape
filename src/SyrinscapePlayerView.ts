@@ -2,7 +2,8 @@ import { ItemView, Notice, WorkspaceLeaf } from "obsidian";
 import SyrinscapePlugin from "./main";
 import { debug } from "./SyrinscapeDebug";
 import { registerForSyrinscapeEvents, unregisterForSyrinscapeEvents, setAllStopped, SYRINSCAPE_CLASS } from "SyrinscapeSound";
-import { SYRINSCAPE_BG_IMAGE, SYRINSCAPE_LOGO_IMAGE } from "./assets";
+import { SYRINSCAPE_LOGO_IMAGE } from "./assets";
+import { isSyrinscapeDefined, isSyrinscapeAuthenticated, loginToSyrinscape } from "./SyrinscapeUtils";
 export const VIEW_TYPE = "syrinscape-player";
 
 export class SyrinscapePlayerView extends ItemView {
@@ -82,8 +83,6 @@ export class SyrinscapePlayerView extends ItemView {
             this.buildLaunchButton(this.interfaceDiv);
             this.controlsDiv = this.interfaceDiv.createDiv({ cls: 'controls' });
             this.buildStopButton(this.controlsDiv);
-            // create a button with the image of the syrinscape logo
-            // Set local volume when the slider changes
             this.buildVolumeControls(this.controlsDiv);
             this.title = this.interfaceDiv.createDiv({ cls: 'title' }).createEl('h2', { text: 'Syrinscape Player' }) as HTMLHeadingElement;
             this.controlsDiv.classList.add('is-hidden');
@@ -246,7 +245,6 @@ export class SyrinscapePlayerView extends ItemView {
     private buildVisualizer(visualisationsDiv: HTMLDivElement) {
         const frequency = visualisationsDiv.createSvg('svg', { cls: 'd3-frequency' });
         const waveform = visualisationsDiv.createSvg('svg', { cls: 'd3-waveform' });
-
         return { 'frequency': frequency, 'waveform': waveform }
     }
 
@@ -370,7 +368,6 @@ export class SyrinscapePlayerView extends ItemView {
         debug('Player active.');
         registerForSyrinscapeEvents();
         if (this.localVolume) this.localVolume.value = syrinscape.config.lastLocalVolume || '1';
-
         this.subscribeToArtworkChanges();
         this.subscribeToVolumeEvents();
         this.subscribeToVisualizerUpdates();
@@ -499,64 +496,4 @@ export class SyrinscapePlayerView extends ItemView {
         debug('Unsubscribed from all events.');
     }
 
-}
-
-function loginToSyrinscape(authToken: string) {
-    try {
-        if (!syrinscape.config.audioContext)
-            syrinscape.config.audioContext = new AudioContext();
-        // Auth token.
-        syrinscape.config.token = authToken;
-        // Wait until async token change is finished, because `sessionId` might change.
-        syrinscape.config.sync();
-    } catch (error) {
-        console.error('Syrinscape - Error configuring player:', error);
-        new Notice('Failed to configure Syrinscape player. Please check the console for more information.');
-    }
-}
-
-/**
- * 
- * @returns true if the syrinscape object is defined in the window, false otherwise
- */
-export function isSyrinscapeDefined() {
-    return 'syrinscape' in window;
-
-}
-/**
- * 
- * @returns true if the syrinscape object is defined in the window and has the necessary properties, false otherwise
- */
-export function isSyrinscapeLoaded() {
-    try {
-        return isSyrinscapeDefined() && syrinscape.config && syrinscape.player?.syncSystem?.events;
-    } catch (_error) {
-        return false;
-    }
-    
-}
-
-/**
- * 
- * @returns true if the syrinscape object is defined in the window and is authenticated, false otherwise
- */
-export function isSyrinscapeAuthenticated() {
-    try {
-        return isSyrinscapeLoaded() && syrinscape.config.authenticated;
-    } catch (_error) {
-        return false;
-    }
-}
-
-export function resetArtwork() {
-    // get the syrinscape player div and set the background image to the default image
-    activeDocument.querySelectorAll('.syrinscape').forEach((element) => {
-        const syrinscapeDiv = element as HTMLDivElement;
-        syrinscapeDiv.style.backgroundImage = `url("${SYRINSCAPE_BG_IMAGE}")`;
-    });
-    // reset the title to "Syrinscape Player"
-    activeDocument.querySelectorAll('.title h2').forEach((element) => {
-        const title = element as HTMLHeadingElement;
-        title.textContent = 'Syrinscape Player';
-    });
 }

@@ -1,7 +1,7 @@
 export const SYRINSCAPE_CLASS = 'syrinscape-markdown';
 import { Notice } from "obsidian";
 import { debug } from "./SyrinscapeDebug";
-import { isSyrinscapeAuthenticated, resetArtwork } from "SyrinscapePlayerView";
+import { isSyrinscapeAuthenticated, resetArtwork } from "SyrinscapeUtils";
 
 const unsubscribeCallbacks: (() => void)[] = [];
 

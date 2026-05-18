@@ -2,12 +2,12 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { setDebug } from '../src/SyrinscapeDebug';
 import { resetSyrinscapeMock, syrinscapeMock } from './syrinscapeMock';
 
-vi.mock('SyrinscapePlayerView', () => ({
+vi.mock('SyrinscapeUtils', () => ({
   isSyrinscapeAuthenticated: vi.fn(() => true),
   resetArtwork: vi.fn(),
 }));
 
-import { isSyrinscapeAuthenticated, resetArtwork } from 'SyrinscapePlayerView';
+import { isSyrinscapeAuthenticated, resetArtwork } from 'SyrinscapeUtils';
 import {
   SyrinscapeSound,
   SYRINSCAPE_CLASS,

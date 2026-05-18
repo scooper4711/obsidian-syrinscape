@@ -21,11 +21,13 @@ vi.mock('SyrinscapeSettingsTab', () => ({
 import {
   SyrinscapePlayerView,
   VIEW_TYPE,
+} from '../src/SyrinscapePlayerView';
+import {
   isSyrinscapeDefined,
   isSyrinscapeLoaded,
   isSyrinscapeAuthenticated,
   resetArtwork,
-} from '../src/SyrinscapePlayerView';
+} from '../src/SyrinscapeUtils';
 import SyrinscapePlugin from '../src/main';
 import { SYRINSCAPE_CLASS } from '../src/SyrinscapeSound';
 

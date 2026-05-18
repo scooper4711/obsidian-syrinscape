@@ -1,10 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { setDebug } from '../src/SyrinscapeDebug';
 
-vi.mock('SyrinscapePlayerView', () => ({
+vi.mock('SyrinscapeUtils', () => ({
   isSyrinscapeDefined: vi.fn(() => false),
   isSyrinscapeAuthenticated: vi.fn(() => false),
   resetArtwork: vi.fn(),
+}));
+
+vi.mock('SyrinscapePlayerView', () => ({
   SyrinscapePlayerView: vi.fn(),
   VIEW_TYPE: 'syrinscape-player',
 }));
