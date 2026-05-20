@@ -171,45 +171,38 @@ export default class SyrinscapePlugin extends Plugin {
   async saveSettings() {
     await this.saveData(this.settings);
   }
+
+  /**
+   * Allowed external scripts for the Syrinscape player SDK.
+   * These are the only URLs that loadExternalScript will accept.
+   */
+  private static readonly SYRINSCAPE_SCRIPTS = [
+    'https://syrinscape.com/integration.js',
+    'https://syrinscape.com/player.js',
+    'https://syrinscape.com/visualisation.js',
+  ] as const;
+
   /**
    * Load the Syrinscape scripts that construct the player.
    */
   private async loadSyrinscapeScripts() {
-    this.loadExternalScript("https://syrinscape.com/integration.js")
-      .then(() => debug("integration.js script loaded successfully."))
-      .catch(error => console.error("Error loading script:", error));
-
-    this.loadExternalScript("https://syrinscape.com/player.js")
-      .then(() => debug("player.js script loaded successfully."))
-      .catch(error => console.error("Error loading script:", error));
-
-    this.loadExternalScript("https://syrinscape.com/visualisation.js")
-      .then(() => {
-        debug("visualization.js script loaded successfully."); 
-      })
-      .catch(error => console.error("Error loading script:", error));
+    for (const script of SyrinscapePlugin.SYRINSCAPE_SCRIPTS) {
+      this.loadExternalScript(script)
+        .then(() => debug(`${script} loaded successfully.`))
+        .catch(error => console.error("Error loading script:", error));
+    }
   }
 
-
   /**
-   * Load an external script.
-   * @param scriptUrl the URL of the script to load
-   * @returns a promise that resolves when the script is loaded
+   * Load an allowed Syrinscape SDK script.
+   * Only URLs in SYRINSCAPE_SCRIPTS are accepted.
    */
-  private loadExternalScript(scriptUrl: string): Promise<void> {
+  private loadExternalScript(scriptUrl: typeof SyrinscapePlugin.SYRINSCAPE_SCRIPTS[number]): Promise<void> {
     return new Promise((resolve, reject) => {
-      // Create script element — using native DOM API here because Obsidian's
-      // createEl doesn't properly trigger script loading when appended to head
       const script = document.createElement('script') as HTMLScriptElement;
       script.src = scriptUrl;
-
-      // Resolve promise once script loads
       script.onload = () => resolve();
-
-      // Reject promise if there's an error loading the script
       script.onerror = () => reject(new Error(`Failed to load script: ${scriptUrl}`));
-
-      // Append script to document head
       document.head.appendChild(script);
     });
   }
