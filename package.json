@@ -28,7 +28,7 @@
     "tslib": "2.6.3",
     "typescript": "5.5.3",
     "typescript-eslint": "^7.17.0",
-    "vitest": "^4.1.6"
+    "vitest": "^4.1.9"
   },
   "dependencies": {
     "@codemirror/language": "^6.10.2",
