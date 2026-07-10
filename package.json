@@ -18,7 +18,7 @@
     "@types/node": "^26.1.1",
     "@types/papaparse": "^5.5.2",
     "@typescript-eslint/eslint-plugin": "7.17.0",
-    "@typescript-eslint/parser": "7.17.0",
+    "@typescript-eslint/parser": "8.63.0",
     "@vitest/coverage-v8": "^4.1.10",
     "esbuild": "0.28.1",
     "eslint": "^8.56.0",
