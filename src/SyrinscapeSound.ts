@@ -44,7 +44,7 @@ export class SyrinscapeSound {
         const label = syrinscapeDiv.createEl("label", { cls: 'switch' ,  title: this.title ? `Play "${this.title}"` : "Play" });
         const input = label.createEl("input", { type: 'checkbox', cls: `${this.type} syrinscape-${this.id}` }) as HTMLInputElement;
         const span = label.createSpan({ cls: `slider round ${this.type}` });
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars -- event parameter required by addEventListener signature
+         
         input.addEventListener('change', (e) => {
             if (input.checked) {
                 if (this.type === 'mood') {

@@ -149,11 +149,11 @@ declare global {
     createEl(tag: string, options?: Record<string, unknown>): HTMLElement;
     appendText(text: string): void;
   }
-  // eslint-disable-next-line no-var
+   
   var syrinscape: typeof import('./syrinscapeMock').syrinscapeMock;
-  // eslint-disable-next-line no-var
+   
   var activeDocument: Document;
-  // eslint-disable-next-line no-var
+   
   var activeWindow: Window & typeof globalThis;
   function createSpan(options?: Record<string, unknown>): HTMLSpanElement;
   function createEl(tag: string, options?: Record<string, unknown>): HTMLElement;

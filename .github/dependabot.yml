@@ -10,12 +10,24 @@ updates:
     schedule:
       interval: "weekly"
     ignore:
+      # CodeMirror versions are dictated by Obsidian — never bump independently
       - dependency-name: "@codemirror/*"
-        update-types: ["version-update:semver-minor", "version-update:semver-patch"]
+      - dependency-name: "codemirror"
       - dependency-name: "obsidian"
     groups:
+      eslint:
+        patterns:
+          - "eslint"
+          - "@eslint/*"
+          - "typescript-eslint"
+          - "globals"
       dev-dependencies:
         dependency-type: "development"
+        exclude-patterns:
+          - "eslint"
+          - "@eslint/*"
+          - "typescript-eslint"
+          - "globals"
         update-types:
           - "minor"
           - "patch"

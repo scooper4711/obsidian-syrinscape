@@ -48,7 +48,7 @@ describe('SyrinscapeSettingsTab', () => {
   });
 
   it('display() empties the container and creates settings', () => {
-    const emptySpy = vi.spyOn(tab.containerEl, 'innerHTML', 'set');
+    const _emptySpy = vi.spyOn(tab.containerEl, 'innerHTML', 'set');
     tab.display();
     // After display, the container should have child elements (settings)
     // The Setting mock creates elements, so we just verify no error thrown

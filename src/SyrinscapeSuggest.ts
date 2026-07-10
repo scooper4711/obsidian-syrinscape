@@ -119,7 +119,7 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeSound> {
         return el.createSpan({cls: "syrinscape-suggestion", text: `${suggestion.type}:${suggestion.id}:${suggestion.title}`});
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- event parameter required by EditorSuggest interface
+     
     selectSuggestion(suggestion: SyrinscapeSound, _evt: MouseEvent | KeyboardEvent): void {
         debug('selectSuggestion:', suggestion);
         const editor = this.context!.editor;
@@ -146,7 +146,7 @@ export default class SyrinscapeSuggest extends EditorSuggest<SyrinscapeSound> {
      * If it does, then it should return an EditorSuggestTriggerInfo object with the range of the trigger word and the query.
      * That EditorSuggestTriggerInfo object will be passed to getSuggestions as an EditorSuggestContext.
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- file parameter required by EditorSuggest interface
+     
     onTrigger(cursor: EditorPosition, editor: Editor, _file: TFile | null): EditorSuggestTriggerInfo | null {
         const triggerWord = `\`${this.plugin.settings.triggerWord}:`;        
 
