@@ -115,27 +115,60 @@ export class SyrinscapeSound {
     * Uses the local Syrinscape player to control the sound.
     * @param cmd - The command to send to the local player - either play or stop.
     */
-    public callSyrinscapeApi(cmd: string) {
+    public async callSyrinscapeApi(cmd: string) {
         debug(cmd," ", this.title,"-",this.id,"-",this.type);
         try {
             if (isSyrinscapeAuthenticated()) {
                 if (this.type === 'mood') {
                     if (cmd === 'play') {
-                        syrinscape.player.controlSystem.startMood(this.id);
+                        await syrinscape.player.controlSystem.startMood(this.id);
                     } else {
-                        syrinscape.player.controlSystem.stopMood(this.id);
+                        await syrinscape.player.controlSystem.stopMood(this.id);
                     }
                 } else {
                     if (cmd === 'play') {
-                        syrinscape.player.controlSystem.startElements([this.id]);
+                        await syrinscape.player.controlSystem.startElements([this.id]);
                     } else {
-                        syrinscape.player.controlSystem.stopElements([this.id]);
+                        await syrinscape.player.controlSystem.stopElements([this.id]);
                     }
                 }
             }
 
         } catch (error) {
-            new Notice(`Failed to ${cmd} ${this.title} in Syrinscape: ${error}`);
+            if (this.isAuthorizationError(error)) {
+                new Notice(`You don't have access to "${this.title}". Check your Syrinscape subscription.`);
+                this.deactivateSlider();
+            } else {
+                new Notice(`Failed to ${cmd} ${this.title} in Syrinscape: ${error}`);
+            }
+        }
+    }
+
+    /**
+     * Determines if an error represents an authorization failure (HTTP 403).
+     */
+    private isAuthorizationError(error: unknown): boolean {
+        if (error instanceof Error) {
+            const message = error.message.toLowerCase();
+            return message.includes('403') || message.includes('forbidden') || message.includes('not authorized');
+        }
+        if (typeof error === 'object' && error !== null) {
+            const status = (error as Record<string, unknown>)['status'];
+            return status === 403;
+        }
+        return false;
+    }
+
+    /**
+     * Resets all sliders/checkboxes for this sound back to the deactivated state.
+     */
+    private deactivateSlider() {
+        activeDocument.querySelectorAll(`.${this.type}.syrinscape-${this.id}`).forEach((element) => {
+            const inputElement = element as HTMLInputElement;
+            inputElement.checked = false;
+        });
+        if (this.type === 'mood') {
+            resetArtwork();
         }
     }
 
