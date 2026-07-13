@@ -62,9 +62,9 @@ export class SyrinscapeSound {
                         inputElement.checked = true;
                     });
                 }
-                this.callSyrinscapeApi("play");
+                void this.callSyrinscapeApi("play");
             } else {
-                this.callSyrinscapeApi("stop");
+                void this.callSyrinscapeApi("stop");
                 if (this.type === 'mood') {
                     activeDocument.querySelectorAll(`.${this.type}.syrinscape-${this.id}`).forEach((element) => {
                         const inputElement = element as HTMLInputElement;
@@ -107,7 +107,7 @@ export class SyrinscapeSound {
         }
         play.addEventListener("click", (e) => {
             e.preventDefault();
-            this.callSyrinscapeApi("play");
+            void this.callSyrinscapeApi("play");
         });
     }
 
