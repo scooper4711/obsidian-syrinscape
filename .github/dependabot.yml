@@ -14,6 +14,9 @@ updates:
       - dependency-name: "@codemirror/*"
       - dependency-name: "codemirror"
       - dependency-name: "obsidian"
+      # typescript-eslint caps at <6.1.0 — block major bumps until ecosystem catches up
+      - dependency-name: "typescript"
+        versions: [">=6.0.0"]
     groups:
       eslint:
         patterns:
