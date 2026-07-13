@@ -88,7 +88,7 @@ export default class SyrinscapePlugin extends Plugin {
         await leaf.setViewState({ type: VIEW_TYPE, active: true });
 
         // "Reveal" the leaf in case it is in a collapsed sidebar
-        workspace.revealLeaf(leaf);
+        void workspace.revealLeaf(leaf);
     }
   }
 }
