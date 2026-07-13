@@ -135,7 +135,7 @@ export class SyrinscapePlayerView extends ItemView {
      */
     private buildActivateButton(ctaDiv: HTMLDivElement) {
         const activateButton = ctaDiv.createEl('button', { text: 'Activate' });
-        activateButton.addEventListener('click', this.activateSyrinscape.bind(this));
+        activateButton.addEventListener('click', () => { void this.activateSyrinscape(); });
         activateButton.setAttribute('aria-label', 'Activate Syrinscape player');
         return activateButton;
     }
@@ -179,12 +179,12 @@ export class SyrinscapePlayerView extends ItemView {
     private buildVolumeControls(parentDiv: HTMLDivElement) {
         const volumeStack = parentDiv.createDiv({ cls: 'volume-stack' });
 
-        this.localVolume = this.createVolumeSlider(volumeStack, 'local-volume', async (value: string) => {
+        this.localVolume = this.createVolumeSlider(volumeStack, 'local-volume', (value: string) => {
             syrinscape.player.audioSystem.setLocalVolume(value);
             // Convert volume (0-1.5) to percentage (0-100) for storage
             const percentage = (Number.parseFloat(value) / 1.5 * 100).toString();
             this.plugin.settings.lastVolume = percentage;
-            await this.plugin.saveData(this.plugin.settings);
+            void this.plugin.saveData(this.plugin.settings);
         }, 'Local');
         
         this.createVolumeSlider(volumeStack, 'oneshot-volume', (value: string) => {
