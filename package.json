@@ -33,6 +33,7 @@
     "@codemirror/state": "6.5.0",
     "@codemirror/view": "6.38.6",
     "codemirror": "^6.0.2",
-    "papaparse": "^5.5.4"
+    "papaparse": "^5.5.4",
+    "syrinscape-sdk": "file:./vendor/syrinscape-sdk"
   }
 }
