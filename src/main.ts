@@ -55,7 +55,7 @@ export default class SyrinscapePlugin extends Plugin {
     );
     
     this.addRibbonIcon("speaker", "Open Syrinscape Player", () => {
-      this.activateView();
+      void this.activateView();
     });
 
     this.registerEditorExtension([inlinePlugin(this)]);
@@ -63,7 +63,7 @@ export default class SyrinscapePlugin extends Plugin {
     this.app.workspace.onLayoutReady(() => {
       this.editorSuggest = new SyrinscapeSuggest(this.app, this);
       this.registerEditorSuggest(this.editorSuggest);
-      this.editorSuggest.fetchRemoteLinks();      
+      void this.editorSuggest.fetchRemoteLinks();      
       console.log("Syrinscape loaded");
     });
   }
@@ -99,7 +99,7 @@ export default class SyrinscapePlugin extends Plugin {
   clearCache() {
     this.settings.csvContent = '';
     this.settings.lastUpdated = null;
-    this.saveSettings();
+    void this.saveSettings();
   }
 
   /**

@@ -41,7 +41,7 @@ export class SyrinscapeSettingsTab extends PluginSettingTab {
             for (const leaf of this.plugin.app.workspace.getLeavesOfType(VIEW_TYPE)) {
               const view = leaf.view;
               if (view instanceof SyrinscapePlayerView) {
-                view.activateSyrinscape();
+                void view.activateSyrinscape();
               }
             }
           await this.plugin.saveData(this.plugin.settings);
@@ -88,9 +88,9 @@ export class SyrinscapeSettingsTab extends PluginSettingTab {
       .setDesc(buttonDesc)
       .addButton(button => button
         .setButtonText('Clear remote links')
-        .onClick(async () => {
+        .onClick(() => {
           this.plugin.clearCache();
-          this.plugin.editorSuggest?.fetchRemoteLinks();
+          void this.plugin.editorSuggest?.fetchRemoteLinks();
       }));
 
     // Create a button for the boolean setting to enable debug logging
