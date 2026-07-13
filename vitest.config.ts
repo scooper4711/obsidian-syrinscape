@@ -14,6 +14,7 @@ export default defineConfig({
       'SyrinscapeRenderChild': path.resolve(__dirname, 'src/SyrinscapeRenderChild.ts'),
       'SyrinscapePlayerWidget': path.resolve(__dirname, 'src/SyrinscapePlayerWidget.ts'),
       'SyrinscapeSettingsTab': path.resolve(__dirname, 'src/SyrinscapeSettingsTab.ts'),
+      'syrinscape-sdk': path.resolve(__dirname, 'tests/__mocks__/syrinscape-sdk.ts'),
       './assets': path.resolve(__dirname, 'src/assets.ts'),
     }
   },
@@ -21,6 +22,11 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
+    server: {
+      deps: {
+        external: ['syrinscape-sdk'],
+      }
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],

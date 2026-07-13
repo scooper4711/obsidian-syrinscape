@@ -1,0 +1,8 @@
+{
+  "name": "syrinscape-sdk",
+  "version": "1.0.0",
+  "description": "Vendored Syrinscape Online Player SDK scripts",
+  "main": "index.js",
+  "license": "UNLICENSED",
+  "private": true
+}

@@ -7,6 +7,10 @@ import { SyrinscapeRenderChild } from 'SyrinscapeRenderChild';
 import { inlinePlugin } from 'SyrinscapePlayerWidget';
 import { SyrinscapeSound } from 'SyrinscapeSound';
 
+// Load the Syrinscape SDK as a bundled dependency (side-effect import).
+// The SDK attaches itself to window.syrinscape on execution.
+import 'syrinscape-sdk';
+
 export interface SyrinscapeSettings {
   debug: boolean;
   authToken: string;
@@ -39,8 +43,6 @@ export default class SyrinscapePlugin extends Plugin {
     
     // Trigger Style Settings to parse our CSS variables
     this.app.workspace.trigger('parse-style-settings');
-    
-    await this.loadSyrinscapeScripts();
 
     this.addSettingTab(new SyrinscapeSettingsTab(this.app, this));
 
@@ -172,40 +174,4 @@ export default class SyrinscapePlugin extends Plugin {
     await this.saveData(this.settings);
   }
 
-  /**
-   * Allowed external scripts for the Syrinscape player SDK.
-   * These are the only URLs that loadExternalScript will accept.
-   */
-  private static readonly SYRINSCAPE_SCRIPTS = [
-    'https://syrinscape.com/integration.js',
-    'https://syrinscape.com/player.js',
-    'https://syrinscape.com/visualisation.js',
-  ] as const;
-
-  /**
-   * Load the Syrinscape scripts that construct the player.
-   */
-  private async loadSyrinscapeScripts() {
-    for (const script of SyrinscapePlugin.SYRINSCAPE_SCRIPTS) {
-      this.loadExternalScript(script)
-        .then(() => debug(`${script} loaded successfully.`))
-        .catch(error => console.error("Error loading script:", error));
-    }
-  }
-
-  /**
-   * Load an allowed Syrinscape SDK script.
-   * Only URLs in SYRINSCAPE_SCRIPTS are accepted.
-   */
-  private loadExternalScript(scriptUrl: typeof SyrinscapePlugin.SYRINSCAPE_SCRIPTS[number]): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const script = document.createElement('script') as HTMLScriptElement;
-      script.src = scriptUrl;
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error(`Failed to load script: ${scriptUrl}`));
-      document.head.appendChild(script);
-    });
-  }
-
 }
-
