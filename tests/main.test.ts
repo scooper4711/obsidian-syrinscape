@@ -18,7 +18,9 @@ vi.mock('SyrinscapeRenderChild', () => ({
 }));
 
 vi.mock('SyrinscapeSuggest', () => ({
-  default: vi.fn(),
+  default: vi.fn(function () {
+    this.fetchRemoteLinks = vi.fn().mockResolvedValue(undefined);
+  }),
 }));
 
 vi.mock('SyrinscapeSettingsTab', () => ({
@@ -252,6 +254,37 @@ describe('SyrinscapePlugin', () => {
 
       await plugin.markdownPostProcessor(element, context as unknown as never);
       expect(context.addChild).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('onload', () => {
+    it('registers all plugin components', async () => {
+      await plugin.onload();
+
+      expect(plugin.addSettingTab).toHaveBeenCalled();
+      expect(plugin.registerMarkdownPostProcessor).toHaveBeenCalled();
+      expect(plugin.registerView).toHaveBeenCalled();
+      expect(plugin.addRibbonIcon).toHaveBeenCalledWith('speaker', 'Open Syrinscape Player', expect.any(Function));
+      expect(plugin.registerEditorExtension).toHaveBeenCalled();
+      expect(plugin.registerEditorSuggest).toHaveBeenCalled();
+    });
+
+    it('triggers parse-style-settings on workspace', async () => {
+      await plugin.onload();
+      expect(plugin.app.workspace.trigger).toHaveBeenCalledWith('parse-style-settings');
+    });
+
+    it('sets up editor suggest on layout ready', async () => {
+      await plugin.onload();
+      expect(plugin.editorSuggest).not.toBeNull();
+    });
+
+    it('ribbon icon callback calls activateView', async () => {
+      await plugin.onload();
+      const ribbonCallback = (plugin.addRibbonIcon as ReturnType<typeof vi.fn>).mock.calls[0][2];
+      const spy = vi.spyOn(plugin, 'activateView').mockResolvedValue(undefined);
+      ribbonCallback();
+      expect(spy).toHaveBeenCalled();
     });
   });
 

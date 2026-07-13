@@ -373,42 +373,49 @@ describe('SyrinscapePlayerView class', () => {
   });
 
   describe('setLocalVolume event', () => {
-    it('updates volume slider and mute icon for zero volume', async () => {
+    async function activateWithOnActive() {
+      vi.useFakeTimers();
+      syrinscapeMock.config.authenticated = true;
+      syrinscapeMock.player.init.mockImplementation((opts: { configure: () => void; onActive: () => void; onInactive: () => void }) => {
+        opts.onActive();
+      });
       await view.onOpen();
-      // Trigger the setLocalVolume event
+      await view.activateSyrinscape();
+      await vi.advanceTimersByTimeAsync(300);
+      vi.useRealTimers();
+    }
+
+    it('updates volume slider and mute icon for zero volume', async () => {
+      await activateWithOnActive();
       const callback = syrinscapeMock.events.setLocalVolume.addListener.mock.calls[0]?.[0];
-      if (callback) {
-        callback({ detail: '0' });
-        expect(view.localVolume?.value).toBe('0');
-        expect(view.mute?.textContent).toBe('🔇');
-      }
+      expect(callback).toBeDefined();
+      callback!({ detail: '0' });
+      expect(view.localVolume?.value).toBe('0');
+      expect(view.mute?.textContent).toBe('🔇');
     });
 
     it('updates mute icon for low volume', async () => {
-      await view.onOpen();
+      await activateWithOnActive();
       const callback = syrinscapeMock.events.setLocalVolume.addListener.mock.calls[0]?.[0];
-      if (callback) {
-        callback({ detail: '0.3' });
-        expect(view.mute?.textContent).toBe('🔈');
-      }
+      expect(callback).toBeDefined();
+      callback!({ detail: '0.3' });
+      expect(view.mute?.textContent).toBe('🔈');
     });
 
     it('updates mute icon for medium volume', async () => {
-      await view.onOpen();
+      await activateWithOnActive();
       const callback = syrinscapeMock.events.setLocalVolume.addListener.mock.calls[0]?.[0];
-      if (callback) {
-        callback({ detail: '0.7' });
-        expect(view.mute?.textContent).toBe('🔉');
-      }
+      expect(callback).toBeDefined();
+      callback!({ detail: '0.7' });
+      expect(view.mute?.textContent).toBe('🔉');
     });
 
     it('updates mute icon for high volume', async () => {
-      await view.onOpen();
+      await activateWithOnActive();
       const callback = syrinscapeMock.events.setLocalVolume.addListener.mock.calls[0]?.[0];
-      if (callback) {
-        callback({ detail: '1.2' });
-        expect(view.mute?.textContent).toBe('🔊');
-      }
+      expect(callback).toBeDefined();
+      callback!({ detail: '1.2' });
+      expect(view.mute?.textContent).toBe('🔊');
     });
   });
 
@@ -573,22 +580,25 @@ describe('SyrinscapePlayerView class', () => {
 
   describe('visualizer callback', () => {
     it('calls d3 visualisation functions', async () => {
+      vi.useFakeTimers();
+      syrinscapeMock.config.authenticated = true;
       syrinscapeMock.player.init.mockImplementation((opts: { configure: () => void; onActive: () => void; onInactive: () => void }) => {
         opts.onActive();
       });
 
       await view.onOpen();
       await view.activateSyrinscape();
+      await vi.advanceTimersByTimeAsync(300);
+      vi.useRealTimers();
 
       // Get the visualisation callback and invoke it
       const visCallback = syrinscapeMock.visualisation.add.mock.calls[0]?.[1];
-      if (visCallback) {
-        const result = visCallback();
-        expect(syrinscapeMock.player.audioEffectSystem.analyser.getData).toHaveBeenCalled();
-        expect(syrinscapeMock.visualisation.d3VisualiseFrequencyData).toHaveBeenCalled();
-        expect(syrinscapeMock.visualisation.d3VisualiseWaveformData).toHaveBeenCalled();
-        expect(result).toBe(true);
-      }
+      expect(visCallback).toBeDefined();
+      const result = visCallback!();
+      expect(syrinscapeMock.player.audioEffectSystem.analyser.getData).toHaveBeenCalled();
+      expect(syrinscapeMock.visualisation.d3VisualiseFrequencyData).toHaveBeenCalled();
+      expect(syrinscapeMock.visualisation.d3VisualiseWaveformData).toHaveBeenCalled();
+      expect(result).toBe(true);
     });
   });
 

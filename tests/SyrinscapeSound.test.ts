@@ -306,14 +306,90 @@ describe('SyrinscapeSound', () => {
       expect(syrinscapeMock.player.controlSystem.startMood).not.toHaveBeenCalled();
     });
 
-    it('shows notice on error', () => {
+    it('shows notice on error', async () => {
       vi.mocked(isSyrinscapeAuthenticated).mockReturnValue(true);
-      syrinscapeMock.player.controlSystem.startMood.mockImplementationOnce(() => {
-        throw new Error('Connection failed');
-      });
+      syrinscapeMock.player.controlSystem.startMood.mockRejectedValueOnce(new Error('Connection failed'));
       const sound = new SyrinscapeSound('200', 'mood', 'Battle');
-      // Should not throw
-      expect(() => sound.callSyrinscapeApi('play')).not.toThrow();
+      await expect(sound.callSyrinscapeApi('play')).resolves.not.toThrow();
+    });
+
+    it('shows authorization notice and deactivates slider on 403 error', async () => {
+      vi.mocked(isSyrinscapeAuthenticated).mockReturnValue(true);
+      syrinscapeMock.player.controlSystem.startMood.mockRejectedValueOnce(new Error('403 Forbidden'));
+      const sound = new SyrinscapeSound('200', 'mood', 'Battle');
+      const parent = document.createElement('div');
+      document.body.appendChild(parent);
+      sound.renderSpan(parent);
+
+      const input = parent.querySelector('input[type="checkbox"]') as HTMLInputElement;
+      input.checked = true;
+
+      await sound.callSyrinscapeApi('play');
+
+      expect(input.checked).toBe(false);
+    });
+
+    it('detects forbidden error message as authorization error', async () => {
+      vi.mocked(isSyrinscapeAuthenticated).mockReturnValue(true);
+      syrinscapeMock.player.controlSystem.startElements.mockRejectedValueOnce(new Error('User is not authorized'));
+      const sound = new SyrinscapeSound('100', 'oneshot', 'Thunder');
+      const parent = document.createElement('div');
+      document.body.appendChild(parent);
+      sound.renderSpan(parent);
+
+      await sound.callSyrinscapeApi('play');
+      // Should not throw, handled internally
+    });
+
+    it('detects object with status 403 as authorization error', async () => {
+      vi.mocked(isSyrinscapeAuthenticated).mockReturnValue(true);
+      syrinscapeMock.player.controlSystem.startMood.mockRejectedValueOnce({ status: 403 });
+      const sound = new SyrinscapeSound('200', 'mood', 'Battle');
+      const parent = document.createElement('div');
+      document.body.appendChild(parent);
+      sound.renderSpan(parent);
+
+      const input = parent.querySelector('input[type="checkbox"]') as HTMLInputElement;
+      input.checked = true;
+
+      await sound.callSyrinscapeApi('play');
+
+      expect(input.checked).toBe(false);
+    });
+
+    it('deactivateSlider resets artwork for mood type', async () => {
+      vi.mocked(isSyrinscapeAuthenticated).mockReturnValue(true);
+      syrinscapeMock.player.controlSystem.startMood.mockRejectedValueOnce(new Error('403'));
+      const sound = new SyrinscapeSound('200', 'mood', 'Battle');
+      const parent = document.createElement('div');
+      document.body.appendChild(parent);
+      sound.renderSpan(parent);
+
+      await sound.callSyrinscapeApi('play');
+
+      expect(resetArtwork).toHaveBeenCalled();
+    });
+
+    it('deactivateSlider does not reset artwork for non-mood type', async () => {
+      vi.mocked(isSyrinscapeAuthenticated).mockReturnValue(true);
+      syrinscapeMock.player.controlSystem.startElements.mockRejectedValueOnce(new Error('403'));
+      const sound = new SyrinscapeSound('300', 'sfx', 'Rain');
+      const parent = document.createElement('div');
+      document.body.appendChild(parent);
+      sound.renderSpan(parent);
+
+      vi.mocked(resetArtwork).mockClear();
+      await sound.callSyrinscapeApi('play');
+
+      expect(resetArtwork).not.toHaveBeenCalled();
+    });
+
+    it('treats non-Error non-object as non-authorization error', async () => {
+      vi.mocked(isSyrinscapeAuthenticated).mockReturnValue(true);
+      syrinscapeMock.player.controlSystem.startMood.mockRejectedValueOnce('string error');
+      const sound = new SyrinscapeSound('200', 'mood', 'Battle');
+
+      await expect(sound.callSyrinscapeApi('play')).resolves.not.toThrow();
     });
   });
 
