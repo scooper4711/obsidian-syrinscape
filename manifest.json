@@ -1,10 +1,10 @@
 {
   "id": "syrinscape-player-control",
   "name": "Syrinscape Online Player",
-  "version": "1.9.4",
+  "version": "1.10.0",
   "description": "Control Syrinscape Online Player from inside of notes.",
   "author": "Stephen Cooper",
   "authorUrl": "https://github.com/scooper4711",
   "isDesktopOnly": false,
-  "minAppVersion": "1.9.0"
+  "minAppVersion": "1.12.7"
 }
