@@ -36,9 +36,9 @@ export class SyrinscapePlayerView extends ItemView {
                     syrinscape.player?.audioSystem &&
                     syrinscape.config) {
                     // Add a small delay to ensure complete initialization
-                    activeWindow.setTimeout(resolve, 200);
+                    window.setTimeout(resolve, 200);
                 } else {
-                    activeWindow.setTimeout(checkInit, 100); // Check every 100ms
+                    window.setTimeout(checkInit, 100); // Check every 100ms
                 }
             };
             checkInit();
@@ -266,7 +266,7 @@ export class SyrinscapePlayerView extends ItemView {
                     } else if (attempts++ > 50) {
                         resolve(false);
                     } else {
-                        activeWindow.setTimeout(check, 200);
+                        window.setTimeout(check, 200);
                     }
                 };
                 check();
