@@ -19,7 +19,7 @@
     "@types/papaparse": "^5.5.2",
     "@vitest/coverage-v8": "^4.1.10",
     "esbuild": "0.28.1",
-    "eslint": "^10.0.0",
+    "eslint": "^10.7.0",
     "globals": "^17.7.0",
     "jsdom": "^29.1.1",
     "obsidian": "latest",
