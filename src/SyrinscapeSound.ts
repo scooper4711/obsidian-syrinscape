@@ -216,7 +216,7 @@ export function startElement(event: CustomEvent<{ elementId: number; timeToFirst
         const inputElement = element as HTMLInputElement;
         inputElement.classList.add('playing');
         // remove the playing class after 3 seconds
-        activeWindow.setTimeout(() => {
+        window.setTimeout(() => {
             inputElement.classList.remove('playing');
         }, 3000);
     });
