@@ -191,6 +191,35 @@ body.css-settings-manager {
     background-color: var(--mood-slider-color);
 }
 
+/* Symbols to distinguish mood (=) from music (+) sliders */
+.syrinscape-markdown .slider.mood::after {
+    content: "=";
+    position: absolute;
+    right: 0.3em;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.55em;
+    font-weight: bold;
+    line-height: 1;
+    color: var(--slider-knob-color);
+    opacity: 0.8;
+    pointer-events: none;
+}
+
+.syrinscape-markdown .slider.music::after {
+    content: "+";
+    position: absolute;
+    right: 0.3em;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.65em;
+    font-weight: bold;
+    line-height: 1;
+    color: var(--slider-knob-color);
+    opacity: 0.8;
+    pointer-events: none;
+}
+
 .syrinscape-markdown input:focus+.slider {
     box-shadow: 0 0 1px var(--slider-knob-color);
 }
