@@ -21,7 +21,7 @@
     "esbuild": "0.28.1",
     "eslint": "^10.8.0",
     "globals": "^17.8.0",
-    "jsdom": "^30.0.0",
+    "jsdom": "^30.0.1",
     "obsidian": "latest",
     "tslib": "2.8.1",
     "typescript": "5.9.3",
