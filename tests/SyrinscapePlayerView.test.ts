@@ -18,6 +18,13 @@ vi.mock('SyrinscapeSettingsTab', () => ({
   SyrinscapeSettingsTab: vi.fn(),
 }));
 
+// The real default artwork is a 106 KB data URL. jsdom 30 silently ignores url() values over 999 characters, so the
+// tests use a short stand-in; Obsidian's Chromium has no such limit.
+vi.mock('../src/assets', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../src/assets')>()),
+  SYRINSCAPE_BG_IMAGE: 'data:image/jpeg;base64,/9j/4AAQSkZJRg==',
+}));
+
 import {
   SyrinscapePlayerView,
   VIEW_TYPE,
