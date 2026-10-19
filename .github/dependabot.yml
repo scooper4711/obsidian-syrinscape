@@ -26,6 +26,8 @@ updates:
           - "globals"
       dev-dependencies:
         dependency-type: "development"
+        patterns:
+          - "*"
         exclude-patterns:
           - "eslint"
           - "@eslint/*"
@@ -36,6 +38,13 @@ updates:
           - "patch"
       production-dependencies:
         dependency-type: "production"
+        patterns:
+          - "*"
         update-types:
           - "minor"
           - "patch"
+      # Security updates aren't taken by the version-update groups above; group them too.
+      security:
+        applies-to: security-updates
+        patterns:
+          - "*"
